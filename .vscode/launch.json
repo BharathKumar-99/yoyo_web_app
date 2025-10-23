@@ -1,0 +1,40 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "yoyo_web_app",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d",
+                "chrome",
+                "--web-port",
+                "8080"
+            ]
+        },
+        {
+            "name": "yoyo_web_app (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile",
+            "args": [
+                "-d",
+                "chrome",
+                "--web-port",
+                "8080"
+            ]
+        },
+        {
+            "name": "yoyo_web_app (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release",
+            "args": [
+                "-d",
+                "chrome",
+                "--web-port",
+                "8080"
+            ]
+        }
+    ]
+}
