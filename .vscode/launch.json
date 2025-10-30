@@ -35,6 +35,19 @@
                 "--web-port",
                 "8080"
             ]
+        },
+        {
+            "name": "yoyo_web_app (LAN)",
+            "request": "launch",
+            "type": "dart",
+            "args": [
+                "-d",
+                "chrome",
+                "--web-hostname",
+                "192.168.0.106",
+                "--web-port",
+                "8080"
+            ]
         }
     ]
 }

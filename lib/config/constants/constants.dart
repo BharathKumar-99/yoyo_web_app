@@ -8,10 +8,12 @@ class ImageConstants {
   static const String appLogo = "${assetsLoc}logo.png";
   static const String schoolLogo = "${assetsLoc}school_logo.png";
   static const String logoHome = "${assetsLoc}logo_home.png";
+  static const String logoBW = "${assetsLoc}logoBW.png";
   static const String french = "${assetsLoc}french.png";
   static const String spanish = "${assetsLoc}spanish.png";
   static const String german = "${assetsLoc}german.png";
   static const String buddha = "${assetsLoc}buddha.png";
+  static const String wave = "${assetsLoc}wave.png";
 }
 
 class IconConstants {

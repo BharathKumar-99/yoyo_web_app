@@ -3,7 +3,10 @@ import 'package:go_router/go_router.dart';
 import 'package:yoyo_web_app/core/supabase/supabase_client.dart';
 import 'package:yoyo_web_app/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:yoyo_web_app/features/home/presentation/home_screen.dart';
+import 'package:yoyo_web_app/features/phrases/presentation/phrases_screen.dart';
+import '../../features/add_user/presentation/add_user.dart';
 import '../../features/login/presentation/screens/login_screen.dart';
+import '../../features/users/presentation/users_screens.dart';
 import 'route_names.dart';
 
 class AppRoutes {
@@ -27,6 +30,22 @@ class AppRoutes {
           GoRoute(
             path: RouteNames.home,
             builder: (context, state) => const HomeScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.phrases,
+            builder: (context, state) => const PhrasesScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.addPhrase,
+            builder: (context, state) => const PhrasesScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.users,
+            builder: (context, state) => const UsersScreens(),
+          ),
+          GoRoute(
+            path: RouteNames.addUsers,
+            builder: (context, state) => const AddUserScreen(),
           ),
         ],
       ),

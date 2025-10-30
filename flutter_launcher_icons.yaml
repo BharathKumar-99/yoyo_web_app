@@ -1,0 +1,7 @@
+flutter_launcher_icons:
+  android: false
+  ios: false
+  image_path: "assets/images/logoBW.png"
+  web:
+    generate: true
+    image_path: "assets/images/logoBW.png"

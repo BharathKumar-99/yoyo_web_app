@@ -41,7 +41,6 @@ class LoginViewModel extends ChangeNotifier {
   }
 
   Future<void> verifyOtp() async {
-    sentOtp = false;
     await _repo.verifyOtp(
       pinCodeController.text.trim(),
       emailController.text.trim(),

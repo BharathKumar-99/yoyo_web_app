@@ -17,7 +17,7 @@ Widget loginMobile(BuildContext context) {
               height / 2,
               width / 1.5,
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(5.0),
                 child: Column(
                   spacing: 20,
                   children: [
@@ -30,6 +30,7 @@ Widget loginMobile(BuildContext context) {
                     if (viewModel.sentOtp)
                       Column(
                         spacing: 20,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           LoginWidgets.otpField(context, viewModel, 0),
                           LoginWidgets.verifyOtpBtn(viewModel),

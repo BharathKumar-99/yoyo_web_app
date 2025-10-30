@@ -20,48 +20,49 @@ class LoginWidgets {
     child: Card(child: child),
   );
 
-  static otpField(BuildContext context, LoginViewModel vm,double padding) => Padding(
-    padding: EdgeInsets.symmetric(
-      horizontal: padding
-    ),
-    child: PinCodeTextField(
-      controller: vm.pinCodeController,
-      appContext: context,
-      length: 6,
-      onAutoFillDisposeAction: AutofillContextAction.commit,
-      onCompleted: (value) => vm.verifyOtp(),
-      keyboardType: TextInputType.number,
-      autoFocus: true,
-      textStyle: TextStyle(fontWeight: FontWeight.w400),
-      cursorColor: Colors.grey,
-      animationType: AnimationType.fade,
-      animationDuration: const Duration(milliseconds: 300),
-      enableActiveFill: true,
-      pinTheme: PinTheme(
-        shape: PinCodeFieldShape.box,
-        borderRadius: BorderRadius.circular(12),
-        activeBorderWidth: 1.5,
-        inactiveBorderWidth: 1.5,
-        selectedBorderWidth: 1.5,
-        activeFillColor: Colors.white,
-        inactiveFillColor: Colors.white,
-        selectedFillColor: Colors.grey[400],
-        activeColor: Color(0xFF6155F5),
-        inactiveColor: Colors.grey[400],
-        selectedColor: Colors.white,
-      ),
-    ),
-  );
+  static otpField(BuildContext context, LoginViewModel vm, double padding) =>
+      Padding(
+        padding: EdgeInsets.symmetric(horizontal: padding),
+        child: PinCodeTextField(
+          controller: vm.pinCodeController,
+          appContext: context,
+          length: 6,
+          onAutoFillDisposeAction: AutofillContextAction.commit,
+          onCompleted: (value) => vm.verifyOtp(),
+          keyboardType: TextInputType.number,
+          autoFocus: true,
+          textStyle: TextStyle(fontWeight: FontWeight.w400),
+          cursorColor: Colors.grey,
+          animationType: AnimationType.fade,
+          animationDuration: const Duration(milliseconds: 300),
+          enableActiveFill: true,
+          pinTheme: PinTheme(
+            shape: PinCodeFieldShape.box,
+            borderRadius: BorderRadius.circular(12),
+            activeBorderWidth: 1.5,
+            inactiveBorderWidth: 1.5,
+            selectedBorderWidth: 1.5,
+            activeFillColor: Colors.white,
+            inactiveFillColor: Colors.white,
+            selectedFillColor: Colors.grey[400],
+            activeColor: Color(0xFF6155F5),
+            inactiveColor: Colors.grey[400],
+            selectedColor: Colors.white,
+          ),
+        ),
+      );
 
   static emailTextField(LoginViewModel vm) => TextField(
     controller: vm.emailController,
     style: AppTextStyles.textTheme.bodySmall,
+    onSubmitted: (value) => vm.sendOtp(),
     decoration: InputDecoration(
       contentPadding: EdgeInsets.all(16),
       hintText: "Email Address",
       hintStyle: AppTextStyles.textTheme.bodySmall!.copyWith(
         color: Colors.grey,
       ),
+
       prefixIcon: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Image.asset(IconConstants.emailIcon),
