@@ -5,4 +5,5 @@ class RouteNames {
   static const users = '/users';
   static const addUsers = '/addUsers';
   static const String addPhrase = '/addPhrases';
+  static const String addSchool = '/addSchool';
 }

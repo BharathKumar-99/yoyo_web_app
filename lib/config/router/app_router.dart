@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:yoyo_web_app/core/supabase/supabase_client.dart';
+import 'package:yoyo_web_app/features/add_school/presentation/add_school_screen.dart';
 import 'package:yoyo_web_app/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:yoyo_web_app/features/home/presentation/home_screen.dart';
 import 'package:yoyo_web_app/features/phrases/presentation/phrases_screen.dart';
@@ -31,6 +32,10 @@ class AppRoutes {
           GoRoute(
             path: RouteNames.home,
             builder: (context, state) => const HomeScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.addSchool,
+            builder: (context, state) => const AddSchoolScreen(),
           ),
           GoRoute(
             path: RouteNames.phrases,

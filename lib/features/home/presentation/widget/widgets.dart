@@ -1,25 +1,28 @@
 import 'package:flutter/material.dart';
 import 'package:yoyo_web_app/config/router/navigation_helper.dart';
+import 'package:yoyo_web_app/config/router/route_names.dart';
 import 'package:yoyo_web_app/features/common/widgets.dart';
 import '../../../../config/theme/app_text_styles.dart';
 import '../home_view_model.dart';
 
 class HomeWidgets {
-  
   static Row schoolHeading() {
     return Row(
       spacing: 20,
       children: [
         Text('Schools', style: AppTextStyles.textTheme.headlineLarge),
-        Chip(
-          label: Text(
-            'Add',
-            style: AppTextStyles.textTheme.headlineMedium!.copyWith(
-              color: Colors.white,
+        GestureDetector(
+          onTap: () => NavigationHelper.go(RouteNames.addSchool),
+          child: Chip(
+            label: Text(
+              'Add',
+              style: AppTextStyles.textTheme.headlineMedium!.copyWith(
+                color: Colors.white,
+              ),
             ),
+            avatar: Icon(Icons.add, color: Colors.white),
+            color: WidgetStatePropertyAll(Colors.green),
           ),
-          avatar: Icon(Icons.add, color: Colors.white),
-          color: WidgetStatePropertyAll(Colors.green),
         ),
       ],
     );

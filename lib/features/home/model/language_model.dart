@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../add_user/model/level.dart';
 import 'phrases_model.dart';
 
 class Language {
@@ -11,6 +12,7 @@ class Language {
   List<PhraseModel>? phrase;
   DateTime? createdAt;
   String? launguageCode;
+  Level? levelData;
 
   Language({
     this.id,
@@ -21,13 +23,15 @@ class Language {
     this.phrase,
     this.createdAt,
     this.launguageCode,
+    this.levelData,
   });
 
   factory Language.fromJson(Map<String, dynamic> json) {
     return Language(
       id: json['id'] as int?,
       image: json['image'] as String?,
-      level: json['level'] as int?,
+      level: json['level'] is int? ? json['level'] as int? : 0,
+      levelData: json['level'] is Map? ? Level.fromJson(json['level']) : null,
       gradient:
           (json['gradient'] as List<dynamic>?)
               ?.map((e) => Color(int.tryParse(e.toString()) ?? 0xFFFFFFFF))
