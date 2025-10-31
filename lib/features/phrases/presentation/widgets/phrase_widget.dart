@@ -9,16 +9,30 @@ import 'package:yoyo_web_app/features/home/model/phrases_model.dart';
 import 'package:yoyo_web_app/features/phrases/presentation/phrases_view_model.dart';
 
 class PhraseWidgets {
-  static addPhraseTable(PhrasesViewModel viewModel) => Table(
-    columnWidths: const {
-      0: FlexColumnWidth(1.2),
-      1: FlexColumnWidth(1.2),
-      2: FlexColumnWidth(0.3),
-      3: FlexColumnWidth(0.3),
-      4: FlexColumnWidth(0.3),
-      5: FlexColumnWidth(0.3),
-      6: FlexColumnWidth(0.3),
-    },
+  static addPhraseTable(
+    PhrasesViewModel viewModel, {
+    bool isTablet = false,
+    bool isMobile = false,
+  }) => Table(
+    columnWidths: isTablet || isMobile
+        ? const {
+            0: FlexColumnWidth(0.6),
+            1: FlexColumnWidth(0.6),
+            2: FlexColumnWidth(0.3),
+            3: FlexColumnWidth(0.3),
+            4: FlexColumnWidth(0.3),
+            5: FlexColumnWidth(0.3),
+            6: FlexColumnWidth(0.3),
+          }
+        : const {
+            0: FlexColumnWidth(1.2),
+            1: FlexColumnWidth(1.2),
+            2: FlexColumnWidth(0.3),
+            3: FlexColumnWidth(0.3),
+            4: FlexColumnWidth(0.3),
+            5: FlexColumnWidth(0.3),
+            6: FlexColumnWidth(0.3),
+          },
     children: [getPhraseHeader(viewModel), ...getPhraseData(viewModel)],
   );
 
@@ -143,22 +157,42 @@ class PhraseWidgets {
   static Widget getPhraseFilters(
     PhrasesViewModel viewModel, {
     bool isMobile = false,
-  }) => Row(
-    spacing: 20,
-    children: [
-      Expanded(
-        child: CommonWidgets.buildDropdown("Languaage", [
-          "All",
-          ...viewModel.launguages.map((val) => val.language ?? ''),
-        ], (val) => viewModel.changeLanguage(val)),
-      ),
-      Expanded(
-        child: CommonWidgets.buildDropdown("Level", [
-          "All",
-          ...viewModel.lvl.map((val) => val.level ?? ''),
-        ], (val) => viewModel.changeLvl(val)),
-      ),
-      if (!isMobile) Expanded(child: Container()),
-    ],
-  );
+  }) => isMobile
+      ? Column(
+          spacing: 20,
+          children: [
+            SizedBox(
+              width: double.infinity,
+              child: CommonWidgets.buildDropdown("Languaage", [
+                "All",
+                ...viewModel.launguages.map((val) => val.language ?? ''),
+              ], (val) => viewModel.changeLanguage(val)),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: CommonWidgets.buildDropdown("Level", [
+                "All",
+                ...viewModel.lvl.map((val) => val.level ?? ''),
+              ], (val) => viewModel.changeLvl(val)),
+            ),
+          ],
+        )
+      : Row(
+          spacing: 20,
+          children: [
+            Expanded(
+              child: CommonWidgets.buildDropdown("Languaage", [
+                "All",
+                ...viewModel.launguages.map((val) => val.language ?? ''),
+              ], (val) => viewModel.changeLanguage(val)),
+            ),
+            Expanded(
+              child: CommonWidgets.buildDropdown("Level", [
+                "All",
+                ...viewModel.lvl.map((val) => val.level ?? ''),
+              ], (val) => viewModel.changeLvl(val)),
+            ),
+            if (!isMobile) Expanded(child: Container()),
+          ],
+        );
 }

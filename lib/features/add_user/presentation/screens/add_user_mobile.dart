@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:yoyo_web_app/features/add_user/presentation/add_user_view_model.dart';
-
-import '../../../home/presentation/widget/widgets.dart';
+import '../../../common/widgets.dart';
 import '../widgets/widgets.dart';
 
 addUserMobile(AddUserViewModel viewModel) => Scaffold(
-  appBar: HomeWidgets.homeAppBarMobile(),
+  appBar: CommonWidgets.homeAppBarMobile(),
   body: SingleChildScrollView(
     child: Padding(
       padding: const EdgeInsets.all(20.0),

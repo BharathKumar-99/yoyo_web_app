@@ -41,6 +41,7 @@ class DbTable {
 
 class Stroage {
   static const String userBucket = 'user';
+  static const String phrases = 'phrases';
 }
 
 class Constants {

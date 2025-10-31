@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:yoyo_web_app/features/home/presentation/home_view_model.dart';
 
+import '../../../common/widgets.dart';
 import '../widget/widgets.dart';
 
 Widget homeMobile(HomeViewModel viewModel) => Scaffold(
-  appBar: HomeWidgets.homeAppBarMobile(),
+  appBar: CommonWidgets.homeAppBarMobile(),
   body: SingleChildScrollView(
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),

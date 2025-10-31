@@ -1,13 +1,12 @@
-import 'package:flutter/material.dart';
-
-import '../../../home/presentation/widget/widgets.dart';
+import 'package:flutter/material.dart'; 
+import '../../../common/widgets.dart'; 
 import '../users_view_model.dart';
 import '../widgets/widgets.dart';
 
 Widget userTablet(UsersViewModel viewModel) => Padding(
   padding: const EdgeInsets.all(29.0),
   child: Scaffold(
-    appBar: HomeWidgets.homeAppBar(),
+    appBar:  CommonWidgets.homeAppBar(),
     body: Padding(
       padding: const EdgeInsets.symmetric(vertical: 29.0),
       child: SingleChildScrollView(

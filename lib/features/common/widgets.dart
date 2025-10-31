@@ -43,4 +43,80 @@ class CommonWidgets {
       ),
     );
   }
+
+  static AppBar homeAppBar() {
+    return AppBar(
+      flexibleSpace: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          Text(
+            'YoYo Technologies Ltd',
+            style: AppTextStyles.textTheme.titleLarge,
+          ),
+          SizedBox(width: 30),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 15.0),
+            child: VerticalDivider(),
+          ),
+          SizedBox(width: 30),
+          Text('B Fountain', style: AppTextStyles.textTheme.titleMedium),
+          SizedBox(width: 60),
+          CircleAvatar(
+            backgroundColor: Color(0xffED8768),
+            child: Text(
+              'BF',
+              style: AppTextStyles.textTheme.titleLarge?.copyWith(
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+      bottom: PreferredSize(
+        preferredSize: Size.fromHeight(10),
+        child: Container(
+          height: 2,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xff9D5DE6), Color(0xffF78C59)],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  static AppBar homeAppBarMobile() {
+    return AppBar(
+      leading: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: CircleAvatar(
+          backgroundColor: Color(0xffED8768),
+          child: Text(
+            'BF',
+            style: AppTextStyles.textTheme.titleLarge?.copyWith(
+              color: Colors.white,
+            ),
+          ),
+        ),
+      ),
+      title: Text(
+        'YoYo Technologies Ltd',
+        style: AppTextStyles.textTheme.titleLarge,
+      ),
+      actions: [Text('B Fountain', style: AppTextStyles.textTheme.titleMedium)],
+      actionsPadding: EdgeInsets.only(right: 8),
+      bottom: PreferredSize(
+        preferredSize: Size.fromHeight(10),
+        child: Container(
+          height: 2,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xff9D5DE6), Color(0xffF78C59)],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

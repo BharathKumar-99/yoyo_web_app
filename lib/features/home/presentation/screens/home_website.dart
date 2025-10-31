@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:yoyo_web_app/features/home/presentation/home_view_model.dart';
 import 'package:yoyo_web_app/features/home/presentation/widget/widgets.dart';
 
+import '../../../common/widgets.dart';
+
 Widget homeWebsite(HomeViewModel viewModel) => Padding(
   padding: const EdgeInsets.all(29.0),
   child: Scaffold(
-    appBar: HomeWidgets.homeAppBar(),
+    appBar: CommonWidgets.homeAppBar(),
     body: Padding(
       padding: const EdgeInsets.symmetric(vertical: 29.0),
       child: Column(

@@ -184,7 +184,6 @@ class AddUserWidgets {
     decoration: InputDecoration(
       labelText: 'Select User Level',
       labelStyle: AppTextStyles.textTheme.titleSmall,
-
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
       contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
     ),

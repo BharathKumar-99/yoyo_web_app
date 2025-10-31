@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../home/presentation/widget/widgets.dart';
+import '../../../common/widgets.dart'; 
 import '../add_user_view_model.dart';
 import '../widgets/widgets.dart';
 
 addUserTablet(AddUserViewModel viewModel) => Scaffold(
-  appBar: HomeWidgets.homeAppBar(),
+  appBar:  CommonWidgets.homeAppBar(),
   body: SingleChildScrollView(
     child: Padding(
       padding: const EdgeInsets.all(20.0),

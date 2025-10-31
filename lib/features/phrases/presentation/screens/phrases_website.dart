@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:yoyo_web_app/features/phrases/presentation/widgets/phrase_widget.dart';
-import '../../../home/presentation/widget/widgets.dart';
+import '../../../common/widgets.dart';
 import '../phrases_view_model.dart';
 
 Widget phrasesWebsite(PhrasesViewModel viewModel) => Scaffold(
-  appBar: HomeWidgets.homeAppBar(),
+  appBar: CommonWidgets.homeAppBar(),
   body: SingleChildScrollView(
     child: Padding(
       padding: EdgeInsets.all(20),
