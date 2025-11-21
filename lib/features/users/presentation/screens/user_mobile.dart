@@ -13,7 +13,7 @@ Widget userMobile(UsersViewModel viewModel) => Padding(
       child: SingleChildScrollView(
         child: Column(
           children: [
-            UserWidgets.userHeading(),
+            UserWidgets.userHeading(viewModel),
             SizedBox(height: 20),
             UserWidgets.userTable(viewModel),
           ],

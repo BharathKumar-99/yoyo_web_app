@@ -37,6 +37,7 @@ class HomeViewModel extends ChangeNotifier {
       });
       tableModel.add(
         TableModel(
+          element.id,
           element.schoolName ?? '',
           element.classes
                   ?.map((val) => extractClassNumber(val.className ?? ''))

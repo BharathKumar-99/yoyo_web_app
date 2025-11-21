@@ -1,4 +1,5 @@
 class TableModel {
+  int? id;
   String name;
   List<int?> years;
   String headTeacher;
@@ -6,6 +7,7 @@ class TableModel {
   int avScore;
 
   TableModel(
+    this.id,
     this.name,
     this.years,
     this.headTeacher,

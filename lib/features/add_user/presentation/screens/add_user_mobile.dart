@@ -13,22 +13,19 @@ addUserMobile(AddUserViewModel viewModel) => Scaffold(
         children: [
           AddUserWidgets.firstNameTextField(viewModel),
           AddUserWidgets.lastNameTextField(viewModel),
-          AddUserWidgets.emailTextField(viewModel),
-          AddUserWidgets.userType(viewModel),
-          AddUserWidgets.schoolSelector(viewModel),
-          AddUserWidgets.classSelector(viewModel),
-          (viewModel.selectedUserType == 'Teacher')
-              ? Column(
-                  spacing: 20,
-                  children: [
-                    AddUserWidgets.selectJob(viewModel),
-                    AddUserWidgets.selectPermisionLvl(viewModel),
-                  ],
-                )
-              : Column(
-                  spacing: 20,
-                  children: [AddUserWidgets.selectLevel(viewModel)],
-                ),
+
+          // (viewModel.selectedUserType == 'Teacher')
+          //     ? Column(
+          //         spacing: 20,
+          //         children: [
+          //           AddUserWidgets.selectJob(viewModel),
+          //           AddUserWidgets.selectPermisionLvl(viewModel),
+          //         ],
+          //       )
+          //     : Column(
+          //         spacing: 20,
+          //         children: [AddUserWidgets.selectLevel(viewModel)],
+          //       ),
           AddUserWidgets.elevatedBtn(viewModel),
         ],
       ),

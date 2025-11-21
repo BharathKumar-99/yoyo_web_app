@@ -8,6 +8,7 @@ import 'package:yoyo_web_app/core/api/repo.dart';
 import 'package:yoyo_web_app/features/add_user/model/level.dart';
 import 'package:yoyo_web_app/features/home/model/classes_model.dart';
 import 'package:yoyo_web_app/features/home/model/school.dart';
+import 'package:yoyo_web_app/features/home/model/user_model.dart';
 
 class AddUserRepo extends ApiRepo {
   Future<List<School>>? getAllSchool() async {
@@ -94,5 +95,31 @@ class AddUserRepo extends ApiRepo {
         ContentType.failure,
       );
     }
+  }
+
+  Future<List<UserModel>> getUsersWhereFirstNameIsNull() async {
+    final res = await client
+        .from(DbTable.users)
+        .select('*')
+        .isFilter('first_name', null);
+
+    if (res.isEmpty) {
+      return [];
+    }
+
+    return res.map<UserModel>((json) => UserModel.fromJson(json)).toList();
+  }
+
+  Future<void> assignUser(
+    String firstName,
+    String lastName,
+    String? userId,
+  ) async {
+    final firstLetter = lastName.isNotEmpty ? lastName[0].toUpperCase() : null;
+
+    await client
+        .from(DbTable.users)
+        .update({'first_name': firstName, 'sur_name': firstLetter})
+        .eq('user_id', userId ?? '');
   }
 }

@@ -3,10 +3,12 @@ import 'package:go_router/go_router.dart';
 import 'package:yoyo_web_app/core/supabase/supabase_client.dart';
 import 'package:yoyo_web_app/features/add_school/presentation/add_school_screen.dart';
 import 'package:yoyo_web_app/features/dashboard/presentation/dashboard_screen.dart';
+import 'package:yoyo_web_app/features/edit_school/presentation/edit_school.dart';
 import 'package:yoyo_web_app/features/home/presentation/home_screen.dart';
 import 'package:yoyo_web_app/features/phrases/presentation/phrases_screen.dart';
 import '../../features/add_phrases/presentation/add_phrases_screen.dart';
 import '../../features/add_user/presentation/add_user.dart';
+import '../../features/add_user_name/presentation/add_user_name.dart';
 import '../../features/login/presentation/screens/login_screen.dart';
 import '../../features/users/presentation/users_screens.dart';
 import 'route_names.dart';
@@ -26,6 +28,7 @@ class AppRoutes {
         path: RouteNames.login,
         builder: (context, state) => const LoginScreen(),
       ),
+
       ShellRoute(
         builder: (context, state, child) => DashboardScreen(child: child),
         routes: [
@@ -52,6 +55,15 @@ class AppRoutes {
           GoRoute(
             path: RouteNames.addUsers,
             builder: (context, state) => const AddUserScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.addUserName,
+            builder: (context, state) => const AddUserNameScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.editSchool,
+            builder: (context, state) =>
+                EditSchoolScreen(id: state.extra as int),
           ),
         ],
       ),

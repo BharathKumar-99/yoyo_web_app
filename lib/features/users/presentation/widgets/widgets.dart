@@ -6,7 +6,7 @@ import 'package:yoyo_web_app/features/users/presentation/users_view_model.dart';
 import '../../../../config/theme/app_text_styles.dart';
 
 class UserWidgets {
-  static Row userHeading() {
+  static Row userHeading(UsersViewModel viewModel) {
     return Row(
       spacing: 20,
       children: [
@@ -15,7 +15,20 @@ class UserWidgets {
           onTap: () => NavigationHelper.go(RouteNames.addUsers),
           child: Chip(
             label: Text(
-              'Add',
+              'Add User',
+              style: AppTextStyles.textTheme.headlineMedium!.copyWith(
+                color: Colors.white,
+              ),
+            ),
+            avatar: Icon(Icons.add, color: Colors.white),
+            color: WidgetStatePropertyAll(Colors.green),
+          ),
+        ),
+        GestureDetector(
+          onTap: () => NavigationHelper.go(RouteNames.addUserName),
+          child: Chip(
+            label: Text(
+              'Add User Name',
               style: AppTextStyles.textTheme.headlineMedium!.copyWith(
                 color: Colors.white,
               ),
@@ -41,10 +54,23 @@ class UserWidgets {
         tableCellRow(''),
       ]),
       ...viewModel.users.map((val) {
-        final nameFromUser = [
-          (val.firstName?[0] ?? ''),
-          (val.surName?[0] ?? ''),
-        ].join().toUpperCase();
+        String extractCaps(String text) {
+          final matches = RegExp(
+            r'(^[A-Za-z])|-(\s*[A-Za-z])',
+          ).allMatches(text);
+
+          // Extract the actual letters, remove '-', trim spaces
+          final letters = matches.map((m) {
+            return (m.group(1) ?? m.group(2))!
+                .replaceAll('-', '')
+                .trim()
+                .toUpperCase();
+          }).join();
+
+          return letters;
+        }
+
+        final nameFromUser = extractCaps(val.username ?? '');
         return tableRow([
           TableCell(
             child: Align(
@@ -72,7 +98,7 @@ class UserWidgets {
           ),
           tableCellRow(val.schools?.schoolName ?? ''),
           tableCellRow((val.student?.isEmpty ?? true) ? 'Teacher' : 'Student'),
-          tableCellRow(val.email ?? ''),
+          tableCellRow(val.username ?? ''),
           TableCell(child: Chip(label: Text('Edit'))),
         ]);
       }),
@@ -85,7 +111,7 @@ class UserWidgets {
       tableCellHeader('Name'),
       tableCellHeader('School'),
       tableCellHeader('Role'),
-      tableCellHeader('Email'),
+      tableCellHeader('User Name'),
       tableCellHeader(''),
     ],
   );

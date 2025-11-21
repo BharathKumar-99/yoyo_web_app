@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/config/router/route_names.dart';
 import 'package:yoyo_web_app/features/common/widgets.dart';
@@ -198,7 +199,11 @@ class HomeWidgets {
                               color: Colors.green,
                             ),
                           ),
-                          Chip(label: Text('Edit')),
+                          GestureDetector(
+                            onTap: () =>
+                                ctx!.go(RouteNames.editSchool, extra: val.id),
+                            child: Chip(label: Text('Edit')),
+                          ),
                         ],
                       ),
                     ),

@@ -11,6 +11,7 @@ class UsersViewModel extends ChangeNotifier {
 
   init() async {
     users = await _repo.getUserData();
+    users.removeWhere((element) => element.firstName == null);
     notifyListeners();
   }
 }

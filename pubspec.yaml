@@ -20,6 +20,8 @@ dependencies:
   awesome_snackbar_content: ^0.1.8
   file_picker: ^10.3.3
   desktop_drop: ^0.7.0
+  http: ^1.6.0
+  web: ^1.1.1
 
 dev_dependencies:
   flutter_lints: ^5.0.0

@@ -16,36 +16,28 @@ addUserWebsite(AddUserViewModel viewModel) => Scaffold(
             children: [
               Expanded(child: AddUserWidgets.firstNameTextField(viewModel)),
               Expanded(child: AddUserWidgets.lastNameTextField(viewModel)),
-              Expanded(child: AddUserWidgets.emailTextField(viewModel)),
+              Expanded(child: AddUserWidgets.userSelector(viewModel)),
             ],
           ),
-          Row(
-            spacing: 20,
-            children: [
-              Expanded(child: AddUserWidgets.userType(viewModel)),
-              Expanded(child: AddUserWidgets.schoolSelector(viewModel)),
-              Expanded(child: AddUserWidgets.classSelector(viewModel)),
-            ],
-          ),
-          (viewModel.selectedUserType == 'Teacher')
-              ? Row(
-                  spacing: 20,
-                  children: [
-                    Expanded(child: AddUserWidgets.selectJob(viewModel)),
-                    Expanded(
-                      child: AddUserWidgets.selectPermisionLvl(viewModel),
-                    ),
-                  ],
-                )
-              : Row(
-                  spacing: 20,
-                  children: [
-                    Expanded(child: AddUserWidgets.selectLevel(viewModel)),
-                    Expanded(child: Container()),
-                    Expanded(child: Container()),
-                  ],
-                ),
 
+          // (viewModel.selectedUserType == 'Teacher')
+          //     ? Row(
+          //         spacing: 20,
+          //         children: [
+          //           Expanded(child: AddUserWidgets.selectJob(viewModel)),
+          //           Expanded(
+          //             child: AddUserWidgets.selectPermisionLvl(viewModel),
+          //           ),
+          //         ],
+          //       )
+          //     : Row(
+          //         spacing: 20,
+          //         children: [
+          //           Expanded(child: AddUserWidgets.selectLevel(viewModel)),
+          //           Expanded(child: Container()),
+          //           Expanded(child: Container()),
+          //         ],
+          //       ),
           AddUserWidgets.elevatedBtn(viewModel),
         ],
       ),
