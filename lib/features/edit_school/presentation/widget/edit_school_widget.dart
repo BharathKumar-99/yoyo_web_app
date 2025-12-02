@@ -18,7 +18,16 @@ class EditSchoolWidget {
     trailing: Switch.adaptive(
       value: viewmodel.apiCred.streak,
       onChanged: (val) {
-        viewmodel.updateStreakEnabled(val);
+        viewmodel.updateStreakEnabled(val, viewmodel.apiCred.school);
+      },
+    ),
+  );
+  static matery(EditSchoolViewModel viewmodel) => ListTile(
+    title: Text("Master", style: AppTextStyles.textTheme.titleLarge),
+    trailing: Switch.adaptive(
+      value: viewmodel.apiCred.mastery,
+      onChanged: (val) {
+        viewmodel.updateMasterEnabled(val, viewmodel.apiCred.school);
       },
     ),
   );

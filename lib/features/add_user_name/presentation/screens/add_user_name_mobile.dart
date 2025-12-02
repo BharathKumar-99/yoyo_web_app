@@ -17,10 +17,11 @@ addUserNameScreenMobile(AddUserNameViewModel value) => Scaffold(
             spacing: 20,
             children: [
               AddUserNameWidget.getHeader(),
-              AddUserNameWidget.getUserTextfield(value),
+              AddUserNameWidget.addXl(value),
               AddUserNameWidget.schoolSelector(value),
               AddUserNameWidget.classSelector(value),
               AddUserNameWidget.selectLevel(value),
+              AddUserNameWidget.userTable(value.list),
               AddUserNameWidget.addUserNameBtn(value),
             ],
           ),

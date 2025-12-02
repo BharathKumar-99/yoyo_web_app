@@ -47,13 +47,25 @@ class EditSchoolViewModel extends ChangeNotifier {
     }
   }
 
-  Future<void> updateStreakEnabled(bool value) async {
+  Future<void> updateStreakEnabled(bool value, int school) async {
     try {
       WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.show());
-      apiCred = await _repo.updateStreakEnabled(value);
+      apiCred = await _repo.updateStreakEnabled(value, school);
       notifyListeners();
     } catch (e, st) {
       log("updateStreakEnabled error: $e\n$st");
+    } finally {
+      WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.hide());
+    }
+  }
+
+  Future<void> updateMasterEnabled(bool value, int school) async {
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.show());
+      apiCred = await _repo.updateMasteryEnabled(value, school);
+      notifyListeners();
+    } catch (e, st) {
+      log("updateMasteryEnabled error: $e\n$st");
     } finally {
       WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.hide());
     }

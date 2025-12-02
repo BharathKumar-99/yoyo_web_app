@@ -17,7 +17,7 @@ addUserNameScreenTablet(AddUserNameViewModel value) => Scaffold(
           Row(
             spacing: 20,
             children: [
-              Expanded(child: AddUserNameWidget.getUserTextfield(value)),
+              Expanded(child: AddUserNameWidget.addXl(value)),
               Expanded(child: AddUserNameWidget.schoolSelector(value)),
             ],
           ),
@@ -28,6 +28,7 @@ addUserNameScreenTablet(AddUserNameViewModel value) => Scaffold(
               Expanded(child: AddUserNameWidget.selectLevel(value)),
             ],
           ),
+          AddUserNameWidget.userTable(value.list),
           AddUserNameWidget.addUserNameBtn(value),
         ],
       ),

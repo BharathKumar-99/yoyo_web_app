@@ -25,11 +25,21 @@ class EditSchoolRepo extends ApiRepo {
     return RemoteConfig.fromJson(data!);
   }
 
-  Future<RemoteConfig> updateStreakEnabled(bool value) async {
+  Future<RemoteConfig> updateStreakEnabled(bool value, int id) async {
     final data = await client
         .from(DbTable.remoteConfig)
         .update({"streak": value})
-        .eq('id', 1)
+        .eq('school', id)
+        .select()
+        .single();
+    return RemoteConfig.fromJson(data);
+  }
+
+  Future<RemoteConfig> updateMasteryEnabled(bool value, id) async {
+    final data = await client
+        .from(DbTable.remoteConfig)
+        .update({"mastery": value})
+        .eq('school', id)
         .select()
         .single();
     return RemoteConfig.fromJson(data);

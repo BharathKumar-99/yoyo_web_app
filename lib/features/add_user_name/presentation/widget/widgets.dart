@@ -5,8 +5,8 @@ import 'package:yoyo_web_app/features/add_user_name/presentation/add_user_name_v
 import 'package:yoyo_web_app/features/home/model/classes_model.dart'
     show Classes;
 import 'package:yoyo_web_app/features/home/model/school.dart' show School;
-
 import '../../../add_user/model/level.dart';
+import '../../model/add_user_from_excel.dart';
 
 class AddUserNameWidget {
   static getHeader() =>
@@ -97,16 +97,6 @@ class AddUserNameWidget {
         )
       : Container();
 
-  static getUserTextfield(AddUserNameViewModel value) => TextField(
-    controller: value.userCount,
-    keyboardType: TextInputType.number,
-    inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-    decoration: const InputDecoration(
-      labelText: "User Count",
-      border: OutlineInputBorder(),
-    ),
-  );
-
   static selectLevel(AddUserNameViewModel viewModel) => InputDecorator(
     decoration: InputDecoration(
       labelText: 'Select User Level',
@@ -138,5 +128,76 @@ class AddUserNameWidget {
   static addUserNameBtn(AddUserNameViewModel viewModel) => ElevatedButton(
     onPressed: () => viewModel.createUser(),
     child: Text('Create Username'),
+  );
+
+  static userTable(List<UserActivationModel> list) {
+    if (list.isEmpty) return const SizedBox();
+
+    return Table(
+      columnWidths: const {0: FlexColumnWidth(1), 1: FlexColumnWidth(1)},
+      border: TableBorder.all(color: Colors.grey),
+      children: [
+        // Header
+        const TableRow(
+          decoration: BoxDecoration(color: Color(0xFFEFEFEF)),
+          children: [
+            Padding(
+              padding: EdgeInsets.all(12.0),
+              child: Text(
+                "Username",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(12.0),
+              child: Text(
+                "Activation Code",
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+        ),
+
+        // Data Rows
+        ...list.map(
+          (item) => TableRow(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Text(item.username),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Text(item.activationCode),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  static addXl(AddUserNameViewModel viewModel) => InkWell(
+    onTap: viewModel.pickFile,
+    child: Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.grey.shade400),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.insert_drive_file, size: 40, color: Colors.green),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              viewModel.selectedFileName ?? "Upload Excel / CSV file",
+              style: const TextStyle(fontSize: 16),
+            ),
+          ),
+          const Icon(Icons.upload_file),
+        ],
+      ),
+    ),
   );
 }
