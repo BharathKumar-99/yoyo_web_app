@@ -36,6 +36,8 @@ class AddUserViewModel extends ChangeNotifier {
     String firstName = firstNameController.text.trim();
     String lastName = lastNameController.text.trim();
     await _repo.assignUser(firstName, lastName, selectedUser?.userId);
+    user.removeWhere((val) => val == selectedUser);
+    selectedUser = user.first;
     reset();
     WidgetsBinding.instance.addPostFrameCallback((val) => GlobalLoader.hide());
   }

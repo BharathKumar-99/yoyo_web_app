@@ -54,8 +54,29 @@ class AddSchoolRepo extends ApiRepo {
         .insert(data)
         .select('*')
         .single();
-
     School school = School.fromJson(sData);
+
+    await client.from(DbTable.remoteConfig).insert({
+      {
+        "api_key": "17142724400002e9",
+        "api_secret_key": "8a259350f3a84c9e3af163118cfd4caa",
+        "streak": true,
+        "fr_slack": 1,
+        "language_slack": {
+          "de": 0,
+          "fr": 10,
+          "jp": 0,
+          "kr": 0,
+          "ru": 0,
+          "sp": 0,
+          "promax": 0,
+          "promax.cn": 0,
+        },
+        "onboarding": true,
+        "school": school.id,
+        "mastery": false,
+      },
+    });
 
     for (var lData in lang) {
       var lanData = {'school': school.id, 'language': lData.id};

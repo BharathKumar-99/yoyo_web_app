@@ -8,4 +8,5 @@ class RouteNames {
   static const String addPhrase = '/addPhrases';
   static const String addSchool = '/addSchool';
   static const String editSchool = '/editSchool';
+  static const String viewSchool = '/viewSchool';
 }

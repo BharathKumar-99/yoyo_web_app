@@ -65,10 +65,15 @@ class HomeWidgets {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: SizedBox(
-        width: isMobile
-            ? MediaQuery.sizeOf(ctx!).width * 2
-            : MediaQuery.sizeOf(ctx!).width * 0.8,
+        width: 1440,
         child: Table(
+          columnWidths: const {
+            0: FlexColumnWidth(3),
+            1: FlexColumnWidth(2),
+            2: FlexColumnWidth(2),
+            3: FlexColumnWidth(5),
+            4: FlexColumnWidth(3),
+          },
           children: [
             TableRow(
               children: [
@@ -79,100 +84,26 @@ class HomeWidgets {
                 _tableCellHeader('Av. Score'),
               ],
             ),
+
             TableRow(
-              children: [
-                TableCell(
+              children: List.generate(
+                5,
+                (_) => TableCell(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
+                    padding: const EdgeInsets.symmetric(vertical: 10),
                   ),
                 ),
-                TableCell(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  ),
-                ),
-                TableCell(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  ),
-                ),
-                TableCell(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  ),
-                ),
-                TableCell(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10.0),
-                  ),
-                ),
-              ],
+              ),
             ),
+
             if (viewModel.filteredTableModel.isEmpty)
               TableRow(
                 children: [
-                  TableCell(
-                    child: Container(
-                      padding: EdgeInsetsDirectional.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.blueGrey.shade100,
-                      ),
-                      child: Text(
-                        '',
-                        style: AppTextStyles.textTheme.titleMedium,
-                      ),
-                    ),
-                  ),
-                  TableCell(
-                    child: Container(
-                      padding: EdgeInsetsDirectional.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.blueGrey.shade100,
-                      ),
-                      child: Text(
-                        '',
-                        style: AppTextStyles.textTheme.titleMedium,
-                      ),
-                    ),
-                  ),
-                  TableCell(
-                    child: Container(
-                      padding: EdgeInsetsDirectional.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.blueGrey.shade100,
-                      ),
-                      child: Center(
-                        child: Text(
-                          'No Data Found',
-                          style: AppTextStyles.textTheme.titleMedium,
-                        ),
-                      ),
-                    ),
-                  ),
-                  TableCell(
-                    child: Container(
-                      padding: EdgeInsetsDirectional.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.blueGrey.shade100,
-                      ),
-                      child: Text(
-                        '',
-                        style: AppTextStyles.textTheme.titleMedium,
-                      ),
-                    ),
-                  ),
-                  TableCell(
-                    child: Container(
-                      padding: EdgeInsetsDirectional.symmetric(vertical: 10),
-                      decoration: BoxDecoration(
-                        color: Colors.blueGrey.shade100,
-                      ),
-                      child: Text(
-                        '',
-                        style: AppTextStyles.textTheme.titleMedium,
-                      ),
-                    ),
-                  ),
+                  _emptyCell(),
+                  _emptyCell(),
+                  _centerCell('No Data Found'),
+                  _emptyCell(),
+                  _emptyCell(),
                 ],
               ),
 
@@ -183,31 +114,7 @@ class HomeWidgets {
                   _tableCell('Years ${val.years.join(',')}'),
                   _tableCell(val.headTeacher),
                   _tableCell(val.languages.toString()),
-                  TableCell(
-                    child: Padding(
-                      padding: EdgeInsetsDirectional.symmetric(
-                        vertical: 10,
-                        horizontal: 8,
-                      ),
-                      child: Wrap(
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        spacing: 10,
-                        children: [
-                          Text(
-                            '${val.avScore}%',
-                            style: AppTextStyles.textTheme.titleLarge!.copyWith(
-                              color: Colors.green,
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () =>
-                                ctx!.go(RouteNames.editSchool, extra: val.id),
-                            child: Chip(label: Text('Edit')),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                  _actionCell(val),
                 ],
               ),
             ),
@@ -218,12 +125,55 @@ class HomeWidgets {
   }
 }
 
+Widget _emptyCell() => TableCell(
+  child: Container(
+    padding: const EdgeInsets.symmetric(vertical: 10),
+    decoration: BoxDecoration(color: Colors.blueGrey.shade100),
+  ),
+);
+
+Widget _centerCell(String text) => TableCell(
+  child: Container(
+    padding: const EdgeInsets.symmetric(vertical: 10),
+    decoration: BoxDecoration(color: Colors.blueGrey.shade100),
+    child: Center(
+      child: Text(text, style: AppTextStyles.textTheme.titleMedium),
+    ),
+  ),
+);
+
+Widget _actionCell(val) => TableCell(
+  child: Padding(
+    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+    child: Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: 10,
+      children: [
+        Text(
+          '${val.avScore}%',
+          style: AppTextStyles.textTheme.titleLarge!.copyWith(
+            color: Colors.green,
+          ),
+        ),
+        GestureDetector(
+          onTap: () => ctx!.go(RouteNames.editSchool, extra: val.id),
+          child: const Chip(label: Text('Edit')),
+        ),
+        GestureDetector(
+          onTap: () => ctx!.go(RouteNames.viewSchool, extra: val.id),
+          child: const Chip(label: Text('View')),
+        ),
+      ],
+    ),
+  ),
+);
+
 TableCell _tableCell(String data, {Color color = Colors.black}) => TableCell(
   child: Padding(
     padding: EdgeInsetsDirectional.symmetric(vertical: 10, horizontal: 8),
     child: Text(
       data,
-      style: AppTextStyles.textTheme.titleLarge!.copyWith(color: color),
+      style: AppTextStyles.textTheme.bodyLarge!.copyWith(color: color),
     ),
   ),
 );
