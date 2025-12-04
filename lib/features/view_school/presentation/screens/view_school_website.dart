@@ -18,23 +18,34 @@ Widget viewSchoolWebsite(ViewSchoolViewModel viewModel) => Padding(
               height: MediaQuery.sizeOf(ctx!).height / 3,
               child: Row(
                 children: [
-                  Expanded(child: ViewSchoolWidget.schoolImage(viewModel)),
                   Expanded(
+                    flex: 3,
+                    child: ViewSchoolWidget.schoolImage(viewModel),
+                  ),
+                  Expanded(
+                    flex: 6,
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ViewSchoolWidget.schoolName(viewModel),
+                            Spacer(),
                             ViewSchoolWidget.schoolStudents(viewModel),
+                            Spacer(),
                           ],
                         ),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             ViewSchoolWidget.schoolTelephone(viewModel),
+                            Spacer(),
                             ViewSchoolWidget.schoolprinciple(viewModel),
+                            Spacer(),
                           ],
                         ),
                         ViewSchoolWidget.schoolAddress(viewModel),

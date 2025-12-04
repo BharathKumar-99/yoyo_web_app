@@ -15,11 +15,13 @@ class ViewSchoolScreen extends StatelessWidget {
     return ChangeNotifierProvider<ViewSchoolViewModel>(
       create: (_) => ViewSchoolViewModel(schoolId),
       child: Consumer<ViewSchoolViewModel>(
-        builder: (context, viewModel, child) => ResponsiveLayout(
-          mobile: viewSchoolMobile(viewModel),
-          tablet: viewSchooltablet(viewModel),
-          desktop: viewSchoolWebsite(viewModel),
-        ),
+        builder: (context, viewModel, child) => viewModel.loading
+            ? Container()
+            : ResponsiveLayout(
+                mobile: viewSchoolMobile(viewModel),
+                tablet: viewSchooltablet(viewModel),
+                desktop: viewSchoolWebsite(viewModel),
+              ),
       ),
     );
   }
