@@ -15,7 +15,7 @@ class UserWidgets {
           onTap: () => NavigationHelper.go(RouteNames.addUsers),
           child: Chip(
             label: Text(
-              'Add User',
+              'Add Users',
               style: AppTextStyles.textTheme.headlineMedium!.copyWith(
                 color: Colors.white,
               ),
@@ -28,7 +28,7 @@ class UserWidgets {
           onTap: () => NavigationHelper.go(RouteNames.addUserName),
           child: Chip(
             label: Text(
-              'Add User Name',
+              'Create Username(s)',
               style: AppTextStyles.textTheme.headlineMedium!.copyWith(
                 color: Colors.white,
               ),
@@ -99,7 +99,13 @@ class UserWidgets {
           tableCellRow(val.schools?.schoolName ?? ''),
           tableCellRow((val.student?.isEmpty ?? true) ? 'Teacher' : 'Student'),
           tableCellRow(val.username ?? ''),
-          TableCell(child: Chip(label: Text('Edit'))),
+          TableCell(
+            child: GestureDetector(
+              onTap: () =>
+                  NavigationHelper.go(RouteNames.editUsers, extra: val.userId),
+              child: Chip(label: Text('View/Edit')),
+            ),
+          ),
         ]);
       }),
     ],

@@ -1,3 +1,6 @@
+import 'package:yoyo_web_app/config/constants/constants.dart';
+import 'package:yoyo_web_app/features/home/model/phrases_model.dart';
+
 class UserResult {
   int? id;
   DateTime? createdAt;
@@ -11,6 +14,7 @@ class UserResult {
   List<String>? badWords;
   int? listen;
   String? type;
+  PhraseModel? phraseModel;
 
   UserResult({
     this.id,
@@ -25,6 +29,7 @@ class UserResult {
     this.badWords,
     this.listen,
     this.type,
+    this.phraseModel,
   });
 
   factory UserResult.fromJson(Map<String, dynamic> json) {
@@ -45,6 +50,9 @@ class UserResult {
           .toList(),
       badWords: (json['bad_words'] as List?)?.map((e) => e.toString()).toList(),
       type: json['type'] as String?,
+      phraseModel: json[DbTable.phrase] != null
+          ? PhraseModel.fromJson(json[DbTable.phrase])
+          : null,
     );
   }
 

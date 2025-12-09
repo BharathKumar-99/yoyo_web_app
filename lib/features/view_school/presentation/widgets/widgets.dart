@@ -58,9 +58,7 @@ class ReusableUserTable extends StatelessWidget {
                   DataCell(Text(data.userModel?.firstName ?? "")),
                   DataCell(Text(data.userModel?.surName ?? "")),
                   DataCell(
-                    Text(
-                      data.userModel?.lastLogin != null ? 'Logged In' : 'No',
-                    ),
+                    Text(data.userModel?.isActivated ?? false ? 'Yes' : 'No'),
                   ),
                   DataCell(Text(data.effort?.toString() ?? "")),
                   DataCell(Text(data.vocab?.toString() ?? "")),

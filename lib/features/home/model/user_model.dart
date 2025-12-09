@@ -13,6 +13,9 @@ class UserModel {
   String? username;
   DateTime? lastLogin;
   bool? onboarding;
+  bool? isActivated;
+  bool? isLoggedIn;
+  bool? isTester;
   List<UserResult>? userResult;
   List<Student>? student;
   School? schools;
@@ -28,8 +31,11 @@ class UserModel {
     this.lastLogin,
     this.onboarding,
     this.userResult,
+    this.isLoggedIn,
     this.student,
     this.schools,
+    this.isActivated,
+    this.isTester,
   });
 
   UserModel.fromJson(Map<String, dynamic> json) {
@@ -39,6 +45,9 @@ class UserModel {
     surName = json['sur_name'];
     email = json['email'];
     username = json['username'];
+    isActivated = json['is_activated'];
+    isTester = json['is_tester'];
+    isLoggedIn = json['is_logged_in'];
     school = json['school'] != null && json['school'] is int
         ? json['school']
         : null;
@@ -73,6 +82,9 @@ class UserModel {
       'sur_name': surName,
       'last_login': lastLogin?.toIso8601String(),
       'onboarding': onboarding,
+      'is_activated': isActivated,
+      'is_logged_in': isLoggedIn,
+      'is_tester': isTester,
     };
   }
 }

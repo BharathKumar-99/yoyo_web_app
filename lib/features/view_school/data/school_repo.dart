@@ -7,7 +7,7 @@ class SchoolRepo extends ApiRepo {
     final data = await client
         .from(DbTable.school)
         .select(
-          '''*,${DbTable.schoolLanguage}(*,${DbTable.language}(*)),${DbTable.classes}(*,${DbTable.student}(*,${DbTable.users}(*,${DbTable.userResult}(*))))''',
+          '''*,${DbTable.schoolLanguage}(*,${DbTable.language}(*, ${DbTable.phrase}(*))),${DbTable.classes}(*,${DbTable.student}(*,${DbTable.users}(*,${DbTable.userResult}(*))))''',
         )
         .eq('id', id)
         .maybeSingle();

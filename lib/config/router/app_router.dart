@@ -4,6 +4,7 @@ import 'package:yoyo_web_app/core/supabase/supabase_client.dart';
 import 'package:yoyo_web_app/features/add_school/presentation/add_school_screen.dart';
 import 'package:yoyo_web_app/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:yoyo_web_app/features/edit_school/presentation/edit_school.dart';
+import 'package:yoyo_web_app/features/edit_user/presentation/edit_user_screen.dart';
 import 'package:yoyo_web_app/features/home/presentation/home_screen.dart';
 import 'package:yoyo_web_app/features/phrases/presentation/phrases_screen.dart';
 import 'package:yoyo_web_app/features/view_school/presentation/view_school_screen.dart';
@@ -61,6 +62,11 @@ class AppRoutes {
           GoRoute(
             path: RouteNames.addUsers,
             builder: (context, state) => const AddUserScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.editUsers,
+            builder: (context, state) =>
+                EditUserScreen(userId: state.extra as String),
           ),
           GoRoute(
             path: RouteNames.addUserName,
