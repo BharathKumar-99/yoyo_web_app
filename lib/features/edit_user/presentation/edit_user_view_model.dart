@@ -1,5 +1,9 @@
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:yoyo_web_app/config/router/navigation_helper.dart';
+import 'package:yoyo_web_app/config/router/route_names.dart';
 import 'package:yoyo_web_app/config/utils/global_loader.dart';
+import 'package:yoyo_web_app/config/utils/usefull_functions.dart';
 import 'package:yoyo_web_app/features/edit_user/data/edit_user_repo.dart';
 import 'package:yoyo_web_app/features/home/model/classes_model.dart';
 import 'package:yoyo_web_app/features/home/model/school.dart';
@@ -95,5 +99,26 @@ class EditUserViewModel extends ChangeNotifier {
     user = await _repo.getUserData(userId);
     notifyListeners();
     GlobalLoader.hide();
+  }
+
+  void deleteAccount(String userId) async {
+    GlobalLoader.show();
+    bool result = await _repo.deleteUser(userId);
+    GlobalLoader.hide();
+
+    if (result) {
+      NavigationHelper.go(RouteNames.users);
+      UsefullFunctions.showAwesomeSnackbarContent(
+        'User Deleted',
+        'Success',
+        ContentType.success,
+      );
+    } else {
+      UsefullFunctions.showAwesomeSnackbarContent(
+        'Failed to delete user',
+        'Failed',
+        ContentType.failure,
+      );
+    }
   }
 }

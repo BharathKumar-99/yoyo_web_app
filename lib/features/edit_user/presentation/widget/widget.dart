@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/config/theme/app_text_styles.dart';
 import 'package:yoyo_web_app/features/edit_user/presentation/edit_user_view_model.dart';
 import 'package:yoyo_web_app/features/home/model/classes_model.dart';
@@ -125,6 +126,43 @@ class EditUserWidgets {
                   child: Text('Update'),
                 ),
             ],
+          ),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade600,
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () => showDialog(
+              context: ctx!,
+              builder: (_) => AlertDialog.adaptive(
+                title: Text("Delete Account"),
+                content: Text(
+                  "Are you sure you want to delete this student? This action cannot be undone.",
+                ),
+                actions: [
+                  TextButton(
+                    child: Text("Cancel"),
+                    onPressed: () => {Navigator.pop(ctx!)},
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                    ),
+                    child: Text("Delete"),
+                    onPressed: () {
+                      Navigator.pop(ctx!);
+                      value.deleteAccount(value.userId);
+                    },
+                  ),
+                ],
+              ),
+            ),
+            icon: Icon(Icons.delete),
+            label: Text("Delete Account"),
           ),
         ],
       ),

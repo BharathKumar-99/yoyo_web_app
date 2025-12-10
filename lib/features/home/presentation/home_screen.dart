@@ -16,9 +16,9 @@ class HomeScreen extends StatelessWidget {
       create: (_) => HomeViewModel(),
       child: Consumer<HomeViewModel>(
         builder: (context, value, w) => ResponsiveLayout(
-          mobile: homeMobile(value),
-          tablet: homeTablet(value),
-          desktop: homeWebsite(value),
+          mobile: homeMobile(value, context),
+          tablet: homeTablet(value, context),
+          desktop: homeWebsite(value, context),
         ),
       ),
     );

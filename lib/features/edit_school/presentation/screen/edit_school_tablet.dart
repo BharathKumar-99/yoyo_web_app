@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:yoyo_web_app/features/common/widgets.dart';
 import 'package:yoyo_web_app/features/edit_school/presentation/edit_school_view_model.dart';
 
 import '../widget/edit_school_widget.dart';
 
 editSchoolTablet(EditSchoolViewModel viewModel) => Scaffold(
-  appBar: CommonWidgets.homeAppBar(),
+  //appBar: CommonWidgets.homeAppBar(),
   body: SingleChildScrollView(
     child: Padding(
       padding: const EdgeInsets.all(20.0),

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:yoyo_web_app/config/constants/constants.dart';
+import 'package:yoyo_web_app/config/router/navigation_helper.dart';
+import 'package:yoyo_web_app/config/router/route_names.dart';
 import 'package:yoyo_web_app/config/theme/app_text_styles.dart';
 import 'package:yoyo_web_app/features/dashboard/presentation/dashboard_view_model.dart';
 
@@ -28,18 +30,21 @@ class DashboardWidget {
       onDestinationSelected: dashboardViewModel.changeIndex,
       indicatorColor: Colors.white,
       tilePadding: EdgeInsetsGeometry.symmetric(horizontal: 20, vertical: 5),
-      footer: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(Icons.settings_outlined, color: Colors.white),
-          Text(
-            'Settings',
-            style: AppTextStyles.textTheme.bodyMedium!.copyWith(
-              color: Colors.white,
+      footer: GestureDetector(
+        onTap: () => NavigationHelper.go(RouteNames.settings),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Icon(Icons.settings_outlined, color: Colors.white),
+            Text(
+              'Settings',
+              style: AppTextStyles.textTheme.bodyMedium!.copyWith(
+                color: Colors.white,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
       children: getNavigationElements
           .map(

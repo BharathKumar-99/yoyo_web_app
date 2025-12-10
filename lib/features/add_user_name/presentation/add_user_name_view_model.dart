@@ -155,8 +155,9 @@ class AddUserNameViewModel extends ChangeNotifier {
     for (int i = 1; i < rows.length; i++) {
       final row = rows[i];
 
-      if (row.length <= usernameIndex || row.length <= activationIndex)
+      if (row.length <= usernameIndex || row.length <= activationIndex) {
         continue;
+      }
 
       list.add(
         UserActivationModel(

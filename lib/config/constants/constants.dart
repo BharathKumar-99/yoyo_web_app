@@ -37,6 +37,7 @@ class DbTable {
   static const String attemptedPhrases = 'attempted_phrases';
   static const String remoteConfig = 'remote_config';
   static const String userResult = 'user_results';
+  static const String streakTable = 'streak_table';
 }
 
 class Stroage {

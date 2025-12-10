@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:yoyo_web_app/features/home/presentation/home_view_model.dart';
 
 import '../../../common/widgets.dart';
+import '../widget/student_table.dart';
 import '../widget/widgets.dart';
 
-Widget homeTablet(HomeViewModel viewModel) => Padding(
+Widget homeTablet(HomeViewModel viewModel, BuildContext context) => Padding(
   padding: const EdgeInsets.all(29.0),
   child: Scaffold(
     appBar: CommonWidgets.homeAppBar(),
@@ -14,7 +15,10 @@ Widget homeTablet(HomeViewModel viewModel) => Padding(
         child: Column(
           spacing: 30,
           children: [
-            HomeWidgets.schoolHeading(),
+            SizedBox(
+              width: MediaQuery.sizeOf(context).width,
+              child: HomeWidgets.getFilters(viewModel),
+            ),
             Wrap(
               spacing: 20,
               runSpacing: 20,
@@ -33,14 +37,30 @@ Widget homeTablet(HomeViewModel viewModel) => Padding(
                   '15%',
                 ),
                 HomeWidgets.homeCard(
-                  'Average Score',
+                 'Avg. Score',
                   '${viewModel.avrageScore}%',
                   '8%',
                 ),
               ],
             ),
-            FilterSection(viewModel: viewModel),
-            HomeWidgets.schoolWidget(viewModel),
+            SizedBox(
+              height: 180,
+              child: Column(
+                spacing: 10,
+                children: [
+                  Expanded(
+                    child: HomeWidgets.getWordsCard(viewModel.goodWords),
+                  ),
+                  Expanded(
+                    child: HomeWidgets.getWordsCard(
+                      viewModel.badWords,
+                      color: Colors.red,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            StudentTable(students: viewModel.filteredStudents),
           ],
         ),
       ),

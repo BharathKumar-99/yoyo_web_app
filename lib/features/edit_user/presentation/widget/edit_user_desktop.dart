@@ -10,6 +10,8 @@ editUserDesktop(EditUserViewModel value) {
       child: Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Expanded(child: EditUserWidgets().userDetails(value)),
               Expanded(child: EditUserWidgets().userMetrics(value)),

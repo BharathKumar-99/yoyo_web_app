@@ -1,28 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:yoyo_web_app/features/home/data/home_repo.dart';
 import 'package:yoyo_web_app/features/home/model/language_model.dart';
-import 'package:yoyo_web_app/features/home/model/table_model.dart';
+import 'package:yoyo_web_app/features/home/model/student_model.dart';
 import 'package:yoyo_web_app/features/home/model/user_result_model.dart';
 
+import '../../add_user/model/level.dart';
 import '../model/classes_model.dart';
 import '../model/school.dart';
-import '../model/student_model.dart';
 
 class HomeViewModel extends ChangeNotifier {
   final HomeRepo _repo = HomeRepo();
   List<School> homedata = [];
-  List<TableModel> tableModel = [];
-  List<TableModel> filteredTableModel = [];
   List<Language?> languages = [];
   int participation = 0;
   int effort = 0;
   int avrageScore = 0;
-  String? selectedSchool;
-  String? selectedLaunguage;
   List<int> efforts = [];
   List<int> average = [];
   List<UserResult> participationList = [];
   int totalNoStudents = 0;
+  School? selectedSchool;
+  Classes? selectedClass;
+  Level? selectedLevel;
+  String? selectedTimeFrame;
+  List<Level> levels = [];
+  List<String> timeFrame = ["Today", "This Week", "This Month", "This Year"];
+  Language? selectedLanguage;
+  List<String> goodWords = [];
+  List<String> badWords = [];
+  List<Student> students = [];
+  List<Student> filteredStudents = [];
 
   HomeViewModel() {
     getHomeData();
@@ -35,75 +42,12 @@ class HomeViewModel extends ChangeNotifier {
       element.schoolLanguage?.forEach((val) {
         languages.add(val.language);
       });
-      tableModel.add(
-        TableModel(
-          element.id,
-          element.schoolName ?? '',
-          element.classes
-                  ?.map((val) => extractClassNumber(val.className ?? ''))
-                  .toList() ??
-              [],
-          element.principle ?? '',
-          element.schoolLanguage
-                  ?.map((scL) => scL.language?.language ?? '')
-                  .toList()
-                  .join(',') ??
-              '',
-
-          getAvgScore(element.classes),
-        ),
-      );
     }
-    filteredTableModel = tableModel;
-    selectedLaunguage = 'All';
-    selectedSchool = 'All';
-    int avgScore = 0;
-    int effScore = 0;
-    for (var va in average) {
-      avgScore = avgScore + va;
-    }
-    for (var va in efforts) {
-      effScore = effScore + va;
-    }
-    avrageScore = (avgScore / average.length).toInt();
-    effort = (effScore / efforts.length).toInt();
-    participation = ((participationList.length / totalNoStudents) * 100)
-        .toInt();
+    languages = languages.toSet().toList();
+    levels = await _repo.getLevel();
+    applyFilter();
+    applyStudentFilter();
     notifyListeners();
-  }
-
-  int? extractClassNumber(String className) {
-    final regex = RegExp(r'Y(\d{2})'); // Matches "Y" followed by 2 digits
-    final match = regex.firstMatch(className);
-    if (match != null) {
-      return int.tryParse(match.group(1)!);
-    }
-    return null;
-  }
-
-  int getAvgScore(List<Classes?>? classes) {
-    List<Student> students = [];
-
-    int score = 0;
-    classes?.forEach((val) {
-      val?.students?.forEach((stu) => students.add(stu));
-    });
-
-    int totaScore = 0;
-    int totalEffort = 0;
-    for (var val in students) {
-      totaScore = totaScore + (val.score ?? 0);
-      totalEffort = totalEffort + (val.effort ?? 0);
-      val.userModel?.userResult?.forEach((v) {
-        participationList.add(v);
-      });
-    }
-    participationList = getUniqueUsers(participationList);
-    score = (totaScore / (students.length)).toInt();
-    average.add(score);
-    efforts.add(totalEffort);
-    totalNoStudents = totalNoStudents + (students.length);
-    return score;
   }
 
   List<UserResult> getUniqueUsers(List<UserResult> usersResult) {
@@ -111,44 +55,199 @@ class HomeViewModel extends ChangeNotifier {
     final uniqueList = <UserResult>[];
 
     for (var user in usersResult) {
-      if (user.userId != null && !seen.contains(user.userId)) {
-        seen.add(user.userId!);
-        uniqueList.add(user);
+      if (user.type == 'Learned') {
+        if (user.userId != null && !seen.contains(user.userId)) {
+          seen.add(user.userId!);
+          uniqueList.add(user);
+        }
       }
     }
 
     return uniqueList;
   }
 
-  changeLanguage(String val) {
-    selectedLaunguage = val;
-    notifyListeners();
-  }
-
-  changeSchool(String val) {
+  void selectSchool(School? val) {
     selectedSchool = val;
+    selectedClass = null;
+    applyFilter();
     notifyListeners();
   }
 
-  void applyFilter() {
-    if ((selectedSchool == null || selectedSchool == "All") &&
-        (selectedLaunguage == null || selectedLaunguage == "All")) {
-      filteredTableModel = List.from(tableModel);
-    } else {
-      filteredTableModel = tableModel.where((table) {
-        final schoolMatch = (selectedSchool == "All" || selectedSchool == null)
-            ? true
-            : table.name == selectedSchool;
+  void selectClass(Classes? val) {
+    selectedClass = val;
+    applyFilter();
+    notifyListeners();
+  }
 
-        final languageMatch =
-            (selectedLaunguage == "All" || selectedLaunguage == null)
-            ? true
-            : table.languages.split(',').contains(selectedLaunguage);
+  void selectLevel(Level? val) {
+    selectedLevel = val;
+    applyStudentFilter();
+    notifyListeners();
+  }
 
-        return schoolMatch && languageMatch;
-      }).toList();
+  void selectTimeFrame(String? val) {
+    selectedTimeFrame = val;
+    applyStudentFilter();
+    notifyListeners();
+  }
+
+  void selectLanguage(Language? val) {
+    selectedLanguage = val;
+    applyStudentFilter();
+    notifyListeners();
+  }
+
+  applyFilter() {
+    totalNoStudents = 0;
+    effort = 0;
+    avrageScore = 0;
+    int scoreSum = 0;
+    participationList = [];
+    students = [];
+    selectedSchool == null
+        ? homedata.forEach((val) {
+            val.classes?.forEach((cal) {
+              totalNoStudents = totalNoStudents + (cal.students?.length ?? 0);
+
+              cal.students?.forEach((std) {
+                students.add(std);
+                scoreSum = scoreSum + (std.score ?? 0);
+                std.userModel?.userResult?.forEach((user) {
+                  participationList.add(user);
+                });
+              });
+            });
+          })
+        : selectedClass == null
+        ? selectedSchool?.classes?.forEach((cal) {
+            totalNoStudents = totalNoStudents + (cal.students?.length ?? 0);
+            cal.students?.forEach((std) {
+              students.add(std);
+              scoreSum = scoreSum + (std.score ?? 0);
+              std.userModel?.userResult?.forEach((user) {
+                participationList.add(user);
+              });
+            });
+          })
+        : selectedClass?.students?.forEach((std) {
+            students.add(std);
+            totalNoStudents = totalNoStudents + 1;
+            scoreSum = scoreSum + (std.score ?? 0);
+            std.userModel?.userResult?.forEach((user) {
+              participationList.add(user);
+            });
+          });
+    filteredStudents = students;
+    for (var attempt in participationList) {
+      attempt.goodWords?.forEach((val) {
+        goodWords.add(val);
+      });
+      attempt.badWords?.forEach((val) {
+        badWords.add(val);
+      });
+      effort = effort + (attempt.attempt ?? 0);
     }
 
+    participationList = getUniqueUsers(participationList);
+    participation = (((participationList.length) / (totalNoStudents)) * 100)
+        .toInt();
+    avrageScore = (scoreSum / totalNoStudents).toInt();
+    goodWords = getTopWords(goodWords);
+    badWords = getTopWords(badWords);
+
     notifyListeners();
+  }
+
+  void applyStudentFilter() {
+    final List<Student> originalList = students;
+    filteredStudents = [];
+
+    bool matchLanguage(UserResult val) {
+      if (selectedLanguage == null) return true;
+      return (val.phraseModel?.language ?? 0) == selectedLanguage!.id;
+    }
+
+    bool matchTimeFrame(DateTime date) {
+      switch (selectedTimeFrame) {
+        case 'Today':
+          return date.isToday;
+        case 'This Week':
+          return date.isThisWeek;
+        case 'This Month':
+          return date.isThisMonth;
+        case 'This Year':
+          return date.isThisYear;
+        default:
+          return true;
+      }
+    }
+
+    for (var student in originalList) {
+      // Level filter
+      if (selectedLevel != null && student.level?.id != selectedLevel!.id) {
+        continue; // Skip this student
+      }
+
+      final results = <UserResult>[];
+
+      for (var val in (student.userModel?.userResult ?? [])) {
+        final date = val.createdAt!;
+        if (matchTimeFrame(date) && matchLanguage(val)) {
+          results.add(val);
+        }
+      }
+
+      // Only include the student if they have filtered results
+      if (results.isNotEmpty) {
+        student.userModel?.userResult = results;
+        filteredStudents.add(student);
+      }
+    }
+  }
+
+  List<String> getTopWords(List<String> words, {int top = 10}) {
+    final counts = <String, int>{};
+
+    for (var w in words) {
+      w = w.toLowerCase().trim();
+      if (w.isEmpty) continue;
+
+      counts[w] = (counts[w] ?? 0) + 1;
+    }
+
+    final sortedKeys = counts.keys.toList()
+      ..sort((a, b) => counts[b]!.compareTo(counts[a]!));
+
+    return sortedKeys.take(top).toList();
+  }
+}
+
+extension DateExtensions on DateTime {
+  bool get isToday {
+    final now = DateTime.now();
+    return year == now.year && month == now.month && day == now.day;
+  }
+
+  bool get isThisWeek {
+    final now = DateTime.now();
+
+    // Start of current week (Monday)
+    final startOfWeek = now.subtract(Duration(days: now.weekday - 1));
+    // End of current week (Sunday)
+    final endOfWeek = startOfWeek.add(
+      const Duration(days: 6, hours: 23, minutes: 59, seconds: 59),
+    );
+
+    return isAfter(startOfWeek) && isBefore(endOfWeek);
+  }
+
+  bool get isThisMonth {
+    final now = DateTime.now();
+    return year == now.year && month == now.month;
+  }
+
+  bool get isThisYear {
+    final now = DateTime.now();
+    return year == now.year;
   }
 }

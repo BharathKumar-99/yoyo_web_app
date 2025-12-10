@@ -10,4 +10,5 @@ class RouteNames {
   static const String addSchool = '/addSchool';
   static const String editSchool = '/editSchool';
   static const String viewSchool = '/viewSchool';
+  static const String settings = '/settings';
 }

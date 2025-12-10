@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:yoyo_web_app/config/constants/constants.dart';
 import 'package:yoyo_web_app/core/api/repo.dart';
+import 'package:yoyo_web_app/features/add_user/model/level.dart';
 import 'package:yoyo_web_app/features/home/model/school.dart';
 
 class HomeRepo extends ApiRepo {
@@ -10,7 +11,7 @@ class HomeRepo extends ApiRepo {
 
     try {
       final data = await client.from(DbTable.school).select(
-        '''*,${DbTable.schoolLanguage}(*,${DbTable.language}(*)),${DbTable.classes}(*,${DbTable.student}(*,${DbTable.users}(*,${DbTable.userResult}(*))))''',
+        '''*,${DbTable.schoolLanguage}(*,${DbTable.language}(*)),${DbTable.classes}(*,${DbTable.student}(*,${DbTable.classes}(*),${DbTable.level}(*),${DbTable.users}(*,${DbTable.userResult}(*,${DbTable.phrase}(*)))))''',
       );
 
       for (var val in data as List) {
@@ -21,5 +22,19 @@ class HomeRepo extends ApiRepo {
     }
 
     return schoolData;
+  }
+
+  Future<List<Level>> getLevel() async {
+    List<Level> lvl = [];
+
+    try {
+      final data = await client.from(DbTable.level).select("*");
+      for (var element in data) {
+        lvl.add(Level.fromJson(element));
+      }
+    } catch (e) {
+      log(e.toString());
+    }
+    return lvl;
   }
 }

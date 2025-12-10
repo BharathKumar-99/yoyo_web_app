@@ -3,8 +3,9 @@ import 'package:yoyo_web_app/features/home/presentation/home_view_model.dart';
 import 'package:yoyo_web_app/features/home/presentation/widget/widgets.dart';
 
 import '../../../common/widgets.dart';
+import '../widget/student_table.dart';
 
-Widget homeWebsite(HomeViewModel viewModel) => Padding(
+Widget homeWebsite(HomeViewModel viewModel, BuildContext context) => Padding(
   padding: const EdgeInsets.all(29.0),
   child: Scaffold(
     appBar: CommonWidgets.homeAppBar(),
@@ -14,39 +15,70 @@ Widget homeWebsite(HomeViewModel viewModel) => Padding(
         child: Column(
           spacing: 30,
           children: [
-            HomeWidgets.schoolHeading(),
-            Row(
-              children: [
-                Expanded(
-                  child: Wrap(
-                    spacing: 20,
-                    runSpacing: 20,
-                    alignment: WrapAlignment.start,
-                    crossAxisAlignment: WrapCrossAlignment.start,
-                    direction: Axis.horizontal,
-                    children: [
-                      HomeWidgets.homeCard(
-                        'Participation',
-                        '${viewModel.participation}%',
-                        '5%',
-                      ),
-                      HomeWidgets.homeCard(
-                        'Effort',
-                        viewModel.effort.toString(),
-                        '15%',
-                      ),
-                      HomeWidgets.homeCard(
-                        'Average Score',
-                        '${viewModel.avrageScore}%',
-                        '8%',
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(child: FilterSection(viewModel: viewModel)),
-              ],
+            // HomeWidgets.schoolHeading(),
+            SizedBox(
+              width: MediaQuery.sizeOf(context).width,
+              child: HomeWidgets.getFilters(viewModel),
             ),
-            HomeWidgets.schoolWidget(viewModel),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Row(
+                      spacing: 20,
+
+                      children: [
+                        Expanded(
+                          child: HomeWidgets.homeCard(
+                            'Participation',
+                            '${viewModel.participation}%',
+                            '5%',
+                          ),
+                        ),
+                        Expanded(
+                          child: HomeWidgets.homeCard(
+                            'Effort',
+                            viewModel.effort.toString(),
+                            '15%',
+                          ),
+                        ),
+                        Expanded(
+                          child: HomeWidgets.homeCard(
+                            'Avg. Score',
+                            '${viewModel.avrageScore}%',
+                            '8%',
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(width: 20),
+                  Expanded(
+                    child: SizedBox(
+                      height: 180,
+                      child: Column(
+                        spacing: 10,
+                        children: [
+                          Expanded(
+                            child: HomeWidgets.getWordsCard(
+                              viewModel.goodWords,
+                            ),
+                          ),
+                          Expanded(
+                            child: HomeWidgets.getWordsCard(
+                              viewModel.badWords,
+                              color: Colors.red,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            StudentTable(students: viewModel.filteredStudents),
           ],
         ),
       ),
