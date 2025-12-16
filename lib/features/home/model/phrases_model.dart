@@ -1,5 +1,7 @@
+import 'package:yoyo_web_app/config/constants/constants.dart';
 import 'package:yoyo_web_app/features/add_user/model/level.dart';
 import 'package:yoyo_web_app/features/home/model/language_model.dart';
+import 'package:yoyo_web_app/features/phrases/model/phrases_categories.dart';
 
 class PhraseModel {
   int? id;
@@ -14,6 +16,7 @@ class PhraseModel {
   int? score;
   Level? levelData;
   Language? languageData;
+  PhraseCategories? phraseCategories;
 
   PhraseModel({
     this.id,
@@ -28,6 +31,7 @@ class PhraseModel {
     this.score,
     this.levelData,
     this.languageData,
+    this.phraseCategories,
   });
 
   factory PhraseModel.fromJson(Map<String, dynamic> json) {
@@ -46,6 +50,9 @@ class PhraseModel {
       levelData: json['level'] is Map? ? Level.fromJson(json['level']) : null,
       languageData: json['language'] is Map?
           ? Language.fromJson(json['language'])
+          : null,
+      phraseCategories: json[DbTable.phraseCategories] is Map
+          ? PhraseCategories.fromJson(json[DbTable.phraseCategories])
           : null,
     );
   }

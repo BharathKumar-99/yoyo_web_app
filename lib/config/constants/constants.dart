@@ -29,6 +29,7 @@ class DbTable {
   static const String language = 'language';
   static const String level = 'level';
   static const String phrase = 'phrase';
+  static const String phraseCategories = 'phrase_categories';
   static const String school = 'school';
   static const String schoolLanguage = 'school_language';
   static const String student = 'student';

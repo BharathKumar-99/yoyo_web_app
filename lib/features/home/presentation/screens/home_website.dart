@@ -9,6 +9,13 @@ Widget homeWebsite(HomeViewModel viewModel, BuildContext context) => Padding(
   padding: const EdgeInsets.all(29.0),
   child: Scaffold(
     appBar: CommonWidgets.homeAppBar(),
+    floatingActionButton: viewModel.selectedSchool != null
+        ? ElevatedButton(
+            onPressed: () => viewModel.pdfCreater(),
+            child: Text('Generate Pdf'),
+          )
+        : null,
+
     body: SingleChildScrollView(
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 29.0),
@@ -78,7 +85,10 @@ Widget homeWebsite(HomeViewModel viewModel, BuildContext context) => Padding(
                 ],
               ),
             ),
-            StudentTable(students: viewModel.filteredStudents),
+            StudentTable(
+              students: viewModel.filteredStudents,
+              provider: viewModel,
+            ),
           ],
         ),
       ),

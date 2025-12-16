@@ -11,6 +11,7 @@ Widget userTablet(UsersViewModel viewModel) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 29.0),
       child: SingleChildScrollView(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             UserWidgets.userHeading(viewModel),
             SizedBox(height: 20),

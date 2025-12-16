@@ -6,12 +6,18 @@ import 'package:yoyo_web_app/features/edit_school/presentation/edit_school.dart'
 import 'package:yoyo_web_app/features/home/model/school.dart';
 import 'package:yoyo_web_app/features/settings/presentation/settings_view_model.dart';
 
-settingsMobile(SettingsViewModel value) =>
-    Scaffold(appBar: CommonWidgets.homeAppBarMobile(), body: data(value));
-settingsTablet(SettingsViewModel value) =>
-    Scaffold(appBar: CommonWidgets.homeAppBar(), body: data(value));
-settingsDesktop(SettingsViewModel value) =>
-    Scaffold(appBar: CommonWidgets.homeAppBar(), body: data(value));
+settingsMobile(SettingsViewModel value) => Padding(
+  padding: const EdgeInsets.all(29.0),
+  child: Scaffold(appBar: CommonWidgets.homeAppBarMobile(), body: data(value)),
+);
+settingsTablet(SettingsViewModel value) => Padding(
+  padding: const EdgeInsets.all(29.0),
+  child: Scaffold(appBar: CommonWidgets.homeAppBar(), body: data(value)),
+);
+settingsDesktop(SettingsViewModel value) => Padding(
+  padding: const EdgeInsets.all(29.0),
+  child: Scaffold(appBar: CommonWidgets.homeAppBar(), body: data(value)),
+);
 
 data(SettingsViewModel value) {
   OutlineInputBorder border = OutlineInputBorder(
@@ -30,42 +36,48 @@ data(SettingsViewModel value) {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    'School',
-                    style: AppTextStyles.textTheme.headlineMedium!.copyWith(
-                      color: Colors.grey,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  DropdownButtonFormField<School>(
-                    initialValue: value.selectedSchool,
-                    items: [
-                      ...value.schools.map(
-                        (e) => DropdownMenuItem(
-                          value: e,
-                          child: Text(
-                            e.schoolName ?? '',
-                            overflow: TextOverflow.ellipsis,
+                  if (value.teacherModel?.isEmpty ?? true)
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'School',
+                          style: AppTextStyles.textTheme.headlineMedium!
+                              .copyWith(color: Colors.grey),
+                        ),
+                        const SizedBox(height: 6),
+
+                        DropdownButtonFormField<School>(
+                          initialValue: value.selectedSchool,
+                          items: [
+                            ...value.schools.map(
+                              (e) => DropdownMenuItem(
+                                value: e,
+                                child: Text(
+                                  e.schoolName ?? '',
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ),
+                          ],
+                          onChanged: (val) => value.selectSchool(val!),
+                          decoration: InputDecoration(
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 14,
+                            ),
+                            border: border,
+                            enabledBorder: border,
+                            focusedBorder: border.copyWith(
+                              borderSide: const BorderSide(
+                                color: Color(0xff9D5DE6),
+                                width: 2,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-                    onChanged: (val) => value.selectSchool(val!),
-                    decoration: InputDecoration(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 14,
-                      ),
-                      border: border,
-                      enabledBorder: border,
-                      focusedBorder: border.copyWith(
-                        borderSide: const BorderSide(
-                          color: Color(0xff9D5DE6),
-                          width: 2,
-                        ),
-                      ),
+                      ],
                     ),
-                  ),
                 ],
               ),
             ),

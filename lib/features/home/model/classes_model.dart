@@ -1,3 +1,5 @@
+import 'package:yoyo_web_app/config/constants/constants.dart';
+import 'package:yoyo_web_app/features/home/model/class_level_model.dart';
 import 'package:yoyo_web_app/features/home/model/school.dart';
 import 'package:yoyo_web_app/features/home/model/student_model.dart';
 
@@ -9,6 +11,7 @@ class Classes {
   int? submissionThreshold;
   List<Student>? students;
   School? school;
+  List<ClassLevel>? classLevel;
 
   Classes({
     this.id,
@@ -18,6 +21,7 @@ class Classes {
     this.submissionThreshold,
     this.students,
     this.school,
+    this.classLevel,
   });
 
   factory Classes.fromJson(Map<String, dynamic> json) {
@@ -35,6 +39,11 @@ class Classes {
           .toList(),
       school: json['school'] != null && json['school'] is Map?
           ? School.fromJson(json['school'])
+          : null,
+      classLevel: json[DbTable.classLevel] != null
+          ? (json[DbTable.classLevel] as List?)
+                ?.map((e) => ClassLevel.fromJson(e))
+                .toList()
           : null,
     );
   }

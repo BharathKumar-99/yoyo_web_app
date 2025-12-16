@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:yoyo_web_app/features/common/common_view_model.dart';
 import 'package:yoyo_web_app/features/profile/presentation/profile_view_model.dart';
 import 'config/router/app_router.dart';
 import 'config/theme/app_theme.dart';
@@ -19,7 +20,10 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
-      providers: [ChangeNotifierProvider(create: (_) => ProfileViewModel())],
+      providers: [
+        ChangeNotifierProvider(create: (_) => ProfileViewModel()),
+        ChangeNotifierProvider(create: (_) => CommonViewModel()),
+      ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
         supportedLocales: const [Locale('en')],

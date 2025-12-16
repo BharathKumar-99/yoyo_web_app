@@ -9,7 +9,7 @@ class PhrasesRepo extends ApiRepo {
     List<PhraseModel> phrases = [];
     try {
       final data = await client.from(DbTable.phrase).select(
-        '''*,${DbTable.language}(*),${DbTable.level}(*)''',
+        '''*,${DbTable.phraseCategories}(*),${DbTable.language}(*),${DbTable.level}(*)''',
       );
       for (var val in data) {
         phrases.add(PhraseModel.fromJson(val));

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:yoyo_web_app/config/constants/constants.dart';
-import 'package:yoyo_web_app/config/router/navigation_helper.dart';
-import 'package:yoyo_web_app/config/router/route_names.dart';
 import 'package:yoyo_web_app/config/theme/app_text_styles.dart';
 import 'package:yoyo_web_app/features/dashboard/presentation/dashboard_view_model.dart';
 
@@ -12,38 +10,62 @@ class DashboardWidget {
     {'icon': Icons.person_outline_rounded, 'label': 'Users', 'index': 2},
   ];
 
-  static drawer(DashboardViewModel dashboardViewModel) => Container(
+  static drawer(
+    DashboardViewModel dashboardViewModel, {
+    bool isWeb = false,
+  }) => Container(
     padding: EdgeInsets.symmetric(vertical: 20),
     decoration: BoxDecoration(
       gradient: LinearGradient(colors: [Color(0xff9D5DE6), Color(0xffF78C59)]),
     ),
     child: NavigationDrawer(
       backgroundColor: Colors.transparent,
-      header: Align(
-        alignment: Alignment.topLeft,
-        child: Padding(
-          padding: EdgeInsetsGeometry.symmetric(horizontal: 20, vertical: 5),
-          child: Image.asset(ImageConstants.logoBW, height: 60, width: 60),
-        ),
+      header: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Padding(
+            padding: EdgeInsetsGeometry.symmetric(horizontal: 20, vertical: 5),
+            child: Image.asset(ImageConstants.logoBW, height: 60, width: 60),
+          ),
+          GestureDetector(
+            onTap: () => dashboardViewModel.changeDrawer(),
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 20),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.white),
+                borderRadius: BorderRadius.circular(5),
+              ),
+              child: Icon(Icons.arrow_back, color: Colors.white, size: 30),
+            ),
+          ),
+        ],
       ),
-      selectedIndex: dashboardViewModel.selectedIndex,
+      selectedIndex: dashboardViewModel.isSettingsOpen
+          ? null
+          : dashboardViewModel.selectedIndex,
       onDestinationSelected: dashboardViewModel.changeIndex,
       indicatorColor: Colors.white,
       tilePadding: EdgeInsetsGeometry.symmetric(horizontal: 20, vertical: 5),
       footer: GestureDetector(
-        onTap: () => NavigationHelper.go(RouteNames.settings),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Icon(Icons.settings_outlined, color: Colors.white),
-            Text(
-              'Settings',
-              style: AppTextStyles.textTheme.bodyMedium!.copyWith(
-                color: Colors.white,
+        onTap: () {
+          dashboardViewModel.openSettings();
+        },
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 40),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 15,
+            children: [
+              Icon(Icons.settings_outlined, color: Colors.white),
+              Text(
+                'Settings',
+                style: AppTextStyles.textTheme.bodyMedium!.copyWith(
+                  color: Colors.white,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
       children: getNavigationElements
@@ -51,14 +73,18 @@ class DashboardWidget {
             (val) => NavigationDrawerDestination(
               icon: Icon(
                 val['icon'],
-                color: val['index'] == dashboardViewModel.selectedIndex
+                color: dashboardViewModel.isSettingsOpen
+                    ? Colors.white
+                    : val['index'] == dashboardViewModel.selectedIndex
                     ? Colors.black
                     : Colors.white,
               ),
               label: Text(
                 val['label'],
                 style: AppTextStyles.textTheme.bodyMedium!.copyWith(
-                  color: val['index'] == dashboardViewModel.selectedIndex
+                  color: dashboardViewModel.isSettingsOpen
+                      ? Colors.white
+                      : val['index'] == dashboardViewModel.selectedIndex
                       ? Colors.black
                       : Colors.white,
                 ),
@@ -69,7 +95,10 @@ class DashboardWidget {
     ),
   );
 
-  static tabDrawer(DashboardViewModel dashboardViewModel) => Container(
+  static tabDrawer(
+    DashboardViewModel dashboardViewModel, {
+    bool web = false,
+  }) => Container(
     padding: EdgeInsets.symmetric(vertical: 20),
     decoration: BoxDecoration(
       gradient: LinearGradient(colors: [Color(0xff9D5DE6), Color(0xffF78C59)]),
@@ -77,12 +106,25 @@ class DashboardWidget {
     child: NavigationRail(
       backgroundColor: Colors.transparent,
       trailingAtBottom: true,
-      leading: Align(
-        alignment: Alignment.topLeft,
-        child: Padding(
-          padding: EdgeInsetsGeometry.symmetric(horizontal: 20, vertical: 5),
-          child: Image.asset(ImageConstants.logoBW, height: 60, width: 60),
-        ),
+      leading: Column(
+        children: [
+          if (web)
+            GestureDetector(
+              onTap: () => dashboardViewModel.changeDrawer(),
+              child: Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.white),
+                  borderRadius: BorderRadius.circular(5),
+                ),
+                child: Icon(Icons.arrow_forward, color: Colors.white, size: 30),
+              ),
+            ),
+          Padding(
+            padding: EdgeInsetsGeometry.symmetric(horizontal: 20, vertical: 5),
+            child: Image.asset(ImageConstants.logoBW, height: 60, width: 60),
+          ),
+        ],
       ),
       selectedIndex: dashboardViewModel.selectedIndex,
       onDestinationSelected: dashboardViewModel.changeIndex,

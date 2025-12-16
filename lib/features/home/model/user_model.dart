@@ -1,3 +1,5 @@
+import 'package:yoyo_web_app/config/constants/constants.dart';
+import 'package:yoyo_web_app/features/add_teacher/model/teacher_model.dart';
 import 'package:yoyo_web_app/features/home/model/user_result_model.dart';
 
 import 'school.dart';
@@ -15,9 +17,11 @@ class UserModel {
   bool? onboarding;
   bool? isActivated;
   bool? isLoggedIn;
+  String? activationCode;
   bool? isTester;
   List<UserResult>? userResult;
   List<Student>? student;
+  List<TeacherModel>? teacher;
   School? schools;
 
   UserModel({
@@ -36,6 +40,8 @@ class UserModel {
     this.schools,
     this.isActivated,
     this.isTester,
+    this.teacher,
+    this.activationCode,
   });
 
   UserModel.fromJson(Map<String, dynamic> json) {
@@ -45,6 +51,7 @@ class UserModel {
     surName = json['sur_name'];
     email = json['email'];
     username = json['username'];
+    activationCode = json['activation_code'];
     isActivated = json['is_activated'];
     isTester = json['is_tester'];
     isLoggedIn = json['is_logged_in'];
@@ -70,6 +77,12 @@ class UserModel {
         student!.add(Student.fromJson(v));
       });
     }
+    if (json[DbTable.teacher] != null) {
+      teacher = <TeacherModel>[];
+      json[DbTable.teacher].forEach((v) {
+        teacher!.add(TeacherModel.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() {
@@ -82,6 +95,7 @@ class UserModel {
       'sur_name': surName,
       'last_login': lastLogin?.toIso8601String(),
       'onboarding': onboarding,
+      'activation_code': activationCode,
       'is_activated': isActivated,
       'is_logged_in': isLoggedIn,
       'is_tester': isTester,

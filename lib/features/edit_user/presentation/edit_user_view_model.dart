@@ -1,9 +1,12 @@
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/config/router/route_names.dart';
 import 'package:yoyo_web_app/config/utils/global_loader.dart';
 import 'package:yoyo_web_app/config/utils/usefull_functions.dart';
+import 'package:yoyo_web_app/features/common/common_view_model.dart';
 import 'package:yoyo_web_app/features/edit_user/data/edit_user_repo.dart';
 import 'package:yoyo_web_app/features/home/model/classes_model.dart';
 import 'package:yoyo_web_app/features/home/model/school.dart';
@@ -20,7 +23,7 @@ class EditUserViewModel extends ChangeNotifier {
   String? firstName;
   String? surName;
   bool changeSchool = false;
-
+  CommonViewModel? commonViewModel;
   School? selectedSchool;
 
   Classes? selectedClasses;
@@ -30,6 +33,7 @@ class EditUserViewModel extends ChangeNotifier {
   }
 
   init() async {
+    commonViewModel = Provider.of<CommonViewModel>(ctx!);
     user = await _repo.getUserData(userId);
     schools = await _repo.getAllSchool();
     userResult = await _repo.getUserResult(userId);
@@ -120,5 +124,12 @@ class EditUserViewModel extends ChangeNotifier {
         ContentType.failure,
       );
     }
+  }
+
+  void logout() async {
+    GlobalLoader.show();
+    await Supabase.instance.client.auth.signOut();
+    GlobalLoader.hide();
+    NavigationHelper.go(RouteNames.login);
   }
 }

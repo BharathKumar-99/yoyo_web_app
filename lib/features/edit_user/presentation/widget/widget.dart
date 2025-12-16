@@ -12,6 +12,7 @@ class EditUserWidgets {
     child: Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
+        spacing: 10,
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
@@ -68,101 +69,147 @@ class EditUserWidgets {
             value: value.user.username ?? 'N/A',
           ),
           _buildReadOnlyField(
-            label: 'Account Status',
-            value: value.user.isActivated == true ? 'Activated' : 'Pending',
+            label: 'Activation',
+            value: value.user.activationCode ?? 'N/A',
           ),
-          _buildReadOnlyField(
-            label: 'Logged In',
-            value: value.user.isLoggedIn == true ? 'Yes' : 'No',
-          ),
-          ListTile(
-            title: Text('Tester'),
-            trailing: Switch.adaptive(
-              value: value.user.isTester ?? false,
-              onChanged: (val) {
-                value.updateTester(val);
-              },
-            ),
-          ),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            mainAxisAlignment: MainAxisAlignment.end,
-            spacing: 10,
-            children: [
-              Expanded(
-                child: ListTile(
-                  title: const Text(
-                    'School',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  subtitle: value.changeSchool
-                      ? Column(
-                          spacing: 10,
-                          children: [
-                            schoolSelector(value),
-                            classSelector(value),
-                          ],
-                        )
-                      : Text(
-                          value.user.schools?.schoolName ?? '',
-                          style: TextStyle(color: Colors.grey.shade600),
-                        ),
-                  trailing: GestureDetector(
-                    onTap: () => value.toogleSchool(),
-                    child: const Icon(Icons.edit),
-                  ),
-                ),
-              ),
-              if ((value.selectedSchool != null &&
-                      value.selectedSchool?.schoolName !=
-                          value.user.schools?.schoolName) &&
-                  (value.selectedClasses != null &&
-                      value.selectedClasses?.id !=
-                          value.user.student?.first.classId))
-                ElevatedButton(
-                  onPressed: () {
-                    value.updateSchoolAndClass();
-                  },
-                  child: Text('Update'),
-                ),
-            ],
-          ),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red.shade600,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            onPressed: () => showDialog(
-              context: ctx!,
-              builder: (_) => AlertDialog.adaptive(
-                title: Text("Delete Account"),
-                content: Text(
-                  "Are you sure you want to delete this student? This action cannot be undone.",
-                ),
-                actions: [
-                  TextButton(
-                    child: Text("Cancel"),
-                    onPressed: () => {Navigator.pop(ctx!)},
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                    ),
-                    child: Text("Delete"),
-                    onPressed: () {
-                      Navigator.pop(ctx!);
-                      value.deleteAccount(value.userId);
+          // _buildReadOnlyField(
+          //   label: 'Account Status',
+          //   value: value.user.isActivated == true ? 'Activated' : 'Pending',
+          // ),
+          // _buildReadOnlyField(
+          //   label: 'Logged In',
+          //   value: value.user.isLoggedIn == true ? 'Yes' : 'No',
+          // ),
+          if (value.commonViewModel?.teacher?.teacher?.isEmpty ?? true)
+            Column(
+              children: [
+                ListTile(
+                  title: Text('Tester'),
+                  trailing: Switch.adaptive(
+                    value: value.user.isTester ?? false,
+                    onChanged: (val) {
+                      value.updateTester(val);
                     },
                   ),
-                ],
-              ),
+                ),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  spacing: 10,
+                  children: [
+                    Expanded(
+                      child: ListTile(
+                        title: const Text(
+                          'School',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: value.changeSchool
+                            ? Column(
+                                spacing: 10,
+                                children: [
+                                  schoolSelector(value),
+                                  classSelector(value),
+                                ],
+                              )
+                            : Text(
+                                value.user.schools?.schoolName ?? '',
+                                style: TextStyle(color: Colors.grey.shade600),
+                              ),
+                        trailing: GestureDetector(
+                          onTap: () => value.toogleSchool(),
+                          child: const Icon(Icons.edit),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                if ((value.selectedSchool != null &&
+                        value.selectedSchool?.schoolName !=
+                            value.user.schools?.schoolName) &&
+                    (value.selectedClasses != null &&
+                        value.selectedClasses?.id !=
+                            value.user.student?.first.classId))
+                  ElevatedButton(
+                    onPressed: () {
+                      value.updateSchoolAndClass();
+                    },
+                    child: Text('Update'),
+                  ),
+              ],
             ),
-            icon: Icon(Icons.delete),
-            label: Text("Delete Account"),
+          Row(
+            spacing: 20,
+            children: [
+              ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red.shade600,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 14,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () => showDialog(
+                  context: ctx!,
+                  builder: (_) => AlertDialog.adaptive(
+                    title: Text("Delete Account"),
+                    content: Text(
+                      "Are you sure you want to delete this student? This action cannot be undone.",
+                    ),
+                    actions: [
+                      TextButton(
+                        child: Text("Cancel"),
+                        onPressed: () => {Navigator.pop(ctx!)},
+                      ),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                        ),
+                        child: Text("Delete"),
+                        onPressed: () {
+                          Navigator.pop(ctx!);
+                          value.deleteAccount(value.userId);
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                icon: Icon(Icons.logout_rounded),
+                label: Text("Delete Account"),
+              ),
+              if (value.commonViewModel?.user?.userId == value.user.userId)
+                ElevatedButton.icon(
+                  onPressed: () => showDialog(
+                    context: ctx!,
+                    builder: (_) => AlertDialog.adaptive(
+                      title: Text("Logout"),
+                      content: Text("Are you sure you want to logout"),
+                      actions: [
+                        TextButton(
+                          child: Text("Cancel"),
+                          onPressed: () => {Navigator.pop(ctx!)},
+                        ),
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                          ),
+                          child: Text("Logout"),
+                          onPressed: () {
+                            Navigator.pop(ctx!);
+                            value.logout();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  icon: Icon(Icons.delete),
+                  label: Text("Logout"),
+                ),
+            ],
           ),
         ],
       ),
@@ -252,44 +299,46 @@ class EditUserWidgets {
         )
       : Container();
 
-  userMetrics(EditUserViewModel value) => Card(
-    elevation: 4,
-    child: Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          Text(
-            '📊 Student Metrics',
-            style: AppTextStyles.textTheme.headlineSmall,
-          ),
-          const Divider(),
+  userMetrics(EditUserViewModel value) => (value.user.student?.isEmpty ?? false)
+      ? Container()
+      : Card(
+          elevation: 4,
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  '📊 Student Metrics',
+                  style: AppTextStyles.textTheme.headlineSmall,
+                ),
+                const Divider(),
 
-          _buildMetricRow(
-            'Language Level',
-            'Level ${value.user.student?.first.languageLevel ?? 'N/A'}',
-            Icons.language,
+                _buildMetricRow(
+                  'Language Level',
+                  'Level ${value.user.student?.first.languageLevel ?? 'N/A'}',
+                  Icons.language,
+                ),
+                _buildMetricRow(
+                  'Vocabulary Count',
+                  '${value.user.student?.first.vocab ?? 'N/A'} Words',
+                  Icons.book,
+                ),
+                _buildMetricRow(
+                  'Effort Score',
+                  '${value.user.student?.first.effort ?? 'N/A'}%',
+                  Icons.trending_up,
+                ),
+                _buildMetricRow(
+                  'Overall Score',
+                  '${value.user.student?.first.score ?? 'N/A'}%',
+                  Icons.star,
+                ),
+              ],
+            ),
           ),
-          _buildMetricRow(
-            'Vocabulary Count',
-            '${value.user.student?.first.vocab ?? 'N/A'} Words',
-            Icons.book,
-          ),
-          _buildMetricRow(
-            'Effort Score',
-            '${value.user.student?.first.effort ?? 'N/A'}%',
-            Icons.trending_up,
-          ),
-          _buildMetricRow(
-            'Overall Score',
-            '${value.user.student?.first.score ?? 'N/A'}%',
-            Icons.star,
-          ),
-        ],
-      ),
-    ),
-  );
+        );
 }
 
 Widget _buildTextField({

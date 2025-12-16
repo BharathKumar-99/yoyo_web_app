@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:yoyo_web_app/core/supabase/supabase_client.dart';
 import 'package:yoyo_web_app/features/add_school/presentation/add_school_screen.dart';
+import 'package:yoyo_web_app/features/add_teacher/presentation/add_teacher.dart';
 import 'package:yoyo_web_app/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:yoyo_web_app/features/edit_school/presentation/edit_school.dart';
 import 'package:yoyo_web_app/features/edit_user/presentation/edit_user_screen.dart';
@@ -9,6 +10,7 @@ import 'package:yoyo_web_app/features/home/presentation/home_screen.dart';
 import 'package:yoyo_web_app/features/phrases/presentation/phrases_screen.dart';
 import 'package:yoyo_web_app/features/settings/presentation/settings_page.dart';
 import 'package:yoyo_web_app/features/view_school/presentation/view_school_screen.dart';
+import '../../features/activate_user/presentation/activate_screen.dart';
 import '../../features/add_phrases/presentation/add_phrases_screen.dart';
 import '../../features/add_user/presentation/add_user.dart';
 import '../../features/add_user_name/presentation/add_user_name.dart';
@@ -31,7 +33,10 @@ class AppRoutes {
         path: RouteNames.login,
         builder: (context, state) => const LoginScreen(),
       ),
-
+      GoRoute(
+        path: RouteNames.activate,
+        builder: (context, state) => const ActivateScreen(),
+      ),
       ShellRoute(
         builder: (context, state, child) => DashboardScreen(child: child),
         routes: [
@@ -62,7 +67,8 @@ class AppRoutes {
           ),
           GoRoute(
             path: RouteNames.addUsers,
-            builder: (context, state) => const AddUserScreen(),
+            builder: (context, state) =>
+                AddUserScreen(isTeacher: state.extra as bool?),
           ),
           GoRoute(
             path: RouteNames.editUsers,
@@ -82,6 +88,10 @@ class AppRoutes {
             path: RouteNames.settings,
             builder: (context, state) => SettingsPage(),
           ),
+          GoRoute(
+            path: RouteNames.addTeacher,
+            builder: (context, state) => AddTeacherScreen(),
+          ),
         ],
       ),
     ],
@@ -89,9 +99,11 @@ class AppRoutes {
       final supabase = SupabaseClientService.instance.client;
       final currentUser = supabase.auth.currentUser;
       final goingToLogin = state.fullPath == RouteNames.login;
+      final goingToActivate = state.fullPath == RouteNames.activate;
 
       if (supabase.auth.currentSession == null &&
           currentUser == null &&
+          !goingToActivate &&
           !goingToLogin) {
         return RouteNames.login;
       }

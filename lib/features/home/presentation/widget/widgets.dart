@@ -25,50 +25,51 @@ class HomeWidgets {
       runSpacing: 20,
       children: [
         // ---------------- SCHOOL ----------------
-        IntrinsicWidth(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'School',
-                style: AppTextStyles.textTheme.headlineMedium!.copyWith(
-                  color: Colors.grey,
+        if (viewModel.teacherModel?.isEmpty ?? true)
+          IntrinsicWidth(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'School',
+                  style: AppTextStyles.textTheme.headlineMedium!.copyWith(
+                    color: Colors.grey,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<School?>(
-                initialValue: viewModel.selectedSchool,
-                items: [
-                  allItem<School>(),
-                  ...viewModel.homedata.map(
-                    (e) => DropdownMenuItem(
-                      value: e,
-                      child: Text(
-                        e.schoolName ?? '',
-                        overflow: TextOverflow.ellipsis,
+                const SizedBox(height: 6),
+                DropdownButtonFormField<School?>(
+                  initialValue: viewModel.selectedSchool,
+                  items: [
+                    allItem<School>(),
+                    ...viewModel.homedata.map(
+                      (e) => DropdownMenuItem(
+                        value: e,
+                        child: Text(
+                          e.schoolName ?? '',
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ),
+                  ],
+                  onChanged: (val) => viewModel.selectSchool(val),
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 14,
+                    ),
+                    border: border,
+                    enabledBorder: border,
+                    focusedBorder: border.copyWith(
+                      borderSide: const BorderSide(
+                        color: Color(0xff9D5DE6),
+                        width: 2,
                       ),
                     ),
                   ),
-                ],
-                onChanged: (val) => viewModel.selectSchool(val),
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 14,
-                  ),
-                  border: border,
-                  enabledBorder: border,
-                  focusedBorder: border.copyWith(
-                    borderSide: const BorderSide(
-                      color: Color(0xff9D5DE6),
-                      width: 2,
-                    ),
-                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
 
         // ---------------- CLASS ----------------
         // IntrinsicWidth(
@@ -326,13 +327,13 @@ class HomeWidgets {
                   children: [
                     Text(
                       color == Colors.green ? 'Green' : "Red",
-                      style: AppTextStyles.textTheme.titleLarge!.copyWith(
+                      style: AppTextStyles.textTheme.titleMedium!.copyWith(
                         color: color,
                       ),
                     ),
                     Text(
                       'words',
-                      style: AppTextStyles.textTheme.titleLarge!.copyWith(
+                      style: AppTextStyles.textTheme.titleMedium!.copyWith(
                         color: Colors.grey,
                       ),
                     ),
@@ -349,7 +350,7 @@ class HomeWidgets {
 
                     return Text(
                       isLast ? val : "$val,",
-                      style: AppTextStyles.textTheme.titleLarge!.copyWith(
+                      style: AppTextStyles.textTheme.titleMedium!.copyWith(
                         color: Colors.grey,
                       ),
                     );
@@ -360,6 +361,8 @@ class HomeWidgets {
           ),
         ),
       );
+
+  static Color successGreen = Color(0xFF00C853);
 }
 
 class GradientBorderContainer extends StatelessWidget {

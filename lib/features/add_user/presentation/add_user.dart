@@ -7,7 +7,8 @@ import 'package:yoyo_web_app/features/add_user/presentation/screens/add_user_tab
 import 'package:yoyo_web_app/features/add_user/presentation/screens/add_user_website.dart';
 
 class AddUserScreen extends StatelessWidget {
-  const AddUserScreen({super.key});
+  final bool? isTeacher;
+  const AddUserScreen({super.key, this.isTeacher});
 
   @override
   Widget build(BuildContext context) {

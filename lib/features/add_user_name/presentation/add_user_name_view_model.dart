@@ -5,6 +5,7 @@ import 'package:csv/csv.dart';
 import 'package:excel/excel.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:yoyo_web_app/config/constants/constants.dart';
 import 'package:yoyo_web_app/config/utils/global_loader.dart';
@@ -14,6 +15,7 @@ import 'package:yoyo_web_app/features/add_user_name/data/add_user_name_repo.dart
 import 'dart:convert';
 import 'dart:js_interop';
 import 'package:web/web.dart' as web;
+import 'package:yoyo_web_app/features/common/common_view_model.dart';
 import '../../../config/router/navigation_helper.dart';
 import '../../add_user/model/level.dart';
 import '../../home/model/classes_model.dart';
@@ -29,14 +31,24 @@ class AddUserNameViewModel extends ChangeNotifier {
   final AddUserNameRepo _repo = AddUserNameRepo();
   String? selectedFileName;
   List<UserActivationModel> list = [];
+  CommonViewModel? commonViewModel;
 
   AddUserNameViewModel() {
     init();
   }
 
   Future<void> init() async {
+    commonViewModel = Provider.of<CommonViewModel>(ctx!, listen: false);
     school = await _repo.getAllSchool();
     level = await _repo.getAllLevel();
+    if (commonViewModel?.teacher?.teacher != null &&
+        (school?.isNotEmpty ?? false)) {
+      selectSchools(
+        school?.firstWhere(
+          (tes) => tes.id == commonViewModel!.teacher!.schools?.id,
+        ),
+      );
+    }
     notifyListeners();
   }
 

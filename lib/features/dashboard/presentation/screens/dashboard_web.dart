@@ -6,7 +6,12 @@ Widget dashboardWeb(DashboardViewModel dashboardVM, Widget body) => Scaffold(
   body: SafeArea(
     child: Row(
       children: [
-        SizedBox(width: 250, child: DashboardWidget.drawer(dashboardVM)),
+        dashboardVM.isinTabMode
+            ? DashboardWidget.tabDrawer(dashboardVM, web: true)
+            : SizedBox(
+                width: 250,
+                child: DashboardWidget.drawer(dashboardVM, isWeb: true),
+              ),
         Expanded(child: body),
       ],
     ),

@@ -17,7 +17,9 @@ addUserNameScreenWeb(AddUserNameViewModel value) => Scaffold(
             spacing: 20,
             children: [
               Expanded(child: AddUserNameWidget.addXl(value)),
-              Expanded(child: AddUserNameWidget.schoolSelector(value)),
+              if ((value.commonViewModel?.teacher?.teacher?.isEmpty ?? true) &&
+                  (value.school?.isNotEmpty ?? false))
+                Expanded(child: AddUserNameWidget.schoolSelector(value)),
               Expanded(child: AddUserNameWidget.classSelector(value)),
             ],
           ),

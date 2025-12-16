@@ -1,15 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/config/router/route_names.dart';
+import 'package:yoyo_web_app/features/common/common_view_model.dart';
 
 class DashboardViewModel extends ChangeNotifier {
   int selectedIndex = 0;
+  bool isinTabMode = false;
+  bool isSettingsOpen = false;
+
+  DashboardViewModel() {
+    Provider.of<CommonViewModel>(ctx!, listen: false).getuser();
+    Provider.of<CommonViewModel>(ctx!, listen: false).getTeacherLogin();
+  }
 
   changeIndex(int index) {
     selectedIndex = index;
+    isSettingsOpen = false;
     changeScreen(index);
     notifyListeners();
+  }
+
+  void openSettings() {
+    isSettingsOpen = true;
+    notifyListeners();
+    NavigationHelper.go(RouteNames.settings);
   }
 
   changeScreen(index) {
@@ -23,9 +39,17 @@ class DashboardViewModel extends ChangeNotifier {
       case 2:
         ctx!.go(RouteNames.users);
         break;
+      case 3:
+        ctx!.go(RouteNames.settings);
+        break;
       default:
         ctx!.go(RouteNames.home);
         break;
     }
+  }
+
+  void changeDrawer() {
+    isinTabMode = !isinTabMode;
+    notifyListeners();
   }
 }

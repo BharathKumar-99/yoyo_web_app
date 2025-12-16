@@ -4,7 +4,9 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   desktop_drop
+  file_saver
   gtk
+  printing
   url_launcher_linux
 )
 

@@ -1,82 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/features/home/model/student_model.dart';
+import 'package:yoyo_web_app/features/home/presentation/home_view_model.dart';
 
 import '../../../../config/router/route_names.dart';
 
 class StudentTable extends StatefulWidget {
   final List<Student> students;
-  const StudentTable({super.key, required this.students});
+  final HomeViewModel provider;
+  const StudentTable({
+    super.key,
+    required this.students,
+    required this.provider,
+  });
 
   @override
   State<StudentTable> createState() => _StudentTableState();
 }
 
 class _StudentTableState extends State<StudentTable> {
-  String? _sortKey;
-  bool _ascending = true;
-
-  // ---------------- SORT LOGIC ----------------
-  void _sortBy(String key) {
-    setState(() {
-      if (_sortKey == key) {
-        _ascending = !_ascending; // toggle ASC ↔ DESC
-      } else {
-        _sortKey = key;
-        _ascending = true;
-      }
-
-      widget.students.sort((a, b) {
-        dynamic x;
-        dynamic y;
-
-        switch (key) {
-          case "name":
-            x = a.userModel?.firstName ?? "";
-            y = b.userModel?.firstName ?? "";
-            break;
-
-          case "username":
-            x = a.userModel?.username ?? "";
-            y = b.userModel?.username ?? "";
-            break;
-
-          case "participated":
-            x = a.score ?? 0;
-            y = b.score ?? 0;
-            break;
-
-          case "level":
-            x = a.level?.level ?? "";
-            y = b.level?.level ?? "";
-            break;
-
-          case "phrases":
-            x = a.userModel?.userResult?.length ?? 0;
-            y = b.userModel?.userResult?.length ?? 0;
-            break;
-
-          case "vocab":
-            x = a.vocab ?? 0;
-            y = b.vocab ?? 0;
-            break;
-
-          case "avgScore":
-            x = a.score ?? 0;
-            y = b.score ?? 0;
-            break;
-
-          default:
-            x = "";
-            y = "";
-        }
-
-        int result = Comparable.compare(x, y);
-        return _ascending ? result : -result;
-      });
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -113,7 +55,7 @@ class _StudentTableState extends State<StudentTable> {
     return Expanded(
       flex: flex,
       child: InkWell(
-        onTap: () => _sortBy(key),
+        onTap: () => widget.provider.sortBy(key),
         child: Row(
           children: [
             Text(
@@ -126,9 +68,11 @@ class _StudentTableState extends State<StudentTable> {
             ),
 
             // SORT ARROW
-            if (_sortKey == key)
+            if (widget.provider.sortKey == key)
               Icon(
-                _ascending ? Icons.arrow_upward : Icons.arrow_downward,
+                widget.provider.ascending
+                    ? Icons.arrow_upward
+                    : Icons.arrow_downward,
                 size: 14,
               ),
           ],
@@ -160,8 +104,12 @@ class _StudentTableState extends State<StudentTable> {
 
           // PARTICIPATED
           rowCell(
-            (row.score ?? 0) > 0 ? "✔" : "✘",
-            color: (row.score ?? 0) > 0 ? Colors.green : Colors.red,
+            (row.userModel?.userResult?.length ?? 0) > 0 ? "✓" : "✗",
+            fontsize: 20,
+            font: FontWeight.bold,
+            color: (row.userModel?.userResult?.length ?? 0) > 0
+                ? Colors.green
+                : Colors.red,
           ),
 
           // LEVEL (first 2 chars)
@@ -179,12 +127,22 @@ class _StudentTableState extends State<StudentTable> {
     );
   }
 
-  Widget rowCell(String text, {int flex = 1, Color? color}) {
+  Widget rowCell(
+    String text, {
+    int flex = 1,
+    Color? color,
+    double fontsize = 14,
+    FontWeight font = FontWeight.normal,
+  }) {
     return Expanded(
       flex: flex,
       child: Text(
         text,
-        style: TextStyle(fontSize: 14, color: color ?? Colors.black87),
+        style: TextStyle(
+          fontSize: fontsize,
+          color: color ?? Colors.black87,
+          fontWeight: font,
+        ),
       ),
     );
   }

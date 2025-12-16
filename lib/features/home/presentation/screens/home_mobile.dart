@@ -7,6 +7,12 @@ import '../widget/widgets.dart';
 
 Widget homeMobile(HomeViewModel viewModel, BuildContext context) => Scaffold(
   appBar: CommonWidgets.homeAppBarMobile(),
+  floatingActionButton: viewModel.selectedSchool != null
+      ? ElevatedButton(
+          onPressed: () => viewModel.pdfCreater(),
+          child: Text('Generate Pdf'),
+        )
+      : null,
   body: SingleChildScrollView(
     child: Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4.0),
@@ -60,7 +66,10 @@ Widget homeMobile(HomeViewModel viewModel, BuildContext context) => Scaffold(
                 ],
               ),
             ),
-            StudentTable(students: viewModel.filteredStudents),
+            StudentTable(
+              students: viewModel.filteredStudents,
+              provider: viewModel,
+            ),
           ],
         ),
       ),

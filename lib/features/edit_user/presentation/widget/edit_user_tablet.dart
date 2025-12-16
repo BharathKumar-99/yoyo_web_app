@@ -5,18 +5,22 @@ import 'package:yoyo_web_app/features/edit_user/presentation/edit_user_view_mode
 import 'widget.dart';
 
 editUserTablet(EditUserViewModel value) {
-  return Scaffold(
-    appBar: CommonWidgets.homeAppBar(),
-    body: SingleChildScrollView(
-      child: Column(
-        children: [
-          EditUserWidgets().userDetails(value),
-          EditUserWidgets().userMetrics(value),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: UserResultTable(result: value.userResult),
-          ),
-        ],
+  return Padding(
+    padding: const EdgeInsets.all(29.0),
+    child: Scaffold(
+      appBar: CommonWidgets.homeAppBar(),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            EditUserWidgets().userDetails(value),
+            if (value.user.student?.isNotEmpty ?? true)
+              EditUserWidgets().userMetrics(value),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: UserResultTable(result: value.userResult),
+            ),
+          ],
+        ),
       ),
     ),
   );

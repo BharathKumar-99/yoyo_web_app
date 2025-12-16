@@ -9,6 +9,12 @@ Widget homeTablet(HomeViewModel viewModel, BuildContext context) => Padding(
   padding: const EdgeInsets.all(29.0),
   child: Scaffold(
     appBar: CommonWidgets.homeAppBar(),
+    floatingActionButton: viewModel.selectedSchool != null
+        ? ElevatedButton(
+            onPressed: () => viewModel.pdfCreater(),
+            child: Text('Generate Pdf'),
+          )
+        : null,
     body: Padding(
       padding: const EdgeInsets.symmetric(vertical: 29.0),
       child: SingleChildScrollView(
@@ -37,7 +43,7 @@ Widget homeTablet(HomeViewModel viewModel, BuildContext context) => Padding(
                   '15%',
                 ),
                 HomeWidgets.homeCard(
-                 'Avg. Score',
+                  'Avg. Score',
                   '${viewModel.avrageScore}%',
                   '8%',
                 ),
@@ -60,7 +66,10 @@ Widget homeTablet(HomeViewModel viewModel, BuildContext context) => Padding(
                 ],
               ),
             ),
-            StudentTable(students: viewModel.filteredStudents),
+            StudentTable(
+              students: viewModel.filteredStudents,
+              provider: viewModel,
+            ),
           ],
         ),
       ),

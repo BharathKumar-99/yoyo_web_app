@@ -1,156 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:yoyo_web_app/config/constants/constants.dart';
 import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/config/router/route_names.dart';
 import 'package:yoyo_web_app/config/theme/app_text_styles.dart';
 import 'package:yoyo_web_app/features/common/widgets.dart';
-import 'package:yoyo_web_app/features/home/model/phrases_model.dart';
+import 'package:yoyo_web_app/features/phrases/model/phrases_categories.dart';
 import 'package:yoyo_web_app/features/phrases/presentation/phrases_view_model.dart';
 
 class PhraseWidgets {
-  static addPhraseTable(
-    PhrasesViewModel viewModel, {
-    bool isTablet = false,
-    bool isMobile = false,
-  }) => Table(
-    columnWidths: isTablet || isMobile
-        ? const {
-            0: FlexColumnWidth(0.6),
-            1: FlexColumnWidth(0.6),
-            2: FlexColumnWidth(0.3),
-            3: FlexColumnWidth(0.3),
-            4: FlexColumnWidth(0.3),
-            5: FlexColumnWidth(0.3),
-            6: FlexColumnWidth(0.3),
-          }
-        : const {
-            0: FlexColumnWidth(1.2),
-            1: FlexColumnWidth(1.2),
-            2: FlexColumnWidth(0.3),
-            3: FlexColumnWidth(0.3),
-            4: FlexColumnWidth(0.3),
-            5: FlexColumnWidth(0.3),
-            6: FlexColumnWidth(0.3),
-          },
-    children: [getPhraseHeader(viewModel), ...getPhraseData(viewModel)],
-  );
-
-  static getPhraseHeader(PhrasesViewModel viewModel) =>
-      TableRow(children: getPhraseCellHeader());
-
-  static TableRow getPhraseEmpty() => TableRow(children: getPhraseCellEmpty());
-
-  static List<TableRow> getPhraseData(PhrasesViewModel viewModel) => viewModel
-      .filteredPhraseModel
-      .map(
-        (val) => TableRow(
-          children: getPhrasesRow(val, viewModel),
-          decoration: BoxDecoration(
-            border: Border(bottom: BorderSide(color: Colors.grey)),
-          ),
-        ),
-      )
-      .toList();
-
-  static List<TableCell> getPhraseCellHeader() => [
-    getPhrasesCell("Name"),
-    getPhrasesCell("Translation"),
-    getPhrasesCell("Language"),
-    getPhrasesCell("Recording"),
-    getPhrasesCell("Vocab"),
-    getPhrasesCell("Sounds"),
-    getPhrasesCell(""),
-  ];
-
-  static List<TableCell> getPhraseCellEmpty() => [
-    getPhrasesCell(""),
-    getPhrasesCell(""),
-    getPhrasesCell(""),
-    getPhrasesCell(""),
-    getPhrasesCell(""),
-    getPhrasesCell(""),
-    getPhrasesCell(""),
-  ];
-
-  static List<TableCell> getPhrasesRow(
-    PhraseModel model,
-    PhrasesViewModel viewmodel,
-  ) => [
-    getPhrasesCell(model.phrase ?? ''),
-    getPhrasesCell(model.translation ?? '', isHeader: true),
-    getPhrasesCell(model.languageData?.language ?? ''),
-    TableCell(
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          GestureDetector(
-            onTap: () =>
-                viewmodel.playPhrase(model.recording ?? '', model.id ?? 0),
-            child: Icon(
-              (viewmodel.player.playing &&
-                      viewmodel.currentPlayingPhraseId == model.id)
-                  ? Icons.pause_rounded
-                  : Icons.play_arrow_outlined,
-            ),
-          ),
-
-          Image.asset(ImageConstants.wave, height: 40, width: 50),
-        ],
-      ),
-    ),
-    getPhrasesCell('${model.vocab ?? 0}'),
-    getPhrasesCell('${model.sounds ?? 0}'),
-    TableCell(
-      child: GestureDetector(
-        onTap: () => viewmodel.removePhrase(model.id, model.recording),
-        child: CircleAvatar(
-          backgroundColor: Colors.red,
-          child: Icon(Icons.close, color: Colors.white),
-        ),
-      ),
-    ),
-  ];
-
-  static TableCell getPhrasesCell(
-    String data, {
-    bool isHeader = false,
-    bool bgColor = false,
-  }) => TableCell(
-    child: Container(
-      padding: EdgeInsetsDirectional.symmetric(vertical: 10, horizontal: 10),
-      margin: EdgeInsets.symmetric(vertical: 2),
-      decoration: BoxDecoration(
-        color: isHeader ? Colors.blueGrey.shade100 : Colors.transparent,
-      ),
-      child: Text(
-        data,
-        style: AppTextStyles.textTheme.bodyLarge!.copyWith(
-          fontWeight: FontWeight.bold,
-          color: Color(0xff898A8D),
-        ),
-      ),
-    ),
-  );
-
-  static Widget getPhraseHeading(int count) => Row(
+  static Widget getPhraseHeading(int count, bool showAddPhrase) => Row(
     spacing: 20,
     children: [
       Text('Phrases($count)', style: AppTextStyles.textTheme.headlineLarge),
-      GestureDetector(
-        onTap: () => ctx!.go(RouteNames.addPhrase),
-        child: Chip(
-          label: Text(
-            'Add',
-            style: AppTextStyles.textTheme.headlineMedium!.copyWith(
-              color: Colors.white,
+      if (showAddPhrase)
+        GestureDetector(
+          onTap: () => ctx!.go(RouteNames.addPhrase),
+          child: Chip(
+            label: Text(
+              'Add',
+              style: AppTextStyles.textTheme.headlineMedium!.copyWith(
+                color: Colors.white,
+              ),
             ),
+            avatar: Icon(Icons.add, color: Colors.white),
+            color: WidgetStatePropertyAll(Colors.green),
           ),
-          avatar: Icon(Icons.add, color: Colors.white),
-          color: WidgetStatePropertyAll(Colors.green),
         ),
-      ),
     ],
   );
 
@@ -175,6 +50,15 @@ class PhraseWidgets {
                 ...viewModel.lvl.map((val) => val.level ?? ''),
               ], (val) => viewModel.changeLvl(val)),
             ),
+            SizedBox(
+              width: double.infinity,
+              child: buildDropdown(
+                "Categories",
+                viewModel.selectedPhraseCategories,
+                viewModel.phraseCategories,
+                viewModel,
+              ),
+            ),
           ],
         )
       : Row(
@@ -192,7 +76,69 @@ class PhraseWidgets {
                 ...viewModel.lvl.map((val) => val.level ?? ''),
               ], (val) => viewModel.changeLvl(val)),
             ),
-            if (!isMobile) Expanded(child: Container()),
+            Expanded(
+              child: buildDropdown(
+                "Categories",
+                viewModel.selectedPhraseCategories,
+                viewModel.phraseCategories,
+                viewModel,
+              ),
+            ),
           ],
         );
+
+  static Widget buildDropdown(
+    String label,
+    PhraseCategories? selectedItem,
+    List<PhraseCategories> items,
+    PhrasesViewModel viewModel,
+  ) {
+    DropdownMenuItem<T?> allItem<T>() =>
+        DropdownMenuItem<T>(value: null, child: Text("All"));
+    OutlineInputBorder border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: const BorderSide(color: Color(0xff9D5DE6), width: 1.5),
+    );
+    return IntrinsicWidth(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Phrase Categories',
+              style: AppTextStyles.textTheme.headlineMedium!.copyWith(
+                    color: Colors.grey,
+                  ),
+          ),
+          const SizedBox(height: 6),
+          DropdownButtonFormField<PhraseCategories?>(
+            initialValue: selectedItem,
+            items: [
+              allItem<PhraseCategories>(),
+              ...items.map(
+                (e) => DropdownMenuItem(
+                  value: e,
+                  child: Text(e.name ?? '', overflow: TextOverflow.ellipsis),
+                ),
+              ),
+            ],
+            onChanged: (val) => viewModel.selectPhraseCategories(val),
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 14,
+              ),
+              border: border,
+              enabledBorder: border,
+              focusedBorder: border.copyWith(
+                borderSide: const BorderSide(
+                  color: Color(0xff9D5DE6),
+                  width: 2,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

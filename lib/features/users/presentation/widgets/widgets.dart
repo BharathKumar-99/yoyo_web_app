@@ -6,37 +6,71 @@ import 'package:yoyo_web_app/features/users/presentation/users_view_model.dart';
 import '../../../../config/theme/app_text_styles.dart';
 
 class UserWidgets {
-  static Row userHeading(UsersViewModel viewModel) {
-    return Row(
+  static Wrap userHeading(UsersViewModel viewModel) {
+    return Wrap(
       spacing: 20,
+      runSpacing: 20,
+      alignment: WrapAlignment.start,
+      crossAxisAlignment: WrapCrossAlignment.start,
+      runAlignment: WrapAlignment.start,
       children: [
         Text('Users', style: AppTextStyles.textTheme.headlineLarge),
-        GestureDetector(
-          onTap: () => NavigationHelper.go(RouteNames.addUsers),
-          child: Chip(
-            label: Text(
-              'Add Users',
-              style: AppTextStyles.textTheme.headlineMedium!.copyWith(
-                color: Colors.white,
+        if (viewModel.commonViewModel?.teacher?.teacher?.isEmpty ?? true)
+          GestureDetector(
+            onTap: () => NavigationHelper.go(RouteNames.addUsers),
+            child: Chip(
+              label: Text(
+                'Add Student',
+                style: AppTextStyles.textTheme.headlineMedium!.copyWith(
+                  color: Colors.white,
+                ),
               ),
+              avatar: Icon(Icons.add, color: Colors.white),
+              color: WidgetStatePropertyAll(Colors.green),
             ),
-            avatar: Icon(Icons.add, color: Colors.white),
-            color: WidgetStatePropertyAll(Colors.green),
           ),
-        ),
-        GestureDetector(
-          onTap: () => NavigationHelper.go(RouteNames.addUserName),
-          child: Chip(
-            label: Text(
-              'Create Username(s)',
-              style: AppTextStyles.textTheme.headlineMedium!.copyWith(
-                color: Colors.white,
+        if (viewModel.commonViewModel?.teacher?.teacher?.isEmpty ?? true)
+          GestureDetector(
+            onTap: () => NavigationHelper.go(RouteNames.addUserName),
+            child: Chip(
+              label: Text(
+                'Create Username(s)',
+                style: AppTextStyles.textTheme.headlineMedium!.copyWith(
+                  color: Colors.white,
+                ),
               ),
+              avatar: Icon(Icons.add, color: Colors.white),
+              color: WidgetStatePropertyAll(Colors.green),
             ),
-            avatar: Icon(Icons.add, color: Colors.white),
-            color: WidgetStatePropertyAll(Colors.green),
           ),
-        ),
+        if (viewModel.commonViewModel?.teacher?.teacher != null &&
+                (viewModel.commonViewModel?.teacher?.teacher?.isNotEmpty ??
+                    false)
+            ? (viewModel
+                          .commonViewModel
+                          ?.teacher
+                          ?.teacher
+                          ?.first
+                          .permissionLevel
+                          ?.toLowerCase()
+                          .contains('principle') ??
+                      false)
+                  ? true
+                  : false
+            : true)
+          GestureDetector(
+            onTap: () => NavigationHelper.go(RouteNames.addTeacher),
+            child: Chip(
+              label: Text(
+                'Add Teacher',
+                style: AppTextStyles.textTheme.headlineMedium!.copyWith(
+                  color: Colors.white,
+                ),
+              ),
+              avatar: Icon(Icons.add, color: Colors.white),
+              color: WidgetStatePropertyAll(Colors.green),
+            ),
+          ),
       ],
     );
   }
@@ -53,7 +87,7 @@ class UserWidgets {
         tableCellRow(''),
         tableCellRow(''),
       ]),
-      ...viewModel.users.map((val) {
+      ...viewModel.teacher.map((val) {
         String extractCaps(String text) {
           final matches = RegExp(
             r'(^[A-Za-z])|-(\s*[A-Za-z])',
@@ -97,7 +131,7 @@ class UserWidgets {
             isMain: true,
           ),
           tableCellRow(val.schools?.schoolName ?? ''),
-          tableCellRow((val.student?.isEmpty ?? true) ? 'Teacher' : 'Student'),
+          tableCellRow(val.teacher?.first.jobTitle ?? 'N/A'),
           tableCellRow(val.username ?? ''),
           TableCell(
             child: GestureDetector(
@@ -116,7 +150,7 @@ class UserWidgets {
       tableCellHeader('Avatar'),
       tableCellHeader('Name'),
       tableCellHeader('School'),
-      tableCellHeader('Role'),
+      tableCellHeader('Job Title'),
       tableCellHeader('User Name'),
       tableCellHeader(''),
     ],
