@@ -1,9 +1,7 @@
 import 'dart:developer';
-
 import 'package:yoyo_web_app/config/constants/constants.dart';
 import 'package:yoyo_web_app/core/api/repo.dart';
 import 'package:yoyo_web_app/features/home/model/school.dart';
-import 'package:yoyo_web_app/features/home/model/student_model.dart';
 import 'package:yoyo_web_app/features/home/model/user_model.dart';
 import 'package:yoyo_web_app/features/home/model/user_result_model.dart';
 
@@ -103,21 +101,30 @@ class EditUserRepo extends ApiRepo {
   Future<bool> deleteUser(String userId) async {
     try {
       final std = await client
-          .from(DbTable.student)
-          .select('*')
+          .from(DbTable.users)
+          .select('*,${DbTable.student}(*),${DbTable.teacher}(*)')
           .eq('user_id', userId)
           .maybeSingle();
+      UserModel userModel = UserModel.fromJson(std!);
 
-      Student student = Student.fromJson(std!);
+      if (userModel.student?.isNotEmpty ?? false) {
+        await client
+            .from(DbTable.attemptedPhrases)
+            .delete()
+            .eq('student_id', userModel.student?.first.id ?? 0);
+        await client.from(DbTable.streakTable).delete().eq('user_id', userId);
+        await client.from(DbTable.student).delete().eq('user_id', userId);
+        await client.from(DbTable.userResult).delete().eq('user_id', userId);
+        await client.from(DbTable.users).delete().eq('user_id', userId);
+      } else {
+        await client
+            .from(DbTable.teacher)
+            .delete()
+            .eq('id', userModel.teacher?.first.id ?? 0);
 
-      await client
-          .from(DbTable.attemptedPhrases)
-          .delete()
-          .eq('student_id', student.id ?? 0);
-      await client.from(DbTable.streakTable).delete().eq('user_id', userId);
-      await client.from(DbTable.student).delete().eq('user_id', userId);
-      await client.from(DbTable.userResult).delete().eq('user_id', userId);
-      await client.from(DbTable.users).delete().eq('user_id', userId);
+        await client.from(DbTable.users).delete().eq('user_id', userId);
+      }
+
       return true;
     } catch (e) {
       log(e.toString());

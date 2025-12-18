@@ -7,6 +7,7 @@ import 'package:yoyo_web_app/features/dashboard/presentation/dashboard_screen.da
 import 'package:yoyo_web_app/features/edit_school/presentation/edit_school.dart';
 import 'package:yoyo_web_app/features/edit_user/presentation/edit_user_screen.dart';
 import 'package:yoyo_web_app/features/home/presentation/home_screen.dart';
+import 'package:yoyo_web_app/features/notification/presentation/notification_screen.dart';
 import 'package:yoyo_web_app/features/phrases/presentation/phrases_screen.dart';
 import 'package:yoyo_web_app/features/settings/presentation/settings_page.dart';
 import 'package:yoyo_web_app/features/view_school/presentation/view_school_screen.dart';
@@ -78,6 +79,10 @@ class AppRoutes {
           GoRoute(
             path: RouteNames.addUserName,
             builder: (context, state) => const AddUserNameScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.notification,
+            builder: (context, state) => NotificationScreen(),
           ),
           GoRoute(
             path: RouteNames.editSchool,

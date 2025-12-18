@@ -12,7 +12,7 @@ Widget homeWebsite(HomeViewModel viewModel, BuildContext context) => Padding(
     floatingActionButton: viewModel.selectedSchool != null
         ? ElevatedButton(
             onPressed: () => viewModel.pdfCreater(),
-            child: Text('Generate Pdf'),
+            child: Text('Generate PDF'),
           )
         : null,
 

@@ -67,6 +67,7 @@ class HomeViewModel extends ChangeNotifier {
       );
     }
     sortBy('participated');
+    metrics();
     notifyListeners();
   }
 
@@ -432,6 +433,7 @@ class HomeViewModel extends ChangeNotifier {
     selectedLanguage = null;
     selectedLevel = null;
     applyFilter();
+    metrics();
     notifyListeners();
   }
 
@@ -439,12 +441,14 @@ class HomeViewModel extends ChangeNotifier {
     selectedClass = val;
     applyFilter();
     notifyListeners();
+    metrics();
   }
 
   void selectLevel(Level? val) {
     selectedLevel = val;
     applyFilter();
     applyStudentFilter();
+    metrics();
     notifyListeners();
   }
 
@@ -452,6 +456,7 @@ class HomeViewModel extends ChangeNotifier {
     selectedTimeFrame = val;
     applyFilter();
     applyStudentFilter();
+    metrics();
     notifyListeners();
   }
 
@@ -459,6 +464,7 @@ class HomeViewModel extends ChangeNotifier {
     selectedLanguage = val;
     applyFilter();
     applyStudentFilter();
+    metrics();
     notifyListeners();
   }
 
@@ -525,20 +531,6 @@ class HomeViewModel extends ChangeNotifier {
 
     participationList = getUniqueUsers(participationList);
 
-    int activeusers = 0;
-    int totalusers = 0;
-    for (var std in filteredStudents) {
-      if (std.userModel?.isTester != true) {
-        totalusers++;
-        if ((std.userModel?.userResult?.length ?? 0) > 0) {
-          activeusers++;
-        }
-      }
-    }
-    participation = ((activeusers / totalusers) * 100).toInt();
-    avrageScore = (scoreSum / avgTotalStudents).toInt();
-    goodWords = getTopWords(goodWords);
-    badWords = getTopWords(badWords);
     assignLanLvl();
     notifyListeners();
   }
@@ -546,6 +538,40 @@ class HomeViewModel extends ChangeNotifier {
   bool matchLanguage(UserResult val) {
     if (selectedLanguage == null) return true;
     return (val.phraseModel?.language ?? 0) == selectedLanguage!.id;
+  }
+
+  void metrics() {
+    int activeusers = 0;
+    int totalusers = 0;
+    int scoreSum = 0;
+    int avgTotalStudents = 0;
+
+    for (var std in filteredStudents) {
+      if (std.userModel?.isTester != true) {
+        totalusers++;
+
+        if ((std.userModel?.userResult?.isNotEmpty ?? false)) {
+          activeusers++;
+        }
+
+        final score = std.score ?? 0;
+        scoreSum += score;
+
+        if (score > 0) {
+          avgTotalStudents++;
+        }
+      }
+    }
+    participation = totalusers == 0
+        ? 0
+        : ((activeusers / totalusers) * 100).toInt();
+
+    avrageScore = avgTotalStudents == 0
+        ? 0
+        : (scoreSum / avgTotalStudents).toInt();
+
+    goodWords = getTopWords(goodWords);
+    badWords = getTopWords(badWords);
   }
 
   bool matchTimeFrame(DateTime date) {

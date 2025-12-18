@@ -326,7 +326,7 @@ class HomeWidgets {
                   spacing: 5,
                   children: [
                     Text(
-                      color == Colors.green ? 'Green' : "Red",
+                      color == Colors.green ? 'Good' : "Bad",
                       style: AppTextStyles.textTheme.titleMedium!.copyWith(
                         color: color,
                       ),

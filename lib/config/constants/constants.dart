@@ -39,6 +39,7 @@ class DbTable {
   static const String remoteConfig = 'remote_config';
   static const String userResult = 'user_results';
   static const String streakTable = 'streak_table';
+  static const String activationRequests = 'activation_requests';
 }
 
 class Stroage {
