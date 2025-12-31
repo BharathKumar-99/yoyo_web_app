@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:yoyo_web_app/config/theme/app_text_styles.dart';
 import 'package:yoyo_web_app/features/home/model/phrases_model.dart';
 import 'package:yoyo_web_app/features/phrases/presentation/phrases_view_model.dart';
 import '../../../../config/constants/constants.dart';
+import 'disable_phrase.dart';
 
 class PhraseTable extends StatelessWidget {
   final List<PhraseModel> phrase;
@@ -26,14 +28,15 @@ class PhraseTable extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 12),
       child: Row(
         children: [
-          headerCell("Name", "name", flex: 3),
+          headerCell("Name", "name", flex: 2),
           headerCell("Translation", "translation", flex: 2),
           headerCell("Language", "language", flex: 1),
           headerCell("Recording", "recording", flex: 1),
           headerCell("Categories", "categories", flex: 2),
           headerCell("Vocab", "vocab", flex: 1),
+          headerCell("Learned", "learned", flex: 1),
           headerCell("Sounds", "sounds", flex: 1),
-          headerCell(" ", " ", flex: 1),
+          headerCell("Active", "active", flex: 2),
         ],
       ),
     );
@@ -65,8 +68,9 @@ class PhraseTable extends StatelessWidget {
         children: [
           // NAME
           Expanded(
-            flex: 3,
+            flex: 2,
             child: Text(
+              textAlign: TextAlign.left,
               row.phrase ?? 'N/A',
               style: TextStyle(fontSize: 14, color: Colors.black87),
             ),
@@ -80,8 +84,8 @@ class PhraseTable extends StatelessWidget {
             flex: 1,
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 GestureDetector(
                   onTap: () =>
@@ -99,20 +103,63 @@ class PhraseTable extends StatelessWidget {
             ),
           ),
 
-          // LEVEL (first 2 chars)
+          // LEVEL (first 2 chars)s
           rowCell(row.phraseCategories?.name ?? "N/A", flex: 2),
           rowCell(row.vocab?.toString() ?? "0"),
-          rowCell((row.sounds.toString())),
-          Expanded(
-            flex: 1,
-            child: GestureDetector(
-              onTap: () => provider.removePhrase(row.id, row.recording),
-              child: CircleAvatar(
-                backgroundColor: Colors.red,
-                child: Icon(Icons.close, color: Colors.white),
-              ),
-            ),
+          rowCell(
+            row.userResult
+                    ?.where((v) => v.type == 'Learned')
+                    .length
+                    .toString() ??
+                "0",
           ),
+          rowCell((row.sounds.toString())),
+          (provider.commonViewModel?.teacher?.teacher?.isNotEmpty ?? false)
+              ? Expanded(
+                  child: Switch.adaptive(
+                    value: row.phraseDisabledSchools
+                        .where(
+                          (e) =>
+                              e.remoteConfig?.school?.id ==
+                              provider.commonViewModel?.teacher?.schools?.id,
+                        )
+                        .isEmpty,
+                    onChanged: (v) {
+                      provider.disablePhrase(row.id ?? 0, [
+                        provider.commonViewModel?.teacher?.schools?.id ?? 0,
+                      ]);
+                    },
+                  ),
+                )
+              : Expanded(
+                  flex: 2,
+                  child: Wrap(
+                    spacing: 5,
+                    runSpacing: 5,
+                    children: [
+                      ...row.phraseDisabledSchools.map(
+                        (e) => Chip(
+                          onDeleted: () {
+                            provider.disablePhrase(row.id ?? 0, [
+                              e.remoteConfig?.school?.id ?? 0,
+                            ]);
+                          },
+                          deleteIcon: Icon(
+                            Icons.delete_outline_outlined,
+                            color: Colors.redAccent,
+                          ),
+                          label: Text(
+                            e.remoteConfig?.school?.schoolName ?? '',
+                            style: AppTextStyles.textTheme.bodySmall!.copyWith(
+                              fontSize: 8,
+                            ),
+                          ),
+                        ),
+                      ),
+                      getDisabledPhrase(row, provider),
+                    ],
+                  ),
+                ),
         ],
       ),
     );

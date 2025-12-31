@@ -1,13 +1,18 @@
+import 'package:yoyo_web_app/features/home/model/school.dart';
+
 class RemoteConfig {
   final int id;
   final DateTime createdAt;
   final String apiKey;
   final String apiSecretKey;
   final bool streak;
-  final bool mastery;
   final bool onboarding;
+  final bool mastery;
+  final bool warmup;
   LanguageSlack slack;
-  int school;
+  int? schoolId;
+  School? school;
+  List<PhraseDisabledSchools> phraseDisabledSchools;
 
   RemoteConfig({
     required this.id,
@@ -16,13 +21,17 @@ class RemoteConfig {
     required this.apiSecretKey,
     required this.streak,
     required this.onboarding,
-    required this.slack,
-    required this.school,
     required this.mastery,
+    required this.slack,
+    this.schoolId,
+    required this.warmup,
+    required this.phraseDisabledSchools,
+    this.school,
   });
 
   factory RemoteConfig.fromJson(Map<String, dynamic> json) {
     final createdAtValue = json['created_at'];
+    List<PhraseDisabledSchools> phraseDisabledSchool = [];
     DateTime parsedCreatedAt;
     if (createdAtValue is String) {
       parsedCreatedAt = DateTime.parse(createdAtValue);
@@ -30,6 +39,11 @@ class RemoteConfig {
       parsedCreatedAt = createdAtValue;
     } else {
       parsedCreatedAt = DateTime.fromMillisecondsSinceEpoch(0);
+    }
+    if (json['phrase_disabled_schools'] != null) {
+      json['phrase_disabled_schools'].forEach((v) {
+        phraseDisabledSchool.add(PhraseDisabledSchools.fromJson(v));
+      });
     }
 
     return RemoteConfig(
@@ -39,9 +53,12 @@ class RemoteConfig {
       apiSecretKey: json['api_secret_key'] as String,
       streak: json['streak'] as bool,
       onboarding: json['onboarding'] as bool,
+      mastery: json['mastery'] as bool,
       slack: LanguageSlack.fromJson(json['language_slack']),
-      school: json['school'],
-      mastery: json['mastery'],
+      schoolId: json['school'] is int ? json['school'] : null,
+      school: json['school'] is Map ? School.fromJson(json['school']) : null,
+      warmup: json['warmup'],
+      phraseDisabledSchools: phraseDisabledSchool,
     );
   }
 
@@ -52,9 +69,10 @@ class RemoteConfig {
     'api_secret_key': apiSecretKey,
     'streak': streak,
     'onboarding': onboarding,
-    'mastery': mastery,
     'language_slack': slack.toJson(),
-    'school': school,
+    'mastery': mastery,
+    'school': schoolId,
+    'warmup': warmup,
   };
 }
 
@@ -103,5 +121,35 @@ class LanguageSlack {
       'promax': promax,
       'promax.cn': promaxCn,
     };
+  }
+}
+
+class PhraseDisabledSchools {
+  int? id;
+  int? phraseId;
+  int? remoteId;
+  String? disabledAt;
+
+  PhraseDisabledSchools({
+    this.id,
+    this.phraseId,
+    this.remoteId,
+    this.disabledAt,
+  });
+
+  PhraseDisabledSchools.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    phraseId = json['phrase_id'];
+    remoteId = json['remote_id'];
+    disabledAt = json['disabled_at'];
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['phrase_id'] = phraseId;
+    data['remote_id'] = remoteId;
+    data['disabled_at'] = disabledAt;
+    return data;
   }
 }

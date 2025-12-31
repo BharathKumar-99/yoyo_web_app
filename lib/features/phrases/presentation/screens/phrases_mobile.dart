@@ -19,7 +19,7 @@ Widget phrasesMobile(PhrasesViewModel viewModel) => Padding(
             PhraseWidgets.getPhraseFilters(viewModel, isMobile: true),
             PhraseWidgets.getPhraseHeading(
               viewModel.filteredPhraseModel.length,
-              viewModel.commonViewModel?.teacher?.teacher?.isEmpty ?? true,
+              viewModel.commonViewModel?.teacher?.teacher?.isEmpty ?? true,viewModel
             ),
             Container(
               height: 2,

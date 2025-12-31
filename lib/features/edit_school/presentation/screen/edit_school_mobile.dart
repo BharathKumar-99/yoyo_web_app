@@ -22,6 +22,7 @@ editSchoolMobile(EditSchoolViewModel viewModel) => Scaffold(
           EditSchoolWidget.editSchool(),
           EditSchoolWidget.streak(viewModel),
           EditSchoolWidget.matery(viewModel),
+          EditSchoolWidget.warmup(viewModel),
           EditSchoolWidget.getSlack(viewModel),
         ],
       ),

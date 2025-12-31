@@ -8,10 +8,26 @@ import 'package:yoyo_web_app/features/phrases/model/phrases_categories.dart';
 import 'package:yoyo_web_app/features/phrases/presentation/phrases_view_model.dart';
 
 class PhraseWidgets {
-  static Widget getPhraseHeading(int count, bool showAddPhrase) => Row(
+  static Widget getPhraseHeading(
+    int count,
+    bool showAddPhrase,
+    PhrasesViewModel provider,
+  ) => Row(
     spacing: 20,
     children: [
-      Text('Phrases($count)', style: AppTextStyles.textTheme.headlineLarge),
+      Text(
+        provider.selectedPhraseCategories != null
+            ? '${provider.selectedPhraseCategories?.name}($count)'
+            : 'Phrases($count)',
+        style: AppTextStyles.textTheme.headlineLarge,
+      ),
+      if (provider.selectedPhraseCategories != null)
+        Switch(
+          value: provider.selectedPhraseCategories?.active ?? false,
+          onChanged: (val) {
+            provider.disableCategories(val);
+          },
+        ),
       if (showAddPhrase)
         GestureDetector(
           onTap: () => ctx!.go(RouteNames.addPhrase),
@@ -105,9 +121,9 @@ class PhraseWidgets {
         children: [
           Text(
             'Phrase Categories',
-              style: AppTextStyles.textTheme.headlineMedium!.copyWith(
-                    color: Colors.grey,
-                  ),
+            style: AppTextStyles.textTheme.headlineMedium!.copyWith(
+              color: Colors.grey,
+            ),
           ),
           const SizedBox(height: 6),
           DropdownButtonFormField<PhraseCategories?>(

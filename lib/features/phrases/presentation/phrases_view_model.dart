@@ -6,6 +6,7 @@ import 'package:yoyo_web_app/config/utils/global_loader.dart';
 import 'package:yoyo_web_app/features/add_user/model/level.dart';
 import 'package:yoyo_web_app/features/common/common_view_model.dart';
 import 'package:yoyo_web_app/features/home/model/language_model.dart';
+import 'package:yoyo_web_app/features/home/model/school.dart';
 import 'package:yoyo_web_app/features/phrases/data/phrases_repo.dart';
 
 import '../../home/model/phrases_model.dart';
@@ -15,6 +16,7 @@ import '../model/phrases_categories.dart';
 class PhrasesViewModel extends ChangeNotifier {
   final PhrasesRepo _repo = PhrasesRepo();
   List<PhraseModel> phrases = [];
+  List<School> homedata = [];
   List<PhraseModel> filteredPhraseModel = [];
   List<Language> launguages = [];
   List<PhraseCategories> phraseCategories = [];
@@ -44,7 +46,7 @@ class PhrasesViewModel extends ChangeNotifier {
     WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.show());
 
     phrases = await _repo.getPhrasesDetails();
-
+    homedata = await _repo.getHomeData();
     for (var phrase in phrases) {
       if (phrase.languageData != null &&
           !launguages.contains(phrase.languageData)) {
@@ -67,14 +69,18 @@ class PhrasesViewModel extends ChangeNotifier {
         .where((element) => launguages.contains(element.languageData))
         .toList();
     for (var element in phrases) {
-      if (element.phraseCategories != null) {
+      if (element.phraseCategories != null &&
+          ((commonViewModel?.teacher?.teacher?.isNotEmpty ?? false)
+              ? element.phraseCategories?.schoolId ==
+                    commonViewModel?.user?.school
+              : true)) {
         phraseCategories.add(element.phraseCategories!);
       }
     }
     phraseCategories = phraseCategories = {
       for (final c in phraseCategories) c.id: c,
     }.values.toList();
-
+    phraseCategories = phraseCategories.toSet().toList();
     applyFilter();
     notifyListeners();
     WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.hide());
@@ -171,5 +177,20 @@ class PhrasesViewModel extends ChangeNotifier {
         const SnackBar(content: Text('Phrase deleted successfully')),
       );
     }
+  }
+
+  disablePhrase(int phraseId, List<int> schoolId) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.show());
+    await _repo.disablePharase(phraseId, schoolId);
+    await init();
+    WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.hide());
+  }
+
+  void disableCategories(bool val) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.show());
+    await _repo.disableCategories(val, selectedPhraseCategories?.id ?? 0);
+    selectedPhraseCategories = null;
+    await init();
+    WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.hide());
   }
 }

@@ -18,7 +18,7 @@ class EditSchoolWidget {
     trailing: Switch.adaptive(
       value: viewmodel.apiCred.streak,
       onChanged: (val) {
-        viewmodel.updateStreakEnabled(val, viewmodel.apiCred.school);
+        viewmodel.updateStreakEnabled(val, viewmodel.apiCred.schoolId ?? 0);
       },
     ),
   );
@@ -27,159 +27,202 @@ class EditSchoolWidget {
     trailing: Switch.adaptive(
       value: viewmodel.apiCred.mastery,
       onChanged: (val) {
-        viewmodel.updateMasterEnabled(val, viewmodel.apiCred.school);
+        viewmodel.updateMasterEnabled(val, viewmodel.apiCred.schoolId ?? 0);
+      },
+    ),
+  );
+  static warmup(EditSchoolViewModel viewmodel) => ListTile(
+    title: Text("Warm up", style: AppTextStyles.textTheme.titleLarge),
+    trailing: Switch.adaptive(
+      value: viewmodel.apiCred.warmup,
+      onChanged: (val) {
+        viewmodel.updateWarmupEnabled(val, viewmodel.apiCred.schoolId ?? 0);
       },
     ),
   );
 
   static getSlack(EditSchoolViewModel provider) => Column(
     children: [
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("French", style: AppTextStyles.textTheme.titleLarge),
-          Slider(
-            value: provider.apiCred.slack.fr.toDouble(),
-            min: 0,
-            max: 100,
-            divisions: 10,
-            label: provider.apiCred.slack.fr.toDouble().toStringAsFixed(0),
-            onChanged: (value) {
-              LanguageSlack slack = provider.apiCred.slack;
-              slack.fr = value;
-              provider.updateSlack(slack);
-            },
-          ),
-        ],
-      ),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Russian", style: AppTextStyles.textTheme.titleLarge),
-          Slider(
-            value: provider.apiCred.slack.ru.toDouble(),
-            min: 0,
-            max: 100,
-            divisions: 10,
-            label: provider.apiCred.slack.ru.toDouble().toStringAsFixed(0),
-            onChanged: (value) {
-              LanguageSlack slack = provider.apiCred.slack;
-              slack.ru = value;
-              provider.updateSlack(slack);
-            },
-          ),
-        ],
-      ),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Spanish", style: AppTextStyles.textTheme.titleLarge),
-          Slider(
-            value: provider.apiCred.slack.sp.toDouble(),
-            min: 0,
-            max: 100,
-            divisions: 10,
-            label: provider.apiCred.slack.sp.toDouble().toStringAsFixed(0),
-            onChanged: (value) {
-              LanguageSlack slack = provider.apiCred.slack;
-              slack.sp = value;
-              provider.updateSlack(slack);
-            },
-          ),
-        ],
-      ),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("German", style: AppTextStyles.textTheme.titleLarge),
-          Slider(
-            value: provider.apiCred.slack.de.toDouble(),
-            min: 0,
-            max: 100,
-            divisions: 10,
-            label: provider.apiCred.slack.de.toDouble().toStringAsFixed(0),
-            onChanged: (value) {
-              LanguageSlack slack = provider.apiCred.slack;
-              slack.de = value;
-              provider.updateSlack(slack);
-            },
-          ),
-        ],
-      ),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Korean", style: AppTextStyles.textTheme.titleLarge),
-          Slider(
-            value: provider.apiCred.slack.kr.toDouble(),
-            min: 0,
-            max: 100,
-            divisions: 10,
-            label: provider.apiCred.slack.kr.toDouble().toStringAsFixed(0),
-            onChanged: (value) {
-              LanguageSlack slack = provider.apiCred.slack;
-              slack.kr = value;
-              provider.updateSlack(slack);
-            },
-          ),
-        ],
-      ),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Mandarin", style: AppTextStyles.textTheme.titleLarge),
-          Slider(
-            value: provider.apiCred.slack.promaxCn.toDouble(),
-            min: 0,
-            max: 100,
-            divisions: 10,
-            label: provider.apiCred.slack.promaxCn.toDouble().toStringAsFixed(
-              0,
+      if (provider.school?.schoolLanguage
+              ?.where((v) => v.language?.language == 'French')
+              .isNotEmpty ??
+          false)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("French", style: AppTextStyles.textTheme.titleLarge),
+            Slider(
+              value: provider.apiCred.slack.fr.toDouble(),
+              min: 0,
+              max: 100,
+              divisions: 10,
+              label: provider.apiCred.slack.fr.toDouble().toStringAsFixed(0),
+              onChanged: (value) {
+                LanguageSlack slack = provider.apiCred.slack;
+                slack.fr = value;
+                provider.updateSlack(slack);
+              },
             ),
-            onChanged: (value) {
-              LanguageSlack slack = provider.apiCred.slack;
-              slack.promaxCn = value;
-              provider.updateSlack(slack);
-            },
-          ),
-        ],
-      ),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("Japanese", style: AppTextStyles.textTheme.titleLarge),
-          Slider(
-            value: provider.apiCred.slack.jp.toDouble(),
-            min: 0,
-            max: 100,
-            divisions: 10,
-            label: provider.apiCred.slack.jp.toDouble().toStringAsFixed(0),
-            onChanged: (value) {
-              LanguageSlack slack = provider.apiCred.slack;
-              slack.jp = value;
-              provider.updateSlack(slack);
-            },
-          ),
-        ],
-      ),
-      Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text("English", style: AppTextStyles.textTheme.titleLarge),
-          Slider(
-            value: provider.apiCred.slack.promax.toDouble(),
-            min: 0,
-            max: 100,
-            divisions: 10,
-            label: provider.apiCred.slack.promax.toDouble().toStringAsFixed(0),
-            onChanged: (value) {
-              LanguageSlack slack = provider.apiCred.slack;
-              slack.promax = value;
-              provider.updateSlack(slack);
-            },
-          ),
-        ],
-      ),
+          ],
+        ),
+      if (provider.school?.schoolLanguage
+              ?.where((v) => v.language?.language == 'Russian')
+              .isNotEmpty ??
+          false)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Russian", style: AppTextStyles.textTheme.titleLarge),
+            Slider(
+              value: provider.apiCred.slack.ru.toDouble(),
+              min: 0,
+              max: 100,
+              divisions: 10,
+              label: provider.apiCred.slack.ru.toDouble().toStringAsFixed(0),
+              onChanged: (value) {
+                LanguageSlack slack = provider.apiCred.slack;
+                slack.ru = value;
+                provider.updateSlack(slack);
+              },
+            ),
+          ],
+        ),
+      if (provider.school?.schoolLanguage
+              ?.where((v) => v.language?.language == 'Spanish')
+              .isNotEmpty ??
+          false)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Spanish", style: AppTextStyles.textTheme.titleLarge),
+            Slider(
+              value: provider.apiCred.slack.sp.toDouble(),
+              min: 0,
+              max: 100,
+              divisions: 10,
+              label: provider.apiCred.slack.sp.toDouble().toStringAsFixed(0),
+              onChanged: (value) {
+                LanguageSlack slack = provider.apiCred.slack;
+                slack.sp = value;
+                provider.updateSlack(slack);
+              },
+            ),
+          ],
+        ),
+      if (provider.school?.schoolLanguage
+              ?.where((v) => v.language?.language == 'German')
+              .isNotEmpty ??
+          false)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("German", style: AppTextStyles.textTheme.titleLarge),
+            Slider(
+              value: provider.apiCred.slack.de.toDouble(),
+              min: 0,
+              max: 100,
+              divisions: 10,
+              label: provider.apiCred.slack.de.toDouble().toStringAsFixed(0),
+              onChanged: (value) {
+                LanguageSlack slack = provider.apiCred.slack;
+                slack.de = value;
+                provider.updateSlack(slack);
+              },
+            ),
+          ],
+        ),
+      if (provider.school?.schoolLanguage
+              ?.where((v) => v.language?.language == 'Korean')
+              .isNotEmpty ??
+          false)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Korean", style: AppTextStyles.textTheme.titleLarge),
+            Slider(
+              value: provider.apiCred.slack.kr.toDouble(),
+              min: 0,
+              max: 100,
+              divisions: 10,
+              label: provider.apiCred.slack.kr.toDouble().toStringAsFixed(0),
+              onChanged: (value) {
+                LanguageSlack slack = provider.apiCred.slack;
+                slack.kr = value;
+                provider.updateSlack(slack);
+              },
+            ),
+          ],
+        ),
+      if (provider.school?.schoolLanguage
+              ?.where((v) => v.language?.language == 'Mandarin')
+              .isNotEmpty ??
+          false)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Mandarin", style: AppTextStyles.textTheme.titleLarge),
+            Slider(
+              value: provider.apiCred.slack.promaxCn.toDouble(),
+              min: 0,
+              max: 100,
+              divisions: 10,
+              label: provider.apiCred.slack.promaxCn.toDouble().toStringAsFixed(
+                0,
+              ),
+              onChanged: (value) {
+                LanguageSlack slack = provider.apiCred.slack;
+                slack.promaxCn = value;
+                provider.updateSlack(slack);
+              },
+            ),
+          ],
+        ),
+      if (provider.school?.schoolLanguage
+              ?.where((v) => v.language?.language == 'Japanese')
+              .isNotEmpty ??
+          false)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Japanese", style: AppTextStyles.textTheme.titleLarge),
+            Slider(
+              value: provider.apiCred.slack.jp.toDouble(),
+              min: 0,
+              max: 100,
+              divisions: 10,
+              label: provider.apiCred.slack.jp.toDouble().toStringAsFixed(0),
+              onChanged: (value) {
+                LanguageSlack slack = provider.apiCred.slack;
+                slack.jp = value;
+                provider.updateSlack(slack);
+              },
+            ),
+          ],
+        ),
+      if (provider.school?.schoolLanguage
+              ?.where((v) => v.language?.language == 'English')
+              .isNotEmpty ??
+          false)
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("English", style: AppTextStyles.textTheme.titleLarge),
+            Slider(
+              value: provider.apiCred.slack.promax.toDouble(),
+              min: 0,
+              max: 100,
+              divisions: 10,
+              label: provider.apiCred.slack.promax.toDouble().toStringAsFixed(
+                0,
+              ),
+              onChanged: (value) {
+                LanguageSlack slack = provider.apiCred.slack;
+                slack.promax = value;
+                provider.updateSlack(slack);
+              },
+            ),
+          ],
+        ),
     ],
   );
 

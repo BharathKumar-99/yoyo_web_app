@@ -40,6 +40,7 @@ class DbTable {
   static const String userResult = 'user_results';
   static const String streakTable = 'streak_table';
   static const String activationRequests = 'activation_requests';
+  static const String phraseDisabledSchools = 'phrase_disabled_schools';
 }
 
 class Stroage {

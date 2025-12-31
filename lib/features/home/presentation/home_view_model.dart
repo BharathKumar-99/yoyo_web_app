@@ -45,6 +45,7 @@ class HomeViewModel extends ChangeNotifier {
   String? sortKey = 'participated';
   bool ascending = true;
   List<TeacherModel>? teacherModel;
+  List<int> languagesId = [];
   CommonViewModel? commonViewModel;
 
   HomeViewModel() {
@@ -53,10 +54,10 @@ class HomeViewModel extends ChangeNotifier {
 
   getHomeData() async {
     homedata = await _repo.getHomeData();
-
+    assignLanLvl();
     applyFilter();
     applyStudentFilter();
-    assignLanLvl();
+
     commonViewModel = Provider.of<CommonViewModel>(ctx!, listen: false);
     teacherModel = commonViewModel?.teacher?.teacher;
     if (teacherModel?.isNotEmpty ?? false) {
@@ -91,7 +92,11 @@ class HomeViewModel extends ChangeNotifier {
         (student.level?.level?.length ?? 0) >= 2
             ? student.level!.level!.substring(0, 2)
             : student.level?.level ?? 'N/A',
-
+        (student.userModel?.userResult?.length ?? 0).toString(),
+        (student.userModel?.userResult?.fold(
+          0,
+          (prev, en) => prev + (en.attempt ?? 0),
+        )).toString(),
         (student.vocab == maxVocab && student.vocab != 0
             ? "${student.vocab} 🥇"
             : "${student.vocab}"),
@@ -252,6 +257,8 @@ class HomeViewModel extends ChangeNotifier {
                         'UserName',
                         'Participated',
                         'Level',
+                        'Phrases',
+                        'Attempt',
                         'Vocab',
                         'Av. Score',
                         'Effort',
@@ -348,6 +355,10 @@ class HomeViewModel extends ChangeNotifier {
 
     levels = lvl.toSet().toList();
     languages = lang.toSet().toList();
+    languagesId = [];
+    for (var lang in languages) {
+      languagesId.add(lang?.id ?? 0);
+    }
   }
 
   List<UserResult> getUniqueUsers(List<UserResult> usersResult) {
@@ -519,19 +530,20 @@ class HomeViewModel extends ChangeNotifier {
             });
           });
     filteredStudents = students;
+    assignLanLvl();
     for (var attempt in participationList) {
-      attempt.goodWords?.forEach((val) {
-        goodWords.add(val);
-      });
-      attempt.badWords?.forEach((val) {
-        badWords.add(val);
-      });
-      effort = effort + (attempt.attempt ?? 0);
+      if (languagesId.contains(attempt.phraseModel?.language)) {
+        attempt.goodWords?.forEach((val) {
+          goodWords.add(val);
+        });
+        attempt.badWords?.forEach((val) {
+          badWords.add(val);
+        });
+      }
     }
 
     participationList = getUniqueUsers(participationList);
 
-    assignLanLvl();
     notifyListeners();
   }
 
@@ -545,6 +557,7 @@ class HomeViewModel extends ChangeNotifier {
     int totalusers = 0;
     int scoreSum = 0;
     int avgTotalStudents = 0;
+    effort = 0;
 
     for (var std in filteredStudents) {
       if (std.userModel?.isTester != true) {
@@ -552,6 +565,9 @@ class HomeViewModel extends ChangeNotifier {
 
         if ((std.userModel?.userResult?.isNotEmpty ?? false)) {
           activeusers++;
+          for (UserResult res in std.userModel?.userResult ?? []) {
+            effort = (effort + (res.attempt ?? 0)).toInt();
+          }
         }
 
         final score = std.score ?? 0;

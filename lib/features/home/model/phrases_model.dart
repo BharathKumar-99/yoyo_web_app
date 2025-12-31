@@ -3,6 +3,9 @@ import 'package:yoyo_web_app/features/add_user/model/level.dart';
 import 'package:yoyo_web_app/features/home/model/language_model.dart';
 import 'package:yoyo_web_app/features/phrases/model/phrases_categories.dart';
 
+import '../../edit_school/model/remote_config.dart';
+import 'user_result_model.dart';
+
 class PhraseModel {
   int? id;
   int? level;
@@ -17,6 +20,8 @@ class PhraseModel {
   Level? levelData;
   Language? languageData;
   PhraseCategories? phraseCategories;
+  List<UserResult>? userResult;
+  List<PhraseDisabledSchools> phraseDisabledSchools;
 
   PhraseModel({
     this.id,
@@ -32,9 +37,24 @@ class PhraseModel {
     this.levelData,
     this.languageData,
     this.phraseCategories,
+    this.userResult,
+    required this.phraseDisabledSchools,
   });
 
   factory PhraseModel.fromJson(Map<String, dynamic> json) {
+    List<PhraseDisabledSchools> phraseDisabledSchool = [];
+    if (json['phrase_disabled_schools'] != null) {
+      json['phrase_disabled_schools'].forEach((v) {
+        phraseDisabledSchool.add(PhraseDisabledSchools.fromJson(v));
+      });
+    }
+    List<UserResult>? userResults = [];
+    if (json['user_results'] != null) {
+      userResults = <UserResult>[];
+      json['user_results'].forEach((v) {
+        userResults?.add(UserResult.fromJson(v));
+      });
+    }
     return PhraseModel(
       id: json['id'] as int?,
       level: json['level'] is int? ? json['level'] as int? : null,
@@ -54,6 +74,8 @@ class PhraseModel {
       phraseCategories: json[DbTable.phraseCategories] is Map
           ? PhraseCategories.fromJson(json[DbTable.phraseCategories])
           : null,
+      phraseDisabledSchools: phraseDisabledSchool,
+      userResult: userResults,
     );
   }
 
@@ -69,5 +91,40 @@ class PhraseModel {
       'created_at': createdAt?.toIso8601String(),
       'translation': translation,
     };
+  }
+}
+
+class PhraseDisabledSchools {
+  int? id;
+  int? phraseId;
+  int? remoteId;
+  String? disabledAt;
+  RemoteConfig? remoteConfig;
+
+  PhraseDisabledSchools({
+    this.id,
+    this.phraseId,
+    this.remoteId,
+    this.disabledAt,
+    this.remoteConfig,
+  });
+
+  PhraseDisabledSchools.fromJson(Map<String, dynamic> json) {
+    id = json['id'];
+    phraseId = json['phrase_id'];
+    remoteId = json['remote_id'];
+    disabledAt = json['disabled_at'];
+    remoteConfig = json[DbTable.remoteConfig] != null
+        ? RemoteConfig.fromJson(json[DbTable.remoteConfig])
+        : null;
+  }
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['id'] = id;
+    data['phrase_id'] = phraseId;
+    data['remote_id'] = remoteId;
+    data['disabled_at'] = disabledAt;
+    return data;
   }
 }

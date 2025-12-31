@@ -10,7 +10,7 @@ class EditSchoolRepo extends ApiRepo {
   Future<School> getSchool(int id) async {
     final data = await client
         .from(DbTable.school)
-        .select('*')
+        .select('''*,${DbTable.schoolLanguage}(*,${DbTable.language}(*))''')
         .eq('id', id)
         .maybeSingle();
     return School.fromJson(data!);
@@ -39,6 +39,16 @@ class EditSchoolRepo extends ApiRepo {
     final data = await client
         .from(DbTable.remoteConfig)
         .update({"mastery": value})
+        .eq('school', id)
+        .select()
+        .single();
+    return RemoteConfig.fromJson(data);
+  }
+
+  Future<RemoteConfig> updateWarmupEnabled(bool value, id) async {
+    final data = await client
+        .from(DbTable.remoteConfig)
+        .update({"warmup": value})
         .eq('school', id)
         .select()
         .single();

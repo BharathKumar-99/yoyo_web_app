@@ -44,6 +44,7 @@ class _StudentTableState extends State<StudentTable> {
           headerCell("Participated", "participated"),
           headerCell("Level", "level"),
           headerCell("Phrases", "phrases"),
+          headerCell("Attempt", "Attempt"),
           headerCell("Vocab", "vocab"),
           headerCell("Av. Score", "avgScore"),
         ],
@@ -120,6 +121,12 @@ class _StudentTableState extends State<StudentTable> {
           ),
 
           rowCell(row.userModel?.userResult?.length.toString() ?? "0"),
+          rowCell(
+            row.userModel?.userResult
+                    ?.fold(0, (prev, el) => prev + (el.attempt ?? 0))
+                    .toString() ??
+                '0',
+          ),
           rowCell(row.vocab?.toString() ?? "0"),
           rowCell((row.score ?? 0) > 0 ? '${row.score} %' : 'N/A'),
         ],

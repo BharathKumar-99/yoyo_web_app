@@ -70,6 +70,17 @@ class EditSchoolViewModel extends ChangeNotifier {
       WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.hide());
     }
   }
+  Future<void> updateWarmupEnabled(bool value, int school) async {
+    try {
+      WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.show());
+      apiCred = await _repo.updateWarmupEnabled(value, school);
+      notifyListeners();
+    } catch (e, st) {
+      log("updateWarmupEnabled error: $e\n$st");
+    } finally {
+      WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.hide());
+    }
+  }
 
   void updateSlack(LanguageSlack lang) async {
     try {
