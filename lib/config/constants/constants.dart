@@ -21,6 +21,7 @@ class IconConstants {
   static const String emailIcon = "${iconLoc}mail.png";
   static const String vertIcon = "${iconLoc}vert-more.png";
   static const String logOutIcon = "${iconLoc}Logout.png";
+  static const String logoLogin = "${iconLoc}YoYo_withbackground.png";
 }
 
 class DbTable {

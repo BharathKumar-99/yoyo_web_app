@@ -18,6 +18,7 @@ class NotificationViewModel extends ChangeNotifier {
   }
 
   getCodeModel() async {
+    if (commonViewModel?.teacher?.teacher?.isEmpty ?? true) return;
     activationModel = await _repo.getActivationModel(
       commonViewModel?.teacher?.teacher?.first.classes ?? 0,
     );

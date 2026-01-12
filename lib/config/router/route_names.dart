@@ -14,4 +14,5 @@ class RouteNames {
   static const String addTeacher = '/addTeacher';
   static const String activate = '/activate';
   static const String notification = '/notification';
+  static const String sendNotification = '/sendNotification';
 }

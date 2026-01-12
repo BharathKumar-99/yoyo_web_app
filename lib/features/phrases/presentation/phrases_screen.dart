@@ -19,7 +19,7 @@ class PhrasesScreen extends StatelessWidget {
           tablet: phrasesTablet(value),
           desktop: phrasesWebsite(value),
         ),
-      ),
+      ), 
     );
   }
 }

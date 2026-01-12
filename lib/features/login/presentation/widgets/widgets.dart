@@ -14,15 +14,11 @@ class LoginWidgets {
     child: Center(child: child),
   );
 
-  static SizedBox loginCard(double height, width, Widget child) => SizedBox(
-    height: height,
-    width: width,
-    child: Card(child: child),
-  );
+  static loginCard(double height, width, Widget child) => child;
 
   static otpField(BuildContext context, LoginViewModel vm, double padding) =>
-      Padding(
-        padding: EdgeInsets.symmetric(horizontal: padding),
+      SizedBox(
+        width: 400,
         child: PinCodeTextField(
           controller: vm.pinCodeController,
           appContext: context,
@@ -32,7 +28,7 @@ class LoginWidgets {
           keyboardType: TextInputType.number,
           autoFocus: true,
           textStyle: TextStyle(fontWeight: FontWeight.w400),
-          cursorColor: Colors.grey,
+          cursorColor: Colors.white,
           animationType: AnimationType.fade,
           animationDuration: const Duration(milliseconds: 300),
           enableActiveFill: true,
@@ -42,8 +38,8 @@ class LoginWidgets {
             activeBorderWidth: 1.5,
             inactiveBorderWidth: 1.5,
             selectedBorderWidth: 1.5,
-            activeFillColor: Colors.white,
-            inactiveFillColor: Colors.white,
+            activeFillColor: Colors.transparent,
+            inactiveFillColor: Colors.transparent,
             selectedFillColor: Colors.grey[400],
             activeColor: Color(0xFF6155F5),
             inactiveColor: Colors.grey[400],
@@ -52,37 +48,59 @@ class LoginWidgets {
         ),
       );
 
-  static emailTextField(LoginViewModel vm) => TextField(
-    controller: vm.emailController,
-    style: AppTextStyles.textTheme.bodySmall,
-    onSubmitted: (value) => vm.sendOtp(),
-    decoration: InputDecoration(
-      contentPadding: EdgeInsets.all(16),
-      hintText: "Email Address",
-      hintStyle: AppTextStyles.textTheme.bodySmall!.copyWith(
-        color: Colors.grey,
-      ),
-
-      prefixIcon: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 10.0),
-        child: Image.asset(IconConstants.emailIcon),
-      ),
-      prefixIconConstraints: const BoxConstraints(maxHeight: 40, maxWidth: 40),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(color: Colors.grey.shade300),
+  static emailTextField(LoginViewModel vm) => SizedBox(
+    width: 400,
+    child: TextField(
+      controller: vm.emailController,
+      style: AppTextStyles.textTheme.bodySmall!.copyWith(color: Colors.white),
+      onSubmitted: (value) => vm.sendOtp(),
+      decoration: InputDecoration(
+        contentPadding: EdgeInsets.all(16),
+        hintText: "Email Address",
+        hintStyle: AppTextStyles.textTheme.bodySmall!.copyWith(
+          color: Colors.white,
+        ),
+        prefixIcon: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 10.0),
+          child: Image.asset(IconConstants.emailIcon, color: Colors.white),
+        ),
+        prefixIconConstraints: const BoxConstraints(
+          maxHeight: 40,
+          maxWidth: 40,
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.white),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.white),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.white),
+        ),
       ),
     ),
   );
 
-  static sendOtpBtn(LoginViewModel vm) => ElevatedButton(
-    onPressed: vm.isButtonDisabled ? null : vm.sendOtp,
-    child: vm.isButtonDisabled
-        ? Text("Resend in ${vm.countdown}s")
-        : const Text("Send OTP"),
+  static sendOtpBtn(LoginViewModel vm) => SizedBox(
+    width: 400,
+    child: ElevatedButton(
+      onPressed: vm.isButtonDisabled ? null : vm.sendOtp,
+      child: vm.isButtonDisabled
+          ? Text(
+              "Resend in ${vm.countdown}s",
+              style: TextStyle(color: Colors.white),
+            )
+          : const Text("Send OTP"),
+    ),
   );
-  static verifyOtpBtn(LoginViewModel vm) => ElevatedButton(
-    onPressed: () => vm.verifyOtp(),
-    child: Text('Verify OTP'),
+  static verifyOtpBtn(LoginViewModel vm) => SizedBox(
+    width: 400,
+    child: ElevatedButton(
+      onPressed: () => vm.verifyOtp(),
+      child: Text('Verify OTP'),
+    ),
   );
 }

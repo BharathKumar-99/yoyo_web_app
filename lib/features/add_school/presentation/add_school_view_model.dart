@@ -146,7 +146,7 @@ class AddSchoolViewModel extends ChangeNotifier {
     if (!validateForm()) return;
 
     try {
-      _repo.addSchool(
+     await _repo.addSchool(
         imageBytes!,
         schoolNameController.text.trim(),
         schoolPrincipalController.text.trim(),

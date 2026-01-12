@@ -75,10 +75,7 @@ class PhraseTable extends StatelessWidget {
               style: TextStyle(fontSize: 14, color: Colors.black87),
             ),
           ),
-
           rowCell(row.translation ?? 'N/A', flex: 2),
-
-          // PARTICIPATED
           rowCell((row.languageData?.language ?? '')),
           Expanded(
             flex: 1,
@@ -102,8 +99,6 @@ class PhraseTable extends StatelessWidget {
               ],
             ),
           ),
-
-          // LEVEL (first 2 chars)s
           rowCell(row.phraseCategories?.name ?? "N/A", flex: 2),
           rowCell(row.vocab?.toString() ?? "0"),
           rowCell(
@@ -116,19 +111,23 @@ class PhraseTable extends StatelessWidget {
           rowCell((row.sounds.toString())),
           (provider.commonViewModel?.teacher?.teacher?.isNotEmpty ?? false)
               ? Expanded(
-                  child: Switch.adaptive(
-                    value: row.phraseDisabledSchools
-                        .where(
-                          (e) =>
-                              e.remoteConfig?.school?.id ==
-                              provider.commonViewModel?.teacher?.schools?.id,
-                        )
-                        .isEmpty,
-                    onChanged: (v) {
-                      provider.disablePhrase(row.id ?? 0, [
-                        provider.commonViewModel?.teacher?.schools?.id ?? 0,
-                      ]);
-                    },
+                  flex: 2,
+                  child: Align(
+                    alignment: Alignment.topLeft,
+                    child: Switch.adaptive(
+                      value: row.phraseDisabledSchools
+                          .where(
+                            (e) =>
+                                e.remoteConfig?.school?.id ==
+                                provider.commonViewModel?.teacher?.schools?.id,
+                          )
+                          .isEmpty,
+                      onChanged: (v) {
+                        provider.disablePhrase(row.id ?? 0, [
+                          provider.commonViewModel?.teacher?.schools?.id ?? 0,
+                        ]);
+                      },
+                    ),
                   ),
                 )
               : Expanded(

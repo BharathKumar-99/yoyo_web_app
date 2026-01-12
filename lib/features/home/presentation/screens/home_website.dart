@@ -69,12 +69,14 @@ Widget homeWebsite(HomeViewModel viewModel, BuildContext context) => Padding(
                         children: [
                           Expanded(
                             child: HomeWidgets.getWordsCard(
-                              viewModel.goodWords,
+                              viewModel.topGoodWords,
+                              viewModel.goodWords.toSet().toList(),
                             ),
                           ),
                           Expanded(
                             child: HomeWidgets.getWordsCard(
-                              viewModel.badWords,
+                              viewModel.topBadWords,
+                              viewModel.badWords.toSet().toList(),
                               color: Colors.red,
                             ),
                           ),

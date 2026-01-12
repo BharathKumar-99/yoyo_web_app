@@ -39,25 +39,25 @@ class AddSchoolRepo extends ApiRepo {
     List<Language> lang,
     String fileName,
   ) async {
-    String image = await getSupabaseUrl(selectedFile, fileName);
-    var data = {
-      'school_name': schoolName,
-      'school_address': address,
-      'school_telephone_no': number,
-      'principle': principalName,
-      'no_of_students': studentCount,
-      'image': image,
-    };
+    try {
+      String image = await getSupabaseUrl(selectedFile, fileName);
+      var data = {
+        'school_name': schoolName,
+        'school_address': address,
+        'school_telephone_no': number,
+        'principle': principalName,
+        'no_of_students': studentCount,
+        'image': image,
+      };
 
-    final sData = await client
-        .from(DbTable.school)
-        .insert(data)
-        .select('*')
-        .single();
-    School school = School.fromJson(sData);
+      final sData = await client
+          .from(DbTable.school)
+          .insert(data)
+          .select('*')
+          .single();
+      School school = School.fromJson(sData);
 
-    await client.from(DbTable.remoteConfig).insert({
-      {
+      await client.from(DbTable.remoteConfig).insert({
         "api_key": "17142724400002e9",
         "api_secret_key": "8a259350f3a84c9e3af163118cfd4caa",
         "streak": true,
@@ -75,12 +75,18 @@ class AddSchoolRepo extends ApiRepo {
         "onboarding": true,
         "school": school.id,
         "mastery": false,
-      },
-    });
+      });
 
-    for (var lData in lang) {
-      var lanData = {'school': school.id, 'language': lData.id};
-      await client.from(DbTable.schoolLanguage).insert(lanData);
+      final uniqueLangIds = lang.map((e) => e.id).toSet();
+
+      for (var langId in uniqueLangIds) {
+        await client.from(DbTable.schoolLanguage).insert({
+          'school': school.id,
+          'language': langId,
+        });
+      }
+    } catch (e) {
+      log(e.toString());
     }
   }
 }

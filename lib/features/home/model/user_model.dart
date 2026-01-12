@@ -1,5 +1,6 @@
 import 'package:yoyo_web_app/config/constants/constants.dart';
 import 'package:yoyo_web_app/features/add_teacher/model/teacher_model.dart';
+import 'package:yoyo_web_app/features/home/model/fcm.dart';
 import 'package:yoyo_web_app/features/home/model/user_result_model.dart';
 
 import 'school.dart';
@@ -21,6 +22,7 @@ class UserModel {
   bool? isTester;
   List<UserResult>? userResult;
   List<Student>? student;
+  List<Fcm>? fcm;
   List<TeacherModel>? teacher;
   School? schools;
 
@@ -37,6 +39,7 @@ class UserModel {
     this.userResult,
     this.isLoggedIn,
     this.student,
+    this.fcm,
     this.schools,
     this.isActivated,
     this.isTester,
@@ -77,6 +80,12 @@ class UserModel {
         student!.add(Student.fromJson(v));
       });
     }
+    if (json['fcm'] != null) {
+      fcm = <Fcm>[];
+      json['fcm'].forEach((v) {
+        fcm!.add(Fcm.fromJson(v));
+      });
+    }
     if (json[DbTable.teacher] != null) {
       teacher = <TeacherModel>[];
       json[DbTable.teacher].forEach((v) {
@@ -99,6 +108,7 @@ class UserModel {
       'is_activated': isActivated,
       'is_logged_in': isLoggedIn,
       'is_tester': isTester,
+      'fcm': fcm?.map((v) => v.toJson()).toList(),
     };
   }
 }

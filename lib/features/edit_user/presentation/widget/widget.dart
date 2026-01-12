@@ -396,10 +396,10 @@ Widget _buildMetricRow(String title, String value, IconData icon) {
 
 String _formatWordsForTooltip(List<String>? words, bool good) {
   if (words == null || words.isEmpty) {
-    return 'No ${good ? 'good' : 'bad'} words.';
+    return 'No ${good ? 'green' : 'red'} words.';
   }
 
-  return '${good ? 'Good' : 'Bad'} Words:\n${words.join('\n')}';
+  return '${good ? 'Green' : 'Red'} Words:\n${words.join('\n')}';
 }
 
 class UserResultTable extends StatelessWidget {
@@ -415,8 +415,8 @@ class UserResultTable extends StatelessWidget {
           DataColumn(label: Text('Phrase')),
           DataColumn(label: Text('Score'), numeric: true),
           DataColumn(label: Text('Vocab'), numeric: true),
-          DataColumn(label: Text('Good Words'), numeric: true),
-          DataColumn(label: Text('Bad Words'), numeric: true),
+          DataColumn(label: Text('Green Words'), numeric: true),
+          DataColumn(label: Text('Red Words'), numeric: true),
           DataColumn(label: Text('Type')),
           DataColumn(label: Text('Listened'), numeric: true),
         ],

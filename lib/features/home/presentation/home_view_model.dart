@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math' hide log;
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -39,7 +40,9 @@ class HomeViewModel extends ChangeNotifier {
   List<String> timeFrame = ["Today", "This Week", "This Month", "This Year"];
   Language? selectedLanguage;
   List<String> goodWords = [];
+  List<String> topGoodWords = [];
   List<String> badWords = [];
+  List<String> topBadWords = [];
   List<Student> students = [];
   List<Student> filteredStudents = [];
   String? sortKey = 'participated';
@@ -560,24 +563,52 @@ class HomeViewModel extends ChangeNotifier {
     effort = 0;
 
     for (var std in filteredStudents) {
-      if (std.userModel?.isTester != true) {
-        totalusers++;
+      if (std.userModel?.isTester == true) continue;
 
-        if ((std.userModel?.userResult?.isNotEmpty ?? false)) {
-          activeusers++;
-          for (UserResult res in std.userModel?.userResult ?? []) {
-            effort = (effort + (res.attempt ?? 0)).toInt();
+      totalusers++;
+
+      final results = std.userModel?.userResult;
+      if (results == null || results.isEmpty) continue;
+
+      activeusers++;
+
+      int totalAttempts = 0;
+      int totalListens = 0;
+
+      final Set<int> learnedPhraseIds = {};
+      final Set<int> attemptedPhraseIds = {};
+
+      for (UserResult res in results) {
+        totalAttempts += res.attempt ?? 0;
+        totalListens += res.listen ?? 0;
+
+        if (res.phrasesId != null) {
+          attemptedPhraseIds.add(res.phrasesId!);
+
+          if (res.scoreSubmitted == true) {
+            learnedPhraseIds.add(res.phrasesId!);
           }
         }
+      }
 
-        final score = std.score ?? 0;
-        scoreSum += score;
+      final int P = learnedPhraseIds.length; // phrases learned
+      final int U = attemptedPhraseIds.length; // unique attempted
 
-        if (score > 0) {
-          avgTotalStudents++;
-        }
+      effort = calculateEffort(
+        totalAttempts, // A
+        totalListens, // L
+        P, // P
+        U, // U
+      ).toInt();
+
+      final score = std.score ?? 0;
+      scoreSum += score;
+
+      if (score > 0) {
+        avgTotalStudents++;
       }
     }
+
     participation = totalusers == 0
         ? 0
         : ((activeusers / totalusers) * 100).toInt();
@@ -586,8 +617,47 @@ class HomeViewModel extends ChangeNotifier {
         ? 0
         : (scoreSum / avgTotalStudents).toInt();
 
-    goodWords = getTopWords(goodWords);
-    badWords = getTopWords(badWords);
+    topGoodWords = getTopWords(goodWords);
+    topBadWords = getTopWords(badWords);
+  }
+
+  double calculateEffort(
+    int A, // total attempts
+    int L, // total listens
+    int P, // total phrases learned
+    int U, // total unique phrases attempted
+  ) {
+    // Tuning constants
+    const double k1 = 5; // struggle curve
+    const double k2 = 8; // listening curve
+    const double k3 = 20; // volume curve
+
+    // Safety guards
+    final double safeP = max(P, 1).toDouble();
+    final double safeU = max(U, 1).toDouble();
+
+    // Normalised per-phrase values (with caps)
+    final double attemptsPerPhrase = min(A / safeP, 20);
+    final double listensPerPhrase = min(L / safeP, 30);
+
+    // Core scores (0–1)
+    final double struggleScore = 1 - exp(-attemptsPerPhrase / k1);
+
+    final double listeningScore = 1 - exp(-listensPerPhrase / k2);
+
+    final double volumeScore = 1 - exp(-P / k3);
+
+    final double coverageScore = min(P / safeU, 1);
+
+    // Weighted effort (0–100)
+    final double effort =
+        100 *
+        (0.40 * struggleScore +
+            0.25 * listeningScore +
+            0.25 * volumeScore +
+            0.10 * coverageScore);
+
+    return effort.clamp(0, 100);
   }
 
   bool matchTimeFrame(DateTime date) {
@@ -627,8 +697,8 @@ class HomeViewModel extends ChangeNotifier {
       // Only include the student if they have filtered results
       if (results.isNotEmpty) {
         student.userModel?.userResult = results;
-        filteredStudents.add(student);
       }
+      filteredStudents.add(student);
     }
   }
 

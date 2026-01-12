@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/config/router/route_names.dart';
 import 'package:yoyo_web_app/features/add_user/model/level.dart';
@@ -243,6 +244,22 @@ class HomeWidgets {
             ],
           ),
         ),
+        //---------------- ADD School ----------------------
+        if (viewModel.teacherModel?.isEmpty ?? true)
+          IntrinsicWidth(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Container(height: 30),
+                ElevatedButton(
+                  onPressed: () {
+                    ctx!.go(RouteNames.addSchool);
+                  },
+                  child: Text('Add School'),
+                ),
+              ],
+            ),
+          ),
       ],
     );
   }
@@ -306,61 +323,94 @@ class HomeWidgets {
     ),
   );
 
-  static Card getWordsCard(List<String> words, {Color color = Colors.green}) =>
-      Card.filled(
-        color: color == Colors.green
-            ? color.withValues(alpha: 0.2)
-            : Colors.white,
-        shape: RoundedRectangleBorder(
-          side: BorderSide(color: color),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        borderOnForeground: true,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                child: Row(
-                  spacing: 5,
-                  children: [
-                    Text(
-                      color == Colors.green ? 'Green' : "Red",
-                      style: AppTextStyles.textTheme.titleMedium!.copyWith(
-                        color: color,
-                      ),
-                    ),
-                    Text(
-                      'words',
-                      style: AppTextStyles.textTheme.titleMedium!.copyWith(
-                        color: Colors.grey,
-                      ),
-                    ),
-                  ],
+  static Card getWordsCard(
+    List<String> topWords,
+    List<String> words, {
+    Color color = Colors.green,
+  }) => Card.filled(
+    color: color == Colors.green ? color.withValues(alpha: 0.2) : Colors.white,
+    shape: RoundedRectangleBorder(
+      side: BorderSide(color: color),
+      borderRadius: BorderRadius.circular(16),
+    ),
+    borderOnForeground: true,
+    child: Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              spacing: 5,
+              children: [
+                Text(
+                  color == Colors.green ? 'Green' : "Red",
+                  style: AppTextStyles.textTheme.titleMedium!.copyWith(
+                    color: color,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: Wrap(
-                  runSpacing: 10,
-                  spacing: 6,
-                  children: List.generate(words.length, (index) {
-                    final val = words[index];
-                    final isLast = index == words.length - 1;
-
-                    return Text(
-                      isLast ? val : "$val,",
-                      style: AppTextStyles.textTheme.titleMedium!.copyWith(
-                        color: Colors.grey,
-                      ),
-                    );
-                  }),
+                Text(
+                  'words',
+                  style: AppTextStyles.textTheme.titleMedium!.copyWith(
+                    color: Colors.grey,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      );
+          Expanded(
+            child: Wrap(
+              runSpacing: 10,
+              spacing: 6,
+              children: List.generate(topWords.length, (index) {
+                final val = topWords[index];
+                final isLast = index == topWords.length - 1;
+
+                return Text(
+                  isLast ? val : "$val,",
+                  style: AppTextStyles.textTheme.titleMedium!.copyWith(
+                    color: Colors.grey,
+                  ),
+                );
+              }),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              showDialog(
+                context: ctx!,
+                builder: (con) => AlertDialog.adaptive(
+                  title: Text(
+                    color == Colors.green ? 'Green Words' : 'Red Words',
+                  ),
+                  content: SizedBox(
+                    width: double.maxFinite,
+                    child: SingleChildScrollView(
+                      child: Wrap(
+                        runSpacing: 10,
+                        spacing: 6,
+                        children: List.generate(words.length, (index) {
+                          final val = words[index];
+                          final isLast = index == words.length - 1;
+
+                          return Text(
+                            isLast ? val : '$val,',
+                            style: AppTextStyles.textTheme.titleMedium!
+                                .copyWith(color: Colors.grey),
+                          );
+                        }),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+            child: Text('See All'),
+          ),
+        ],
+      ),
+    ),
+  );
 
   static Color successGreen = Color(0xFF00C853);
 }

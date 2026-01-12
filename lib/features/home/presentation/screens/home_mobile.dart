@@ -55,11 +55,15 @@ Widget homeMobile(HomeViewModel viewModel, BuildContext context) => Scaffold(
                 spacing: 10,
                 children: [
                   Expanded(
-                    child: HomeWidgets.getWordsCard(viewModel.goodWords),
+                    child: HomeWidgets.getWordsCard(
+                      viewModel.topGoodWords,
+                      viewModel.goodWords.toSet().toList(),
+                    ),
                   ),
                   Expanded(
                     child: HomeWidgets.getWordsCard(
-                      viewModel.badWords,
+                      viewModel.topBadWords,
+                      viewModel.badWords.toSet().toList(),
                       color: Colors.red,
                     ),
                   ),
