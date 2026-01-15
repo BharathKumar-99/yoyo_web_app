@@ -11,12 +11,19 @@ class PhraseModel {
   int? level;
   int? vocab;
   String? phrase;
+  String? question;
+  String? questionRecording;
   int? sounds;
   int? language;
+  int? categories;
   String? recording;
   DateTime? createdAt;
   String? translation;
+  String? questionTranslation;
+  bool? readingPhrase;
   int? score;
+  bool? warmup;
+  bool? listen;
   Level? levelData;
   Language? languageData;
   PhraseCategories? phraseCategories;
@@ -28,14 +35,21 @@ class PhraseModel {
     this.level,
     this.vocab,
     this.phrase,
+    this.question,
+    this.questionRecording,
     this.sounds,
     this.language,
     this.recording,
     this.createdAt,
+    this.warmup,
     this.translation,
+    this.readingPhrase,
+    this.listen,
+    this.questionTranslation,
     this.score,
     this.levelData,
     this.languageData,
+    this.categories,
     this.phraseCategories,
     this.userResult,
     required this.phraseDisabledSchools,
@@ -58,9 +72,18 @@ class PhraseModel {
     return PhraseModel(
       id: json['id'] as int?,
       level: json['level'] is int? ? json['level'] as int? : null,
+      categories: json['categories'] is int?
+          ? json['categories'] as int?
+          : null,
       vocab: json['vocab'] as int?,
+      warmup: json['warmup'] as bool?,
+      listen: json['listen'] as bool?,
+      readingPhrase: json['reading_phrase'] as bool?,
       phrase: json['phrase'] as String?,
+      question: json['question'] as String?,
+      questionTranslation: json['question_translation'] as String?,
       sounds: json['sounds'] as int?,
+      questionRecording: json['question_recording'] as String?,
       language: json['language'] is int? ? json['language'] as int? : null,
       recording: json['recording'] as String?,
       createdAt: json['created_at'] != null

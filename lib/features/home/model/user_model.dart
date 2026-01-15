@@ -25,6 +25,7 @@ class UserModel {
   List<Fcm>? fcm;
   List<TeacherModel>? teacher;
   School? schools;
+  bool? isAdmin;
 
   UserModel({
     this.userId,
@@ -45,6 +46,7 @@ class UserModel {
     this.isTester,
     this.teacher,
     this.activationCode,
+    this.isAdmin,
   });
 
   UserModel.fromJson(Map<String, dynamic> json) {
@@ -54,6 +56,7 @@ class UserModel {
     surName = json['sur_name'];
     email = json['email'];
     username = json['username'];
+    isAdmin = json['is_admin'];
     activationCode = json['activation_code'];
     isActivated = json['is_activated'];
     isTester = json['is_tester'];
@@ -107,6 +110,7 @@ class UserModel {
       'activation_code': activationCode,
       'is_activated': isActivated,
       'is_logged_in': isLoggedIn,
+      'is_admin': isAdmin,
       'is_tester': isTester,
       'fcm': fcm?.map((v) => v.toJson()).toList(),
     };

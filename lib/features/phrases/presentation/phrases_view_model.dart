@@ -1,35 +1,39 @@
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:provider/provider.dart';
 import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/config/utils/global_loader.dart';
 import 'package:yoyo_web_app/features/add_user/model/level.dart';
 import 'package:yoyo_web_app/features/common/common_view_model.dart';
 import 'package:yoyo_web_app/features/home/model/language_model.dart';
-import 'package:yoyo_web_app/features/home/model/school.dart';
 import 'package:yoyo_web_app/features/phrases/data/phrases_repo.dart';
 
+import '../../home/model/class_level_model.dart';
+import '../../home/model/classes_model.dart';
 import '../../home/model/phrases_model.dart';
-import '../../home/model/school_language.dart';
 import '../model/phrases_categories.dart';
 
 class PhrasesViewModel extends ChangeNotifier {
   final PhrasesRepo _repo = PhrasesRepo();
+  TextEditingController addCategoryController = TextEditingController();
+  TextEditingController addPhrase = TextEditingController();
+  TextEditingController addQuestionsPhrase = TextEditingController();
   List<PhraseModel> phrases = [];
-  List<School> homedata = [];
-  List<PhraseModel> filteredPhraseModel = [];
   List<Language> launguages = [];
   List<PhraseCategories> phraseCategories = [];
   PhraseCategories? selectedPhraseCategories;
   List<Level> lvl = [];
   final player = AudioPlayer();
   String? selectedLaunguage;
-  String? selectedLevel;
+  Level? selectedLevel;
   int currentPlayingPhraseId = -1;
-  CommonViewModel? commonViewModel;
+  CommonViewModel commonViewModel;
+  Language? selectedLanguage;
+  List<String> phraseTypes = ['Standard', 'Question', 'Listening', 'Reading'];
+  String? selectedPhraseType;
+  bool isloading = false;
 
-  PhrasesViewModel() {
-    commonViewModel = Provider.of<CommonViewModel>(ctx!);
+  PhrasesViewModel(this.commonViewModel) {
+    commonViewModel.addListener(_onSchoolChange);
     init();
     player.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed ||
@@ -45,43 +49,31 @@ class PhrasesViewModel extends ChangeNotifier {
   Future<void> init() async {
     WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.show());
 
-    phrases = await _repo.getPhrasesDetails();
-    homedata = await _repo.getHomeData();
-    for (var phrase in phrases) {
-      if (phrase.languageData != null &&
-          !launguages.contains(phrase.languageData)) {
-        launguages.add(phrase.languageData!);
-      }
+    launguages =
+        commonViewModel.selectedSchool?.schoolLanguage
+            ?.map((e) => e.language!)
+            .toList() ??
+        [];
+    selectedLanguage = launguages.isNotEmpty ? launguages[0] : null;
 
-      if (phrase.levelData != null && !lvl.contains(phrase.levelData)) {
-        lvl.add(phrase.levelData!);
-      }
-    }
-    if (commonViewModel?.teacher?.teacher?.isNotEmpty ?? false) {
-      launguages = [];
-      for (SchoolLanguage element
-          in commonViewModel?.teacher?.schools?.schoolLanguage ?? []) {
-        launguages.add(element.language!);
+    phraseCategories = await _repo.getPhraseCategories(
+      commonViewModel.selectedSchool?.id ?? 0,
+    );
+    selectedPhraseCategories = phraseCategories.isNotEmpty
+        ? phraseCategories[0]
+        : null;
+    lvl = [];
+    for (Classes classes in commonViewModel.selectedSchool?.classes ?? []) {
+      for (ClassLevel element in classes.classLevel ?? []) {
+        lvl.add(element.levelModel!);
       }
     }
 
-    phrases = phrases
-        .where((element) => launguages.contains(element.languageData))
-        .toList();
-    for (var element in phrases) {
-      if (element.phraseCategories != null &&
-          ((commonViewModel?.teacher?.teacher?.isNotEmpty ?? false)
-              ? element.phraseCategories?.schoolId ==
-                    commonViewModel?.user?.school
-              : true)) {
-        phraseCategories.add(element.phraseCategories!);
-      }
-    }
-    phraseCategories = phraseCategories = {
-      for (final c in phraseCategories) c.id: c,
-    }.values.toList();
-    phraseCategories = phraseCategories.toSet().toList();
-    applyFilter();
+    selectedLevel = lvl.isNotEmpty ? lvl[0] : null;
+    selectedPhraseType = phraseTypes[0];
+    phrases = await _repo.getPhrasesDetails(
+      phraseCategories.map((e) => e.id ?? 0).toList(),
+    );
     notifyListeners();
     WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.hide());
   }
@@ -107,46 +99,14 @@ class PhrasesViewModel extends ChangeNotifier {
 
   changeLanguage(String val) {
     selectedLaunguage = val;
-    applyFilter();
   }
 
   selectPhraseCategories(PhraseCategories? val) {
     selectedPhraseCategories = val;
-    applyFilter();
   }
 
-  changeLvl(String val) {
+  changeLvl(Level? val) {
     selectedLevel = val;
-    applyFilter();
-  }
-
-  Future<void> applyFilter() async {
-    if ((selectedLaunguage == null || selectedLaunguage == "All") &&
-        (selectedLevel == null || selectedLevel == "All") &&
-        (selectedPhraseCategories == null)) {
-      filteredPhraseModel = List.from(phrases);
-    } else {
-      filteredPhraseModel = phrases.where((table) {
-        // LEVEL FILTER
-        final bool lvlMatch = selectedLevel == null || selectedLevel == "All"
-            ? true
-            : table.levelData?.level == selectedLevel;
-
-        // CATEGORY FILTER
-        final bool categoryMatch = selectedPhraseCategories == null
-            ? true
-            : table.phraseCategories?.id == selectedPhraseCategories!.id;
-
-        // LANGUAGE FILTER
-        final bool languageMatch =
-            selectedLaunguage == null || selectedLaunguage == "All"
-            ? true
-            : table.languageData?.language == selectedLaunguage;
-
-        return lvlMatch && categoryMatch && languageMatch;
-      }).toList();
-    }
-    notifyListeners();
   }
 
   Future<void> removePhrase(int? id, String? url) async {
@@ -192,5 +152,71 @@ class PhrasesViewModel extends ChangeNotifier {
     selectedPhraseCategories = null;
     await init();
     WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.hide());
+  }
+
+  void addCategory() async {
+    WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.show());
+    await _repo.addCategory(
+      addCategoryController.text.toString(),
+      commonViewModel.selectedSchool?.id ?? 0,
+      selectedLanguage?.id ?? 0,
+    );
+    await init();
+    WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.hide());
+  }
+
+  void selectLanguage(Language? val) {
+    selectedLanguage = val;
+    notifyListeners();
+  }
+
+  void _onSchoolChange() async {
+    await init();
+  }
+
+  void toggleCategoryActive(PhraseCategories category, bool v) async {
+    WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.show());
+    await _repo.disableCategories(v, category.id ?? 0);
+    await init();
+    WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.hide());
+  }
+
+  void selectType(String? val) {
+    selectedPhraseType = val;
+    notifyListeners();
+  }
+
+  addPhrases() async {
+    if (addPhrase.text.isEmpty ||
+        (selectedPhraseType == 'Question' && addQuestionsPhrase.text.isEmpty) ||
+        selectedPhraseCategories == null ||
+        selectedLevel == null ||
+        selectedLanguage == null) {
+      ScaffoldMessenger.of(ctx!).showSnackBar(
+        const SnackBar(content: Text('Please fill all the fields')),
+      );
+      return;
+    }
+    isloading = true;
+    notifyListeners();
+    await _repo.addPhrases(
+      addPhrase.text.toString(),
+      addQuestionsPhrase.text.toString(),
+      selectedPhraseType ?? '',
+      selectedPhraseCategories?.id ?? 0,
+      selectedLevel?.id ?? 0,
+      selectedLanguage?.id ?? 0,
+    );
+    isloading = false;
+    notifyListeners();
+    await init();
+    addPhrase.clear();
+    addQuestionsPhrase.clear();
+    selectedLanguage = launguages.isNotEmpty ? launguages[0] : null;
+    selectedLevel = lvl.isNotEmpty ? lvl[0] : null;
+    selectedPhraseType = phraseTypes[0];
+    selectedPhraseCategories = phraseCategories.isNotEmpty
+        ? phraseCategories[0]
+        : null;
   }
 }

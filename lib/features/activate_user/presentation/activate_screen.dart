@@ -3,7 +3,6 @@ import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:yoyo_web_app/config/router/route_names.dart';
 import 'package:yoyo_web_app/features/add_teacher/data/add_teacher_repo.dart';
-import 'package:yoyo_web_app/features/login/presentation/widgets/widgets.dart';
 
 class ActivateScreen extends StatefulWidget {
   const ActivateScreen({super.key});
@@ -58,24 +57,22 @@ class _ActivateScreenState extends State<ActivateScreen> {
       body: Center(
         child: isLoading
             ? const CircularProgressIndicator()
-            : LoginWidgets.bgWidget(
-                Column(
-                  spacing: 10,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(20),
-                      child: Text(
-                        message,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 20),
-                      ),
+            : Column(
+                spacing: 10,
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(20),
+                    child: Text(
+                      message,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 20),
                     ),
-                    CircularProgressIndicator(),
-                    Text('Redirecting'),
-                  ],
-                ),
+                  ),
+                  CircularProgressIndicator(),
+                  Text('Redirecting'),
+                ],
               ),
       ),
     );

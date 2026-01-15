@@ -4,13 +4,20 @@ import 'package:yoyo_web_app/config/constants/constants.dart';
 import 'package:yoyo_web_app/config/theme/app_text_styles.dart';
 import 'package:yoyo_web_app/features/common/common_view_model.dart';
 import 'package:yoyo_web_app/features/dashboard/presentation/dashboard_view_model.dart';
+import 'package:yoyo_web_app/features/home/model/classes_model.dart';
+import 'package:yoyo_web_app/features/home/model/school.dart';
 
 class DashboardWidget {
-  static List<Map> get getNavigationElements => [
-    {'icon': Icons.grid_view_outlined, 'label': 'Dashboard', 'index': 0},
-    {'icon': Icons.star_outline_rounded, 'label': 'Phrases', 'index': 1},
-    {'icon': Icons.person_outline_rounded, 'label': 'Users', 'index': 2},
-    {'icon': Icons.notifications_active, 'label': 'Notifications', 'index': 3},
+  static List<Map> getNavigationElements(CommonViewModel viewModel) => [
+    {'icon': Icons.emoji_events_outlined, 'label': 'Insights', 'index': 0},
+    {
+      'icon': Icons.school_outlined,
+      'label': viewModel.teacher != null ? 'My School' : 'Setup',
+      'index': 1,
+    },
+    {'icon': Icons.border_color_outlined, 'label': 'Phrases', 'index': 2},
+    {'icon': Icons.person_outline_rounded, 'label': 'Users', 'index': 3},
+    {'icon': Icons.chat_outlined, 'label': 'Comms', 'index': 4},
   ];
 
   static drawer(
@@ -18,38 +25,214 @@ class DashboardWidget {
     bool isWeb = false,
   }) => Consumer<CommonViewModel>(
     builder: (context, commonViewModel, w) {
+      OutlineInputBorder border = OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0xff9D5DE6), width: 1.5),
+      );
+
       return Container(
         padding: EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [Color(0xff9D5DE6), Color(0xffF78C59)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
         child: NavigationDrawer(
           backgroundColor: Colors.transparent,
-          header: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          header: Column(
             children: [
-              Padding(
-                padding: EdgeInsetsGeometry.symmetric(
-                  horizontal: 20,
-                  vertical: 5,
-                ),
-                child: Image.asset(
-                  ImageConstants.logoBW,
-                  height: 60,
-                  width: 60,
-                ),
-              ),
-              GestureDetector(
-                onTap: () => dashboardViewModel.changeDrawer(),
-                child: Container(
-                  margin: EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.white),
-                    borderRadius: BorderRadius.circular(5),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Padding(
+                    padding: EdgeInsetsGeometry.symmetric(
+                      horizontal: 20,
+                      vertical: 5,
+                    ),
+                    child: Image.asset(
+                      IconConstants.logoLogin,
+                      height: 60,
+                      width: 60,
+                    ),
                   ),
-                  child: Icon(Icons.arrow_back, color: Colors.white, size: 30),
+                  GestureDetector(
+                    onTap: () => dashboardViewModel.changeDrawer(),
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Icon(
+                        Icons.arrow_back,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (commonViewModel.teacher?.teacher?.isEmpty ?? true)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: DropdownButtonFormField<School?>(
+                    initialValue: commonViewModel.selectedSchool,
+                    isExpanded: true,
+                    selectedItemBuilder: (context) {
+                      final items = <Widget>[];
+
+                      if (!commonViewModel.isTeacher) {
+                        items.add(
+                          Text(
+                            "All",
+                            style: AppTextStyles.textTheme.bodyMedium!.copyWith(
+                              color: Colors.white,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        );
+                      }
+
+                      items.addAll(
+                        commonViewModel.schools.map(
+                          (e) => Text(
+                            e.schoolName ?? '',
+                            style: AppTextStyles.textTheme.bodyMedium!.copyWith(
+                              color: Colors.white,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      );
+
+                      return items;
+                    },
+
+                    items: [
+                      if (!commonViewModel.isTeacher)
+                        DropdownMenuItem<School?>(
+                          value: null,
+                          child: Text(
+                            "All",
+                            style: AppTextStyles.textTheme.bodyMedium!.copyWith(
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ...commonViewModel.schools.map(
+                        (e) => DropdownMenuItem<School?>(
+                          value: e,
+                          child: Text(
+                            e.schoolName ?? '',
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.textTheme.bodyMedium!.copyWith(
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                    onChanged: (val) => commonViewModel.selectSchool(val),
+                    decoration: InputDecoration(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
+                      border: border,
+                      enabledBorder: border,
+                      focusedBorder: border.copyWith(
+                        borderSide: const BorderSide(
+                          color: Color(0xff9D5DE6),
+                          width: 2,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 15,
+                ),
+                child: DropdownButtonFormField<Classes?>(
+                  initialValue: commonViewModel.selectedClass,
+                  isExpanded: true,
+
+                  selectedItemBuilder: (context) {
+                    final widgets = <Widget>[];
+
+                    if (!commonViewModel.isTeacher) {
+                      widgets.add(
+                        Text(
+                          "All",
+                          style: AppTextStyles.textTheme.bodyMedium!.copyWith(
+                            color: Colors.white,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }
+
+                    widgets.addAll(
+                      commonViewModel.selectedSchool?.classes?.map(
+                            (e) => Text(
+                              e.className ?? '',
+                              style: AppTextStyles.textTheme.bodyMedium!
+                                  .copyWith(color: Colors.white),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ) ??
+                          [],
+                    );
+
+                    return widgets;
+                  },
+
+                  // ✅ DROPDOWN LIST (BLACK TEXT)
+                  items: [
+                    if (!commonViewModel.isTeacher)
+                      DropdownMenuItem<Classes?>(
+                        value: null,
+                        child: Text(
+                          "All",
+                          style: AppTextStyles.textTheme.bodyMedium!.copyWith(
+                            color: Colors.black,
+                          ),
+                        ),
+                      ),
+                    ...commonViewModel.selectedSchool?.classes?.map(
+                          (e) => DropdownMenuItem<Classes?>(
+                            value: e,
+                            child: Text(
+                              e.className ?? '',
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.textTheme.bodyMedium!
+                                  .copyWith(color: Colors.black),
+                            ),
+                          ),
+                        ) ??
+                        [],
+                  ],
+
+                  onChanged: (val) => commonViewModel.selectClass(val),
+
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 14,
+                    ),
+                    border: border,
+                    enabledBorder: border,
+                    focusedBorder: border.copyWith(
+                      borderSide: const BorderSide(
+                        color: Color(0xff9D5DE6),
+                        width: 2,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -85,7 +268,7 @@ class DashboardWidget {
               ),
             ),
           ),
-          children: getNavigationElements
+          children: getNavigationElements(commonViewModel)
               .map(
                 (val) => NavigationDrawerDestination(
                   icon: Icon(
@@ -123,87 +306,170 @@ class DashboardWidget {
     },
   );
 
-  static tabDrawer(
-    DashboardViewModel dashboardViewModel, {
-    bool web = false,
-  }) => Container(
-    padding: EdgeInsets.symmetric(vertical: 20),
-    decoration: BoxDecoration(
-      gradient: LinearGradient(colors: [Color(0xff9D5DE6), Color(0xffF78C59)]),
-    ),
-    child: NavigationRail(
-      backgroundColor: Colors.transparent,
-      trailingAtBottom: true,
-      leading: Column(
-        children: [
-          if (web)
-            GestureDetector(
-              onTap: () => dashboardViewModel.changeDrawer(),
-              child: Container(
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.white),
-                  borderRadius: BorderRadius.circular(5),
-                ),
-                child: Icon(Icons.arrow_forward, color: Colors.white, size: 30),
-              ),
+  static tabDrawer(DashboardViewModel dashboardViewModel, {bool web = false}) {
+    OutlineInputBorder border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: const BorderSide(color: Color(0xff9D5DE6), width: 1.5),
+    );
+
+    // Reusable "All" dropdown item
+    DropdownMenuItem<T?> allItem<T>() =>
+        DropdownMenuItem<T>(value: null, child: Text("All"));
+    return Consumer<CommonViewModel>(
+      builder: (context, commonViewModel, w) {
+        return Container(
+          padding: EdgeInsets.symmetric(vertical: 20),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xff9D5DE6), Color(0xffF78C59)],
             ),
-          Padding(
-            padding: EdgeInsetsGeometry.symmetric(horizontal: 20, vertical: 5),
-            child: Image.asset(ImageConstants.logoBW, height: 60, width: 60),
           ),
-        ],
-      ),
-      selectedIndex: dashboardViewModel.selectedIndex,
-      onDestinationSelected: dashboardViewModel.changeIndex,
-      indicatorColor: Colors.white,
-      trailing: Icon(Icons.settings_outlined, color: Colors.white),
-      destinations: getNavigationElements
-          .map(
-            (val) => NavigationRailDestination(
-              icon: Icon(
-                val['icon'],
-                color: val['index'] == dashboardViewModel.selectedIndex
-                    ? Colors.black
-                    : Colors.white,
-              ),
-              label: Text(
-                val['label'],
-                style: AppTextStyles.textTheme.bodyMedium!.copyWith(
-                  color: val['index'] == dashboardViewModel.selectedIndex
-                      ? Colors.black
-                      : Colors.white,
+          child: NavigationRail(
+            backgroundColor: Colors.transparent,
+            trailingAtBottom: true,
+            leading: Column(
+              children: [
+                if (web)
+                  GestureDetector(
+                    onTap: () => dashboardViewModel.changeDrawer(),
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 20),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white),
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                      child: Icon(
+                        Icons.arrow_forward,
+                        color: Colors.white,
+                        size: 30,
+                      ),
+                    ),
+                  ),
+                Padding(
+                  padding: EdgeInsetsGeometry.symmetric(
+                    horizontal: 20,
+                    vertical: 5,
+                  ),
+                  child: Image.asset(
+                    ImageConstants.logoBW,
+                    height: 60,
+                    width: 60,
+                  ),
                 ),
+                if (commonViewModel.teacher?.teacher?.isEmpty ?? true)
+                  SizedBox(
+                    width: 80,
+                    child: DropdownButtonFormField<School?>(
+                      initialValue: commonViewModel.selectedSchool,
+                      isExpanded: true,
+                      selectedItemBuilder: (context) => [
+                        allItem<School>(),
+                        ...commonViewModel.schools.map(
+                          (e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(
+                              e.schoolName ?? '',
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.textTheme.bodyMedium!
+                                  .copyWith(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                      ],
+                      items: [
+                        allItem<School>(),
+                        ...commonViewModel.schools.map(
+                          (e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(
+                              e.schoolName ?? '',
+                              overflow: TextOverflow.ellipsis,
+                              style: AppTextStyles.textTheme.bodyMedium!
+                                  .copyWith(color: Colors.black),
+                            ),
+                          ),
+                        ),
+                      ],
+                      onChanged: (val) => commonViewModel.selectSchool(val),
+                      decoration: InputDecoration(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 14,
+                        ),
+                        border: border,
+                        enabledBorder: border,
+                        focusedBorder: border.copyWith(
+                          borderSide: const BorderSide(
+                            color: Color(0xff9D5DE6),
+                            width: 2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            selectedIndex: dashboardViewModel.selectedIndex,
+            onDestinationSelected: dashboardViewModel.changeIndex,
+            indicatorColor: Colors.white,
+            trailing: Icon(Icons.settings_outlined, color: Colors.white),
+
+            destinations: getNavigationElements(commonViewModel)
+                .map(
+                  (val) => NavigationRailDestination(
+                    icon: Icon(
+                      val['icon'],
+                      color: val['index'] == dashboardViewModel.selectedIndex
+                          ? Colors.black
+                          : Colors.white,
+                    ),
+                    label: Text(
+                      val['label'],
+                      style: AppTextStyles.textTheme.bodyMedium!.copyWith(
+                        color: val['index'] == dashboardViewModel.selectedIndex
+                            ? Colors.black
+                            : Colors.white,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
+          ),
+        );
+      },
+    );
+  }
+
+  static bottomNavBar(DashboardViewModel dashboardViewModel) =>
+      Consumer<CommonViewModel>(
+        builder: (context, commonViewModel, w) {
+          return Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xff9D5DE6), Color(0xffF78C59)],
               ),
             ),
-          )
-          .toList(),
-    ),
-  );
+            child: NavigationBar(
+              onDestinationSelected: dashboardViewModel.changeIndex,
 
-  static bottomNavBar(DashboardViewModel dashboardViewModel) => Container(
-    decoration: BoxDecoration(
-      gradient: LinearGradient(colors: [Color(0xff9D5DE6), Color(0xffF78C59)]),
-    ),
-    child: NavigationBar(
-      onDestinationSelected: dashboardViewModel.changeIndex,
-
-      selectedIndex: dashboardViewModel.selectedIndex,
-      backgroundColor: Colors.transparent,
-      labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-      destinations: getNavigationElements
-          .map(
-            (val) => NavigationDestination(
-              icon: Icon(
-                val['icon'],
-                color: val['index'] == dashboardViewModel.selectedIndex
-                    ? Colors.black
-                    : Colors.white,
-              ),
-              label: val['label'],
+              selectedIndex: dashboardViewModel.selectedIndex,
+              backgroundColor: Colors.transparent,
+              labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+              destinations: getNavigationElements(commonViewModel)
+                  .map(
+                    (val) => NavigationDestination(
+                      icon: Icon(
+                        val['icon'],
+                        color: val['index'] == dashboardViewModel.selectedIndex
+                            ? Colors.black
+                            : Colors.white,
+                      ),
+                      label: val['label'],
+                    ),
+                  )
+                  .toList(),
             ),
-          )
-          .toList(),
-    ),
-  );
+          );
+        },
+      );
 }

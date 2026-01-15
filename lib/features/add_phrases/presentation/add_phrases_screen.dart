@@ -16,11 +16,13 @@ class AddPhrasesScreen extends StatelessWidget {
       create: (context) => AddPhrasesViewModel(),
       child: Consumer<AddPhrasesViewModel>(
         builder: (context, viewModel, w) {
-          return ResponsiveLayout(
-            mobile: addPhrasesMobile(viewModel),
-            tablet: addPhrasesTablet(viewModel),
-            desktop: addPhrasesWebsite(viewModel),
-          );
+          return viewModel.loading
+              ? Center(child: CircularProgressIndicator.adaptive())
+              : ResponsiveLayout(
+                  mobile: addPhrasesMobile(viewModel),
+                  tablet: addPhrasesTablet(viewModel),
+                  desktop: addPhrasesWebsite(viewModel),
+                );
         },
       ),
     );

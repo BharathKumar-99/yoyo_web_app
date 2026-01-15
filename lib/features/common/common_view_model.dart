@@ -1,6 +1,10 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:yoyo_web_app/features/common/common_repo.dart';
+import 'package:yoyo_web_app/features/home/model/classes_model.dart';
+import 'package:yoyo_web_app/features/home/model/school.dart';
 import 'package:yoyo_web_app/features/home/model/user_model.dart';
 
 class CommonViewModel extends ChangeNotifier {
@@ -10,6 +14,50 @@ class CommonViewModel extends ChangeNotifier {
   RealtimeChannel? _channel;
   final _client = Supabase.instance.client;
   bool hasNotification = false;
+  List<School> schools = [];
+  List<Classes> classes = [];
+  School? selectedSchool;
+  Classes? selectedClass;
+  bool isLoading = true;
+  bool get isTeacherAdmin =>
+      teacher?.teacher?.first.permissionLevel == 'Teacher' ? false : true;
+  bool get isTeacher => user?.isAdmin != true && isTeacherAdmin == false;
+
+  CommonViewModel() {
+    init();
+  }
+
+  init() async {
+    try {
+      isLoading = true;
+      notifyListeners();
+      user = null;
+      teacher = null;
+      schools = [];
+      selectedSchool = null;
+      _channel?.unsubscribe();
+      hasNotification = false;
+      await getSchools();
+      await getuser();
+      await getTeacherLogin();
+      isLoading = false;
+      notifyListeners();
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  getSchools() async {
+    schools = await _repo.getSchools();
+    selectedSchool = null;
+    notifyListeners();
+  }
+
+  void selectSchool(School? val) {
+    selectedSchool = val;
+    notifyListeners();
+  }
+
   getuser() async {
     user = await _repo.getLoggedInUserInfo();
     notifyListeners();
@@ -18,6 +66,10 @@ class CommonViewModel extends ChangeNotifier {
   getTeacherLogin() async {
     teacher = await _repo.getLoggedInTeacherInfo();
     if (teacher?.teacher?.isNotEmpty ?? false) {
+      selectedSchool = schools.firstWhere(
+        (school) => school.id == teacher?.schools?.id,
+        orElse: () => schools.first,
+      );
       listenTeacherNotification(teacher?.teacher?.first.id ?? 0);
       hasNotification = teacher?.teacher?.first.notification ?? false;
     }
@@ -65,5 +117,10 @@ class CommonViewModel extends ChangeNotifier {
       _client.removeChannel(_channel!);
     }
     super.dispose();
+  }
+
+  void selectClass(Classes? val) {
+    selectedClass = val;
+    notifyListeners();
   }
 }

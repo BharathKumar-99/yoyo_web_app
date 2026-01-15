@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:yoyo_web_app/features/common/common_view_model.dart';
 import 'package:yoyo_web_app/features/home/presentation/home_view_model.dart';
 import 'package:yoyo_web_app/features/home/presentation/screens/home_mobile.dart';
 import 'package:yoyo_web_app/features/home/presentation/screens/home_tablet.dart';
@@ -12,16 +13,18 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
-    return ChangeNotifierProvider<HomeViewModel>(
-      create: (_) => HomeViewModel(),
-      child: Consumer<HomeViewModel>(
-        builder: (context, value, w) => ResponsiveLayout(
-          mobile: homeMobile(value, context),
-          tablet: homeTablet(value, context),
-          desktop: homeWebsite(value, context),
-        ),
-      ),
+    return Consumer<CommonViewModel>(
+      builder: (context, commonViewModel, w) {
+        return Consumer<HomeViewModel>(
+          builder: (context, value, w) => commonViewModel.isLoading
+              ? Center(child: CircularProgressIndicator.adaptive())
+              : ResponsiveLayout(
+                  mobile: homeMobile(value, context),
+                  tablet: homeTablet(value, context),
+                  desktop: homeWebsite(value, context),
+                ),
+        );
+      },
     );
   }
 }

@@ -9,7 +9,7 @@ Widget homeWebsite(HomeViewModel viewModel, BuildContext context) => Padding(
   padding: const EdgeInsets.all(29.0),
   child: Scaffold(
     appBar: CommonWidgets.homeAppBar(),
-    floatingActionButton: viewModel.selectedSchool != null
+    floatingActionButton: viewModel.commonViewModel.selectedSchool != null
         ? ElevatedButton(
             onPressed: () => viewModel.pdfCreater(),
             child: Text('Generate PDF'),

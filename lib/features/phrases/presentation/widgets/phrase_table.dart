@@ -36,7 +36,8 @@ class PhraseTable extends StatelessWidget {
           headerCell("Vocab", "vocab", flex: 1),
           headerCell("Learned", "learned", flex: 1),
           headerCell("Sounds", "sounds", flex: 1),
-          headerCell("Active", "active", flex: 2),
+          if (!provider.commonViewModel.isTeacher)
+            headerCell("Active", "active", flex: 2),
         ],
       ),
     );
@@ -109,56 +110,56 @@ class PhraseTable extends StatelessWidget {
                 "0",
           ),
           rowCell((row.sounds.toString())),
-          (provider.commonViewModel?.teacher?.teacher?.isNotEmpty ?? false)
-              ? Expanded(
-                  flex: 2,
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: Switch.adaptive(
-                      value: row.phraseDisabledSchools
-                          .where(
-                            (e) =>
-                                e.remoteConfig?.school?.id ==
-                                provider.commonViewModel?.teacher?.schools?.id,
-                          )
-                          .isEmpty,
-                      onChanged: (v) {
-                        provider.disablePhrase(row.id ?? 0, [
-                          provider.commonViewModel?.teacher?.schools?.id ?? 0,
-                        ]);
-                      },
+          if (!provider.commonViewModel.isTeacher)
+            (provider.commonViewModel.teacher?.teacher?.isNotEmpty ?? false)
+                ? Expanded(
+                    flex: 2,
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: Switch.adaptive(
+                        value: row.phraseDisabledSchools
+                            .where(
+                              (e) =>
+                                  e.remoteConfig?.school?.id ==
+                                  provider.commonViewModel.teacher?.schools?.id,
+                            )
+                            .isEmpty,
+                        onChanged: (v) {
+                          provider.disablePhrase(row.id ?? 0, [
+                            provider.commonViewModel.teacher?.schools?.id ?? 0,
+                          ]);
+                        },
+                      ),
                     ),
-                  ),
-                )
-              : Expanded(
-                  flex: 2,
-                  child: Wrap(
-                    spacing: 5,
-                    runSpacing: 5,
-                    children: [
-                      ...row.phraseDisabledSchools.map(
-                        (e) => Chip(
-                          onDeleted: () {
-                            provider.disablePhrase(row.id ?? 0, [
-                              e.remoteConfig?.school?.id ?? 0,
-                            ]);
-                          },
-                          deleteIcon: Icon(
-                            Icons.delete_outline_outlined,
-                            color: Colors.redAccent,
-                          ),
-                          label: Text(
-                            e.remoteConfig?.school?.schoolName ?? '',
-                            style: AppTextStyles.textTheme.bodySmall!.copyWith(
-                              fontSize: 8,
+                  )
+                : Expanded(
+                    flex: 2,
+                    child: Wrap(
+                      spacing: 5,
+                      runSpacing: 5,
+                      children: [
+                        ...row.phraseDisabledSchools.map(
+                          (e) => Chip(
+                            onDeleted: () {
+                              provider.disablePhrase(row.id ?? 0, [
+                                e.remoteConfig?.school?.id ?? 0,
+                              ]);
+                            },
+                            deleteIcon: Icon(
+                              Icons.delete_outline_outlined,
+                              color: Colors.redAccent,
+                            ),
+                            label: Text(
+                              e.remoteConfig?.school?.schoolName ?? '',
+                              style: AppTextStyles.textTheme.bodySmall!
+                                  .copyWith(fontSize: 8),
                             ),
                           ),
                         ),
-                      ),
-                      getDisabledPhrase(row, provider),
-                    ],
+                        getDisabledPhrase(row, provider),
+                      ],
+                    ),
                   ),
-                ),
         ],
       ),
     );

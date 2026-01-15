@@ -11,15 +11,12 @@ class PhrasesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<PhrasesViewModel>(
-      create: (_) => PhrasesViewModel(),
-      child: Consumer<PhrasesViewModel>(
-        builder: (context, value, child) => ResponsiveLayout(
-          mobile: phrasesMobile(value),
-          tablet: phrasesTablet(value),
-          desktop: phrasesWebsite(value),
-        ),
-      ), 
+    return Consumer<PhrasesViewModel>(
+      builder: (context, value, child) => ResponsiveLayout(
+        mobile: phrasesMobile(value),
+        tablet: phrasesTablet(value),
+        desktop: phrasesWebsite(value),
+      ),
     );
   }
 }

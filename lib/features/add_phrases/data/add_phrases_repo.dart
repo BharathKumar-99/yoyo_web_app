@@ -4,6 +4,7 @@ import 'package:yoyo_web_app/config/constants/constants.dart';
 import 'package:yoyo_web_app/core/api/repo.dart';
 import 'package:yoyo_web_app/features/add_user/model/level.dart';
 import 'package:yoyo_web_app/features/home/model/language_model.dart';
+import 'package:yoyo_web_app/features/phrases/model/phrases_categories.dart';
 
 class AddPhrasesRepo extends ApiRepo {
   Future<List<Language>>? getLanguages() async {
@@ -70,5 +71,21 @@ class AddPhrasesRepo extends ApiRepo {
       'recording': mp3Url,
     };
     await client.from(DbTable.phrase).insert(data);
+  }
+
+  Future<List<PhraseCategories>> getPhraseCategories(int i) async {
+    List<PhraseCategories> categories = [];
+    try {
+      final data = await client
+          .from(DbTable.phraseCategories)
+          .select('*')
+          .eq('school_id', i);
+      for (var json in data) {
+        categories.add(PhraseCategories.fromJson(json));
+      }
+    } catch (e) {
+      log(e.toString());
+    }
+    return categories;
   }
 }

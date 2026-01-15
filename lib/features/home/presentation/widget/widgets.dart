@@ -4,7 +4,6 @@ import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/config/router/route_names.dart';
 import 'package:yoyo_web_app/features/add_user/model/level.dart';
 import 'package:yoyo_web_app/features/home/model/language_model.dart';
-import 'package:yoyo_web_app/features/home/model/school.dart';
 import '../../../../config/theme/app_text_styles.dart';
 import '../home_view_model.dart';
 
@@ -25,96 +24,6 @@ class HomeWidgets {
       spacing: 20,
       runSpacing: 20,
       children: [
-        // ---------------- SCHOOL ----------------
-        if (viewModel.teacherModel?.isEmpty ?? true)
-          IntrinsicWidth(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'School',
-                  style: AppTextStyles.textTheme.headlineMedium!.copyWith(
-                    color: Colors.grey,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                DropdownButtonFormField<School?>(
-                  initialValue: viewModel.selectedSchool,
-                  items: [
-                    allItem<School>(),
-                    ...viewModel.homedata.map(
-                      (e) => DropdownMenuItem(
-                        value: e,
-                        child: Text(
-                          e.schoolName ?? '',
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                  ],
-                  onChanged: (val) => viewModel.selectSchool(val),
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 14,
-                    ),
-                    border: border,
-                    enabledBorder: border,
-                    focusedBorder: border.copyWith(
-                      borderSide: const BorderSide(
-                        color: Color(0xff9D5DE6),
-                        width: 2,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-        // ---------------- CLASS ----------------
-        // IntrinsicWidth(
-        //   child: Column(
-        //     crossAxisAlignment: CrossAxisAlignment.start,
-        //     children: [
-        //       Text(
-        //         'Class Group',
-        //         style: AppTextStyles.textTheme.headlineMedium!.copyWith(
-        //           color: Colors.grey,
-        //         ),
-        //       ),
-        //       const SizedBox(height: 6),
-        //       DropdownButtonFormField<Classes?>(
-        //         initialValue: viewModel.selectedClass,
-        //         items: [
-        //           allItem<Classes>(),
-        //           ...(viewModel.selectedSchool?.classes ?? []).map(
-        //             (e) => DropdownMenuItem(
-        //               value: e,
-        //               child: Text(e.className ?? ''),
-        //             ),
-        //           ),
-        //         ],
-        //         onChanged: (val) => viewModel.selectClass(val),
-        //         decoration: InputDecoration(
-        //           contentPadding: const EdgeInsets.symmetric(
-        //             horizontal: 12,
-        //             vertical: 14,
-        //           ),
-        //           border: border,
-        //           enabledBorder: border,
-        //           focusedBorder: border.copyWith(
-        //             borderSide: const BorderSide(
-        //               color: Color(0xff9D5DE6),
-        //               width: 2,
-        //             ),
-        //           ),
-        //         ),
-        //       ),
-        //     ],
-        //   ),
-        // ),
-
         // ---------------- LANGUAGE ----------------
         IntrinsicWidth(
           child: Column(

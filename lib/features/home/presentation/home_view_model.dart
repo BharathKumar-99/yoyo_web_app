@@ -6,24 +6,18 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
-import 'package:provider/provider.dart';
 import 'package:yoyo_web_app/config/constants/constants.dart';
 import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/features/add_teacher/model/teacher_model.dart';
-import 'package:yoyo_web_app/features/home/data/home_repo.dart';
 import 'package:yoyo_web_app/features/home/model/language_model.dart';
 import 'package:yoyo_web_app/features/home/model/student_model.dart';
 import 'package:yoyo_web_app/features/home/model/user_result_model.dart';
 import '../../add_user/model/level.dart';
 import '../../common/common_view_model.dart';
-import '../model/classes_model.dart';
-import '../model/school.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:file_saver/file_saver.dart';
 
 class HomeViewModel extends ChangeNotifier {
-  final HomeRepo _repo = HomeRepo();
-  List<School> homedata = [];
   List<Language?> languages = [];
   int participation = 0;
   int effort = 0;
@@ -32,8 +26,6 @@ class HomeViewModel extends ChangeNotifier {
   List<int> average = [];
   List<UserResult> participationList = [];
   int totalNoStudents = 0;
-  School? selectedSchool;
-  Classes? selectedClass;
   Level? selectedLevel;
   String? selectedTimeFrame;
   List<Level> levels = [];
@@ -49,27 +41,20 @@ class HomeViewModel extends ChangeNotifier {
   bool ascending = true;
   List<TeacherModel>? teacherModel;
   List<int> languagesId = [];
-  CommonViewModel? commonViewModel;
+  final CommonViewModel commonViewModel;
 
-  HomeViewModel() {
+  HomeViewModel(this.commonViewModel) {
+    commonViewModel.addListener(_onSchoolChanged);
     getHomeData();
   }
 
   getHomeData() async {
-    homedata = await _repo.getHomeData();
     assignLanLvl();
     applyFilter();
     applyStudentFilter();
 
-    commonViewModel = Provider.of<CommonViewModel>(ctx!, listen: false);
-    teacherModel = commonViewModel?.teacher?.teacher;
-    if (teacherModel?.isNotEmpty ?? false) {
-      selectSchool(
-        homedata.firstWhere(
-          (val) => val.id == commonViewModel?.teacher?.schools?.id,
-        ),
-      );
-    }
+    teacherModel = commonViewModel.teacher?.teacher;
+
     sortBy('participated');
     metrics();
     notifyListeners();
@@ -184,7 +169,9 @@ class HomeViewModel extends ChangeNotifier {
     BuildContext context,
     List<Student> filteredStudents,
   ) async {
-    final pdf = pw.Document(title: '${selectedSchool?.schoolName} Scoreboard');
+    final pdf = pw.Document(
+      title: '${commonViewModel.selectedSchool?.schoolName} Scoreboard',
+    );
     final pw.Font emojiFont = await PdfGoogleFonts.notoColorEmoji();
     final data = _mapStudentsToPdfData(filteredStudents);
     final chunkedData = _chunkList(data, 13);
@@ -200,7 +187,9 @@ class HomeViewModel extends ChangeNotifier {
     );
 
     try {
-      final image = await _loadNetworkImage(selectedSchool?.image ?? '');
+      final image = await _loadNetworkImage(
+        commonViewModel.selectedSchool?.image ?? '',
+      );
       final logo = await _loadAssetImage(context, ImageConstants.logoHome);
 
       for (var chunk in chunkedData) {
@@ -243,7 +232,7 @@ class HomeViewModel extends ChangeNotifier {
                     ],
                   ),
                   pw.Text(
-                    selectedSchool?.schoolName ?? '',
+                    commonViewModel.selectedSchool?.schoolName ?? '',
                     style: pw.TextStyle(
                       fontSize: 28,
                       fontWeight: pw.FontWeight.bold,
@@ -314,7 +303,7 @@ class HomeViewModel extends ChangeNotifier {
     );
 
     await FileSaver.instance.saveFile(
-      name: selectedSchool?.schoolName ?? '',
+      name: commonViewModel.selectedSchool?.schoolName ?? '',
       bytes: pdfBytes,
       fileExtension: 'pdf',
       mimeType: MimeType.pdf,
@@ -328,23 +317,23 @@ class HomeViewModel extends ChangeNotifier {
   assignLanLvl() {
     List<Level> lvl = [];
     List<Language> lang = [];
-    if (selectedSchool != null) {
-      selectedSchool?.schoolLanguage?.forEach((val) {
+    if (commonViewModel.selectedSchool != null) {
+      commonViewModel.selectedSchool?.schoolLanguage?.forEach((val) {
         lang.add(val.language!);
       });
-      if (selectedClass != null) {
-        selectedClass?.classLevel?.forEach((val) {
+      if (commonViewModel.selectedClass != null) {
+        commonViewModel.selectedClass?.classLevel?.forEach((val) {
           lvl.add(val.levelModel!);
         });
       } else {
-        selectedSchool?.classes?.forEach((cal) {
+        commonViewModel.selectedSchool?.classes?.forEach((cal) {
           cal.classLevel?.forEach((l) {
             lvl.add(l.levelModel!);
           });
         });
       }
     } else {
-      for (var val in homedata) {
+      for (var val in commonViewModel.schools) {
         val.schoolLanguage?.forEach((ln) {
           lang.add(ln.language!);
         });
@@ -441,21 +430,13 @@ class HomeViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void selectSchool(School? val) {
-    selectedSchool = val;
-    selectedClass = null;
+  void _onSchoolChanged() {
+    commonViewModel.selectedClass = null;
     selectedLanguage = null;
     selectedLevel = null;
     applyFilter();
     metrics();
     notifyListeners();
-  }
-
-  void selectClass(Classes? val) {
-    selectedClass = val;
-    applyFilter();
-    notifyListeners();
-    metrics();
   }
 
   void selectLevel(Level? val) {
@@ -490,8 +471,8 @@ class HomeViewModel extends ChangeNotifier {
     int scoreSum = 0;
     participationList = [];
     students = [];
-    selectedSchool == null
-        ? homedata.forEach((val) {
+    commonViewModel.selectedSchool == null
+        ? commonViewModel.schools.forEach((val) {
             val.classes?.forEach((cal) {
               totalNoStudents = totalNoStudents + (cal.students?.length ?? 0);
               avgTotalStudents =
@@ -507,8 +488,8 @@ class HomeViewModel extends ChangeNotifier {
               });
             });
           })
-        : selectedClass == null
-        ? selectedSchool?.classes?.forEach((cal) {
+        : commonViewModel.selectedClass == null
+        ? commonViewModel.selectedSchool?.classes?.forEach((cal) {
             totalNoStudents = totalNoStudents + (cal.students?.length ?? 0);
             avgTotalStudents =
                 avgTotalStudents +
@@ -521,7 +502,7 @@ class HomeViewModel extends ChangeNotifier {
               });
             });
           })
-        : selectedClass?.students?.forEach((std) {
+        : commonViewModel.selectedClass?.students?.forEach((std) {
             students.add(std);
             totalNoStudents = totalNoStudents + 1;
             if ((std.score ?? 0) > 0) {

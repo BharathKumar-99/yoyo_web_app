@@ -1,24 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
 import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/config/router/route_names.dart';
 import 'package:yoyo_web_app/features/add_teacher/model/teacher_model.dart';
-import 'package:yoyo_web_app/features/common/common_view_model.dart';
 
 class DashboardViewModel extends ChangeNotifier {
   int selectedIndex = 0;
   bool isinTabMode = false;
   bool isSettingsOpen = false;
   TeacherModel? model;
-  late CommonViewModel commonViewModel;
-
-  DashboardViewModel() {
-    commonViewModel = Provider.of<CommonViewModel>(ctx!, listen: false);
-
-    commonViewModel.getuser();
-    commonViewModel.getTeacherLogin();
-  }
 
   changeIndex(int index) {
     selectedIndex = index;
@@ -38,13 +28,13 @@ class DashboardViewModel extends ChangeNotifier {
       case 0:
         ctx!.go(RouteNames.home);
         break;
-      case 1:
+      case 2:
         ctx!.go(RouteNames.phrases);
         break;
-      case 2:
+      case 3:
         ctx!.go(RouteNames.users);
         break;
-      case 3:
+      case 4:
         ctx!.go(RouteNames.notification);
         break;
       default:

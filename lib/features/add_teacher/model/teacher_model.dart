@@ -7,6 +7,7 @@ class TeacherModel {
   int? classes;
   bool? active;
   bool? notification;
+  bool? isAdmin;
 
   TeacherModel({
     this.id,
@@ -17,6 +18,7 @@ class TeacherModel {
     this.classes,
     this.notification,
     this.active,
+    this.isAdmin,
   });
 
   TeacherModel.fromJson(Map<String, dynamic> json) {
@@ -28,6 +30,7 @@ class TeacherModel {
     classes = json['classes'];
     active = json['active'];
     notification = json['notification'];
+    isAdmin = json['is_admin'];
   }
 
   Map<String, dynamic> toJson() {
@@ -40,6 +43,7 @@ class TeacherModel {
     data['classes'] = classes;
     data['active'] = active;
     data['notification'] = notification;
+    data['is_admin'] = isAdmin;
     return data;
   }
 }

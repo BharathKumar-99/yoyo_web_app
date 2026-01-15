@@ -14,41 +14,8 @@ Widget addPhrasesWebsite(AddPhrasesViewModel viewModel) => Scaffold(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AddPhrasesWidgets.addPhrasesHeader(),
-          Container(
-            height: 2,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xff9D5DE6), Color(0xffF78C59)],
-              ),
-            ),
-          ),
-          Row(
-            spacing: 20,
-            children: [
-              Expanded(
-                child: AddPhrasesWidgets.addPhrasesPhraseTextfiled(viewModel),
-              ),
-              Expanded(
-                child: AddPhrasesWidgets.addPhrasesTranslationTextfiled(
-                  viewModel,
-                ),
-              ),
-            ],
-          ),
-          Row(
-            spacing: 20,
-            children: [
-              Expanded(
-                child: AddPhrasesWidgets.addPhrasesVocabTextfiled(viewModel),
-              ),
-              Expanded(
-                child: AddPhrasesWidgets.addPhrasesSoundsTextfiled(viewModel),
-              ),
-            ],
-          ),
-          AddPhrasesWidgets.addPhrasesFilter(viewModel),
-          AddPhrasesWidgets.mp3UploadWidget(viewModel),
-          AddPhrasesWidgets.addPhraseBtn(viewModel),
+          AddPhrasesWidgets.noOfPhrases(viewModel),
+          AddPhrasesWidgets.phraseContent(viewModel),
         ],
       ),
     ),

@@ -7,7 +7,7 @@ import 'package:yoyo_web_app/features/common/common_view_model.dart';
 
 class CommonWidgets {
   static Widget buildDropdown(
-    String label,
+    String? label,
     List<String> items,
     Function(dynamic) onChanged,
   ) {
@@ -18,17 +18,20 @@ class CommonWidgets {
     return SizedBox(
       width: 160,
       child: Column(
+        spacing: 6,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            label,
-            style: AppTextStyles.textTheme.headlineMedium!.copyWith(
-              color: Colors.grey,
+          if (label != null)
+            Text(
+              label,
+              style: AppTextStyles.textTheme.headlineMedium!.copyWith(
+                color: Colors.grey,
+              ),
             ),
-          ),
-          const SizedBox(height: 6),
+
           DropdownButtonFormField<String>(
             initialValue: items.first,
+            isExpanded: true,
             items: items
                 .map((e) => DropdownMenuItem(value: e, child: Text(e)))
                 .toList(),
@@ -63,7 +66,7 @@ class CommonWidgets {
               Text(
                 viewModel.teacher?.teacher?.isNotEmpty ?? false
                     ? viewModel.teacher?.schools?.schoolName ?? ''
-                    : 'YoYo Technologies Ltd',
+                    : 'Super Admin',
                 style: AppTextStyles.textTheme.titleLarge,
               ),
               SizedBox(width: 30),

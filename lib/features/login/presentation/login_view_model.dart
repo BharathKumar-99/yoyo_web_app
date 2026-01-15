@@ -9,11 +9,12 @@ class LoginViewModel extends ChangeNotifier {
   bool sentOtp = false;
   bool isButtonDisabled = false;
   int countdown = 0;
+  bool isLoading = false;
 
   Timer? _timer;
   final LoginRepo _repo = LoginRepo();
 
-  Future<void> sendOtp() async {
+  Future<void> sendOtp(BuildContext context) async {
     if (isButtonDisabled) return;
 
     sentOtp = true;
@@ -23,36 +24,33 @@ class LoginViewModel extends ChangeNotifier {
 
     await _repo.sendOtp(emailController.text.trim());
 
-    _startCountdown();
+    _startCountdown(context);
   }
 
-  void _startCountdown() {
+  void _startCountdown(BuildContext context) {
     _timer?.cancel();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (countdown > 0) {
         countdown--;
-        notifyListeners();
+        if (context.mounted) {
+          notifyListeners();
+        }
       } else {
         isButtonDisabled = false;
         timer.cancel();
-        notifyListeners();
+        if (context.mounted) {
+          notifyListeners();
+        }
       }
     });
   }
 
   Future<void> verifyOtp() async {
+    isLoading = true;
+    notifyListeners();
     await _repo.verifyOtp(
       pinCodeController.text.trim(),
       emailController.text.trim(),
     );
-    notifyListeners();
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    emailController.dispose();
-    pinCodeController.dispose();
-    super.dispose();
   }
 }

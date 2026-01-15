@@ -1,5 +1,13 @@
 class UrlConstants {
   static const String superSpeachApi = "api.speechsuper.com";
+  static const String devSupabaseUrl =
+      "https://zhomsvnayqwfovpvkqzj.supabase.co";
+  static const String prodSupabaseUrl =
+      'https://xijaobuybkpfmyxcrobo.supabase.co';
+  static const String devSupabaseKey =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inpob21zdm5heXF3Zm92cHZrcXpqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njc2NjQ2ODgsImV4cCI6MjA4MzI0MDY4OH0.6-cCsDP1TjxHmbL_B1dT0WZiUHrIXt17Vz26pxzQFZE";
+  static const String prodSupabaseKey =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhpamFvYnV5YmtwZm15eGNyb2JvIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc1OTE5MzA5MSwiZXhwIjoyMDc0NzY5MDkxfQ.O6wV2umI_9-OxIwuGS7O62Y_FsGBHelWOBgXE38aKnk';
 }
 
 class ImageConstants {
@@ -21,6 +29,7 @@ class IconConstants {
   static const String emailIcon = "${iconLoc}mail.png";
   static const String vertIcon = "${iconLoc}vert-more.png";
   static const String logOutIcon = "${iconLoc}Logout.png";
+  static const String logopre = "${iconLoc}logopre.png";
   static const String logoLogin = "${iconLoc}YoYo_withbackground.png";
 }
 

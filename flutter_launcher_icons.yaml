@@ -1,7 +1,7 @@
 flutter_launcher_icons:
   android: false
   ios: false
-  image_path: "assets/icons/yoyo_admin_logo.png"
+  image_path: "assets/icons/logopre.png"
   web:
     generate: true
-    image_path: "assets/icons/yoyo_admin_logo.png"
+    image_path: "assets/icons/logopre.png"

@@ -27,7 +27,7 @@ class PhraseCategories {
     itemIndex = json['item_index'];
     image = json['image'];
     schoolId = json['school_id'];
-    active = json['Active'];
+    active = json['active'];
   }
 
   Map<String, dynamic> toJson() {
@@ -39,7 +39,7 @@ class PhraseCategories {
     data['item_index'] = itemIndex;
     data['image'] = image;
     data['school_id'] = schoolId;
-    data['Active'] = active;
+    data['active'] = active;
     return data;
   }
 }

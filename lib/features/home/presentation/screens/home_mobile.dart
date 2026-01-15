@@ -7,7 +7,7 @@ import '../widget/widgets.dart';
 
 Widget homeMobile(HomeViewModel viewModel, BuildContext context) => Scaffold(
   appBar: CommonWidgets.homeAppBarMobile(),
-  floatingActionButton: viewModel.selectedSchool != null
+  floatingActionButton: viewModel.commonViewModel.selectedSchool != null
       ? ElevatedButton(
           onPressed: () => viewModel.pdfCreater(),
           child: Text('Generate PDF'),

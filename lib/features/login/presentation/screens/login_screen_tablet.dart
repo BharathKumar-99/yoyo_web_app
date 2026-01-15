@@ -29,8 +29,8 @@ Widget loginTablet(BuildContext context) {
                       color: Colors.white,
                     ),
                   ),
-                  LoginWidgets.emailTextField(viewModel),
-                  LoginWidgets.sendOtpBtn(viewModel),
+                  LoginWidgets.emailTextField(viewModel, context),
+                  LoginWidgets.sendOtpBtn(viewModel, context),
                   if (viewModel.sentOtp)
                     Column(
                       spacing: 20,
@@ -46,6 +46,7 @@ Widget loginTablet(BuildContext context) {
                 ],
               ),
             ),
+            viewModel,
           ),
         ),
       );
