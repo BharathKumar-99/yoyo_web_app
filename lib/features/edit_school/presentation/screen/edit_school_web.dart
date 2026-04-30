@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:yoyo_web_app/features/common/widgets.dart';
 import 'package:yoyo_web_app/features/edit_school/presentation/edit_school_view_model.dart';
 import 'package:yoyo_web_app/features/edit_school/presentation/widget/edit_school_widget.dart';
 
 editSchoolWeb(EditSchoolViewModel viewModel) => Scaffold(
-  // appBar: CommonWidgets.homeAppBar(),
+  appBar: CommonWidgets.homeAppBar(),
   body: SingleChildScrollView(
     child: Padding(
       padding: const EdgeInsets.all(20.0),
@@ -15,43 +16,29 @@ editSchoolWeb(EditSchoolViewModel viewModel) => Scaffold(
           Row(
             spacing: 20,
             children: [
-              Expanded(child: EditSchoolWidget.schoolImage(viewModel)),
               Expanded(
                 child: Column(
                   spacing: 20,
                   children: [
-                    Row(
-                      spacing: 20,
-                      children: [
-                        Expanded(child: EditSchoolWidget.schoolName(viewModel)),
-                        Expanded(
-                          child: EditSchoolWidget.schoolStudents(viewModel),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      spacing: 20,
-                      children: [
-                        Expanded(
-                          child: EditSchoolWidget.schoolTelephone(viewModel),
-                        ),
-                        Expanded(
-                          child: EditSchoolWidget.schoolPrinciple(viewModel),
-                        ),
-                      ],
-                    ),
-                    EditSchoolWidget.schoolAddress(viewModel),
+                    EditSchoolWidget.editSchoolFirstRow(viewModel),
+                    EditSchoolWidget.editSchoolSecondRow(viewModel),
+                    EditSchoolWidget.editSchoolthirdRow(viewModel),
                     EditSchoolWidget.updateSchoolDataBtn(viewModel),
                   ],
                 ),
               ),
+              Expanded(child: EditSchoolWidget.schoolImage(viewModel)),
             ],
           ),
-          EditSchoolWidget.editSchool(),
-          EditSchoolWidget.streak(viewModel),
-          EditSchoolWidget.matery(viewModel),
-          EditSchoolWidget.warmup(viewModel),
-          EditSchoolWidget.getSlack(viewModel),
+
+          EditSchoolWidget.editSchoolStat(),
+          EditSchoolWidget.editSchoolstats(viewModel),
+          EditSchoolWidget.classText(viewModel),
+          EditSchoolWidget.addClassBtn(viewModel),
+          EditSchoolWidget.addWidget(viewModel),
+          ClassTable(
+            classes: viewModel.commonViewModel.selectedSchool?.classes ?? [],
+          ),
         ],
       ),
     ),

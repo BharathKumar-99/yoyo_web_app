@@ -1,40 +1,16 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:lottie/lottie.dart';
 import 'package:yoyo_web_app/config/constants/constants.dart';
 
-class LoaderWithoutBg extends StatefulWidget {
-  const LoaderWithoutBg({super.key});
-
-  @override
-  State<LoaderWithoutBg> createState() => _LoaderWithoutBgState();
-}
-
-class _LoaderWithoutBgState extends State<LoaderWithoutBg>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 1),
-    )..repeat();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
+class WebStyleLoader extends StatelessWidget {
+  const WebStyleLoader({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: double.infinity,
-      width: double.infinity,
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topLeft, // 135deg
+          begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [Color(0xFF9D5DE6), Color(0xFFF78C59)],
         ),
@@ -42,142 +18,80 @@ class _LoaderWithoutBgState extends State<LoaderWithoutBg>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          /// LOGO
-          Image.asset(
-            IconConstants.logopre, // same as HTML
-            width: 512,
-            height: 512,
+          SizedBox(
+            width: 420,
+            height: 420,
+            child: Lottie.asset(
+              AnimationConstants.loaderAnimation,
+              repeat: true,
+              fit: BoxFit.contain,
+            ),
           ),
-
-          const SizedBox(height: 20),
-
-          /// SPINNER
-          AnimatedBuilder(
-            animation: _controller,
-            builder: (_, __) {
-              return Transform.rotate(
-                angle: _controller.value * 2 * pi,
-                child: const _Spinner(),
-              );
-            },
-          ),
+          const SizedBox(height: 40),
+          Image.asset(IconConstants.loader),
         ],
       ),
     );
   }
 }
 
-class WebStyleLoader extends StatefulWidget {
-  const WebStyleLoader({super.key});
+class YoyoWaiting extends StatefulWidget {
+  const YoyoWaiting({super.key});
 
   @override
-  State<WebStyleLoader> createState() => _WebStyleLoaderState();
+  State<YoyoWaiting> createState() => _YoyoWaitingState();
 }
 
-class _WebStyleLoaderState extends State<WebStyleLoader>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+class _YoyoWaitingState extends State<YoyoWaiting> {
+  int _dotCount = 1;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 1),
-    )..repeat();
-  }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
+    Future.doWhile(() async {
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (!mounted) return false;
+
+      setState(() {
+        _dotCount = (_dotCount % 3) + 1;
+      });
+      return true;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Positioned.fill(
-      child: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft, // 135deg
-            end: Alignment.bottomRight,
-            colors: [Color(0xFF9D5DE6), Color(0xFFF78C59)],
+    return Container(
+      padding: EdgeInsets.symmetric(vertical: 20),
+      width: double.infinity,
+      height: 220,
+      decoration: BoxDecoration(
+        color: Color(0xFF9D5DE6),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 100,
+            child: Lottie.asset(
+              AnimationConstants.loaderAnimation,
+              repeat: true,
+              fit: BoxFit.contain,
+            ),
           ),
-        ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            /// LOGO
-            Image.asset(
-              IconConstants.logopre, // same as HTML
-              width: 512,
-              height: 512,
+          const SizedBox(height: 12),
+          Text(
+            'Building${'.' * _dotCount}',
+            style: const TextStyle(
+              fontSize: 18,
+              color: Colors.white,
+              fontWeight: FontWeight.w500,
             ),
-
-            const SizedBox(height: 20),
-
-            /// SPINNER
-            AnimatedBuilder(
-              animation: _controller,
-              builder: (_, __) {
-                return Transform.rotate(
-                  angle: _controller.value * 2 * pi,
-                  child: const _Spinner(),
-                );
-              },
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
-}
-
-class _Spinner extends StatelessWidget {
-  const _Spinner();
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 80,
-      height: 80,
-      child: CustomPaint(painter: _SpinnerPainter()),
-    );
-  }
-}
-
-class _SpinnerPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final strokeWidth = 6.0;
-    final radius = size.width / 2;
-
-    final basePaint = Paint()
-      ..color = const Color(0xFFF3F3F3)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth;
-
-    final topPaint = Paint()
-      ..color = const Color(0xFF9D5DE6)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = strokeWidth
-      ..strokeCap = StrokeCap.square;
-
-    canvas.drawCircle(
-      Offset(radius, radius),
-      radius - strokeWidth / 2,
-      basePaint,
-    );
-
-    canvas.drawArc(
-      Rect.fromCircle(center: Offset(radius, radius), radius: radius),
-      -pi / 2,
-      pi / 2,
-      false,
-      topPaint,
-    );
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) => false;
 }

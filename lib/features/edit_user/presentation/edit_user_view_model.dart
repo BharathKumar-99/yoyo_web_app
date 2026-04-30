@@ -13,6 +13,8 @@ import 'package:yoyo_web_app/features/home/model/school.dart';
 import 'package:yoyo_web_app/features/home/model/user_model.dart';
 import 'package:yoyo_web_app/features/home/model/user_result_model.dart';
 
+import '../../users/model/student_langugaes.dart';
+
 class EditUserViewModel extends ChangeNotifier {
   String userId;
   final EditUserRepo _repo = EditUserRepo();
@@ -22,12 +24,13 @@ class EditUserViewModel extends ChangeNotifier {
   List<UserResult> userResult = [];
   String? firstName;
   String? surName;
+  String? activationCode;
   bool changeSchool = false;
   CommonViewModel? commonViewModel;
   School? selectedSchool;
-
+  List<StudentLanguageModel> studentLanguage = [];
   Classes? selectedClasses;
-
+  StudentLanguageModel? studentLanguageModel;
   EditUserViewModel(this.userId) {
     init();
   }
@@ -40,6 +43,11 @@ class EditUserViewModel extends ChangeNotifier {
     isLoading = false;
     firstName = user.firstName;
     surName = user.surName;
+    activationCode = user.activationCode;
+    studentLanguage = await _repo.getStudentLanguage();
+    studentLanguageModel = studentLanguage
+        .where((val) => val.language == user.studentLanguage?.language)
+        .firstOrNull;
     notifyListeners();
   }
 
@@ -117,6 +125,7 @@ class EditUserViewModel extends ChangeNotifier {
         'Success',
         ContentType.success,
       );
+      init();
     } else {
       UsefullFunctions.showAwesomeSnackbarContent(
         'Failed to delete user',
@@ -131,5 +140,31 @@ class EditUserViewModel extends ChangeNotifier {
     await Supabase.instance.client.auth.signOut();
     GlobalLoader.hide();
     NavigationHelper.go(RouteNames.login);
+  }
+
+  void updateActivationCode(String value) {
+    activationCode = value;
+    notifyListeners();
+  }
+
+  void updateActivationCodeRepo() async {
+    GlobalLoader.show();
+    await _repo.updateActivationCode(userId, activationCode!);
+    user = await _repo.getUserData(userId);
+    notifyListeners();
+    GlobalLoader.hide();
+  }
+
+  void updateStudentLanguage(StudentLanguageModel? val) {
+    studentLanguageModel = val;
+    notifyListeners();
+  }
+
+  void updateStudentLanguageRepo() async {
+    GlobalLoader.show();
+    await _repo.updateStudentLanguage(userId, studentLanguageModel!.id!);
+    user = await _repo.getUserData(userId);
+    notifyListeners();
+    GlobalLoader.hide();
   }
 }

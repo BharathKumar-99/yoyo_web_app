@@ -15,16 +15,25 @@ class CommonViewModel extends ChangeNotifier {
   final _client = Supabase.instance.client;
   bool hasNotification = false;
   List<School> schools = [];
-  List<Classes> classes = [];
   School? selectedSchool;
   Classes? selectedClass;
   bool isLoading = true;
+  bool get isAdmin => user?.isAdmin == true;
   bool get isTeacherAdmin =>
-      teacher?.teacher?.first.permissionLevel == 'Teacher' ? false : true;
+      teacher?.teacher != null && (teacher?.teacher?.isNotEmpty ?? false)
+      ? teacher?.teacher?.first.permissionLevel == 'Teacher'
+            ? false
+            : true
+      : false;
   bool get isTeacher => user?.isAdmin != true && isTeacherAdmin == false;
 
   CommonViewModel() {
     init();
+  }
+
+  getCode(String username) async {
+    await _repo.requestNewActivationCode(username);
+    return await getIndiviUser(username);
   }
 
   init() async {
@@ -39,7 +48,7 @@ class CommonViewModel extends ChangeNotifier {
       hasNotification = false;
       await getSchools();
       await getuser();
-      await getTeacherLogin();
+      getTeacherLogin();
       isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -50,11 +59,45 @@ class CommonViewModel extends ChangeNotifier {
   getSchools() async {
     schools = await _repo.getSchools();
     selectedSchool = null;
+    selectedClass = null;
+    notifyListeners();
+  }
+
+  getSchoolfromOut(School? val) async {
+    schools = await _repo.getSchools();
+    selectSchoolFromOutside(val);
+  }
+
+  getClassFromOut(School? school, Classes? val) async {
+    schools = await _repo.getSchools();
+    selectSchoolFromOutside(school);
+
+    selectClassFromOutside(val);
+  }
+
+  selectClassFromOutside(Classes? val) {
+    Classes classes = selectedSchool!.classes!.firstWhere(
+      (v) => v.id == val?.id,
+    );
+    selectedClass = classes;
+    notifyListeners();
+  }
+
+  getSchoolfromOutinit() async {
+    schools = await _repo.getSchools();
     notifyListeners();
   }
 
   void selectSchool(School? val) {
     selectedSchool = val;
+    selectedClass = null;
+    notifyListeners();
+  }
+
+  void selectSchoolFromOutside(School? val) {
+    School school = schools.firstWhere((v) => v.id == val?.id);
+    selectedSchool = school;
+    selectedClass = null;
     notifyListeners();
   }
 
@@ -63,18 +106,49 @@ class CommonViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  getTeacherLogin() async {
-    teacher = await _repo.getLoggedInTeacherInfo();
-    if (teacher?.teacher?.isNotEmpty ?? false) {
-      selectedSchool = schools.firstWhere(
-        (school) => school.id == teacher?.schools?.id,
-        orElse: () => schools.first,
-      );
-      listenTeacherNotification(teacher?.teacher?.first.id ?? 0);
-      hasNotification = teacher?.teacher?.first.notification ?? false;
-    }
+  getIndiviUser(String username) async {
+    return await _repo.getIndiviUser(username);
+  }
 
-    notifyListeners();
+  Future<void> getTeacherLogin() async {
+    try {
+      teacher = await _repo.getLoggedInTeacherInfo();
+
+      if (teacher == null) {
+        debugPrint("Teacher model is null");
+        notifyListeners();
+        return;
+      }
+
+      final teacherList = teacher?.teacher ?? [];
+
+      if (teacherList.isNotEmpty) {
+        final currentTeacher = teacherList.first;
+
+        if (schools.isNotEmpty && teacher!.schools != null) {
+          selectedSchool = schools.firstWhere(
+            (school) => school.id == teacher!.schools!.id,
+            orElse: () => schools.first,
+          );
+        }
+
+        if (teacher!.studentClasses?.isNotEmpty ?? false) {
+          final teacherClassId = teacher!.studentClasses!.first.classes?.id;
+
+          selectedClass = selectedSchool!.classes!.firstWhere(
+            (c) => c.id == teacherClassId,
+            orElse: () => selectedSchool!.classes!.first,
+          );
+        }
+
+        listenTeacherNotification(currentTeacher.id ?? 0);
+        hasNotification = currentTeacher.notification ?? false;
+      }
+
+      notifyListeners();
+    } catch (e) {
+      debugPrint("Error in getTeacherLogin: $e");
+    }
   }
 
   String extractCaps(String text) {

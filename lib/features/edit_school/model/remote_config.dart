@@ -10,6 +10,8 @@ class RemoteConfig {
   final bool mastery;
   final bool warmup;
   LanguageSlack slack;
+  int? lowerThreshold;
+  int? successThreshold;
   int? schoolId;
   School? school;
   List<PhraseDisabledSchools> phraseDisabledSchools;
@@ -25,6 +27,8 @@ class RemoteConfig {
     required this.slack,
     this.schoolId,
     required this.warmup,
+    this.lowerThreshold,
+    this.successThreshold,
     required this.phraseDisabledSchools,
     this.school,
   });
@@ -53,6 +57,8 @@ class RemoteConfig {
       apiSecretKey: json['api_secret_key'] as String,
       streak: json['streak'] as bool,
       onboarding: json['onboarding'] as bool,
+      lowerThreshold: json['lower_threshold'],
+      successThreshold: json['success_threshold'],
       mastery: json['mastery'] as bool,
       slack: LanguageSlack.fromJson(json['language_slack']),
       schoolId: json['school'] is int ? json['school'] : null,
@@ -71,6 +77,8 @@ class RemoteConfig {
     'onboarding': onboarding,
     'language_slack': slack.toJson(),
     'mastery': mastery,
+    'success_threshold': successThreshold,
+    'lower_threshhold': lowerThreshold,
     'school': schoolId,
     'warmup': warmup,
   };

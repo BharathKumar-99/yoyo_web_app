@@ -3,8 +3,10 @@ import 'dart:typed_data';
 import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:yoyo_web_app/config/utils/global_loader.dart';
 import 'package:yoyo_web_app/config/utils/usefull_functions.dart';
 import 'package:yoyo_web_app/features/add_school/data/add_school_repo.dart';
+import 'package:yoyo_web_app/features/home/model/classes_model.dart';
 import 'package:yoyo_web_app/features/home/model/language_model.dart';
 
 class AddSchoolViewModel extends ChangeNotifier {
@@ -13,8 +15,8 @@ class AddSchoolViewModel extends ChangeNotifier {
   TextEditingController schoolPrincipalController = TextEditingController();
   TextEditingController schoolTelePhoneController = TextEditingController();
   TextEditingController schoolNoOfStudentsController = TextEditingController();
+  List<Classes> classes = [];
   List<Language>? languageList = [];
-  List<Language> selectedLanguageList = [];
   final AddSchoolRepo _repo = AddSchoolRepo();
 
   Uint8List? _imageBytes;
@@ -32,12 +34,8 @@ class AddSchoolViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  void selectLanguage(bool? val, Language? language) {
-    if (val == true) {
-      selectedLanguageList.add(language!);
-    } else {
-      selectedLanguageList.remove(language);
-    }
+  void addClass(Classes classVal) {
+    classes.add(classVal);
     notifyListeners();
   }
 
@@ -122,9 +120,9 @@ class AddSchoolViewModel extends ChangeNotifier {
       );
       return false;
     }
-    if (selectedLanguageList.isEmpty) {
+    if (classes.isEmpty) {
       UsefullFunctions.showAwesomeSnackbarContent(
-        "Please select at least one language",
+        "Please add at least one Class",
         "Error",
         ContentType.failure,
       );
@@ -144,25 +142,32 @@ class AddSchoolViewModel extends ChangeNotifier {
 
   Future<void> addSchool() async {
     if (!validateForm()) return;
-
+    WidgetsBinding.instance.addPostFrameCallback((val) => GlobalLoader.show());
     try {
-     await _repo.addSchool(
+      await _repo.addSchool(
         imageBytes!,
         schoolNameController.text.trim(),
         schoolPrincipalController.text.trim(),
         schoolAddressController.text.trim(),
         int.parse(schoolTelePhoneController.text.trim()),
         int.parse(schoolNoOfStudentsController.text.trim()),
-        selectedLanguageList,
+        classes,
         '${schoolNameController.text.trim()}.png',
       );
       reset();
+
       UsefullFunctions.showAwesomeSnackbarContent(
         "School added successfully!",
         "Success",
         ContentType.success,
       );
+      WidgetsBinding.instance.addPostFrameCallback(
+        (val) => GlobalLoader.hide(),
+      );
     } catch (e) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (val) => GlobalLoader.hide(),
+      );
       log("Failed to add school: $e");
     }
   }
@@ -174,7 +179,12 @@ class AddSchoolViewModel extends ChangeNotifier {
     schoolAddressController.clear();
     schoolTelePhoneController.clear();
     schoolNoOfStudentsController.clear();
-    selectedLanguageList.clear();
+    classes.clear();
+    notifyListeners();
+  }
+
+  void deleteClass(Classes classs) {
+    classes.removeWhere((val) => val.className == classs.className);
     notifyListeners();
   }
 }

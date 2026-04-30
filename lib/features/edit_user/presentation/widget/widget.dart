@@ -6,6 +6,8 @@ import 'package:yoyo_web_app/features/home/model/classes_model.dart';
 import 'package:yoyo_web_app/features/home/model/school.dart';
 import 'package:yoyo_web_app/features/home/model/user_result_model.dart';
 
+import '../../../users/model/student_langugaes.dart';
+
 class EditUserWidgets {
   userDetails(EditUserViewModel value) => Card(
     elevation: 4,
@@ -63,15 +65,70 @@ class EditUserWidgets {
                 ),
             ],
           ),
+
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
+            spacing: 10,
+            children: [
+              Expanded(
+                child: DropdownButtonFormField<StudentLanguageModel?>(
+                  isExpanded: true,
+                  initialValue: value.studentLanguageModel,
+                  items: value.studentLanguage
+                      .map(
+                        (e) => DropdownMenuItem<StudentLanguageModel?>(
+                          value: e,
+                          child: Text(
+                            e.language.toString(),
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTextStyles.textTheme.bodyMedium?.copyWith(
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: (val) => value.updateStudentLanguage(val),
+                ),
+              ),
+              if (value.studentLanguageModel != value.user.studentLanguage)
+                ElevatedButton(
+                  onPressed: () {
+                    value.updateStudentLanguageRepo();
+                  },
+                  child: Text('Update'),
+                ),
+            ],
+          ),
+
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.end,
+            spacing: 10,
+            children: [
+              Expanded(
+                child: _buildTextField(
+                  label: 'Activation',
+                  initialValue: value.activationCode,
+                  onChanged: value.updateActivationCode,
+                ),
+              ),
+              if (value.activationCode != value.user.activationCode)
+                ElevatedButton(
+                  onPressed: () {
+                    value.updateActivationCodeRepo();
+                  },
+                  child: Text('Update'),
+                ),
+            ],
+          ),
           _buildReadOnlyField(label: 'Email', value: value.user.email ?? 'N/A'),
           _buildReadOnlyField(
             label: 'Username',
             value: value.user.username ?? 'N/A',
           ),
-          _buildReadOnlyField(
-            label: 'Activation',
-            value: value.user.activationCode ?? 'N/A',
-          ),
+
           // _buildReadOnlyField(
           //   label: 'Account Status',
           //   value: value.user.isActivated == true ? 'Activated' : 'Pending',
@@ -129,7 +186,7 @@ class EditUserWidgets {
                             value.user.schools?.schoolName) &&
                     (value.selectedClasses != null &&
                         value.selectedClasses?.id !=
-                            value.user.student?.first.classId))
+                            value.user.student?.classId))
                   ElevatedButton(
                     onPressed: () {
                       value.updateSchoolAndClass();
@@ -299,7 +356,7 @@ class EditUserWidgets {
         )
       : Container();
 
-  userMetrics(EditUserViewModel value) => (value.user.student?.isEmpty ?? false)
+  userMetrics(EditUserViewModel value) => (value.user.student != null)
       ? Container()
       : Card(
           elevation: 4,
@@ -317,22 +374,22 @@ class EditUserWidgets {
 
                 _buildMetricRow(
                   'Language Level',
-                  'Level ${value.user.student?.first.languageLevel ?? 'N/A'}',
+                  'Level ${value.user.student?.languageLevel ?? 'N/A'}',
                   Icons.language,
                 ),
                 _buildMetricRow(
                   'Vocabulary Count',
-                  '${value.user.student?.first.vocab ?? 'N/A'} Words',
+                  '${value.user.student?.vocab ?? 'N/A'} Words',
                   Icons.book,
                 ),
                 _buildMetricRow(
                   'Effort Score',
-                  '${value.user.student?.first.effort ?? 'N/A'}%',
+                  '${value.user.student?.effort ?? 'N/A'}%',
                   Icons.trending_up,
                 ),
                 _buildMetricRow(
                   'Overall Score',
-                  '${value.user.student?.first.score ?? 'N/A'}%',
+                  '${value.user.student?.score ?? 'N/A'}%',
                   Icons.star,
                 ),
               ],
@@ -421,62 +478,86 @@ class UserResultTable extends StatelessWidget {
           DataColumn(label: Text('Listened'), numeric: true),
         ],
 
-        rows: result.map<DataRow>((item) {
-          return DataRow(
-            cells: <DataCell>[
-              DataCell(
-                SizedBox(
-                  width: 200,
-                  child: Text(item.phraseModel?.phrase ?? ''),
+        rows: result.isEmpty
+            ? [
+                DataRow(
+                  cells: [
+                    DataCell(SizedBox(width: 200)),
+                    DataCell(SizedBox(width: 100)),
+                    DataCell(SizedBox(width: 100)),
+                    DataCell(Text('data not found')),
+                    DataCell(SizedBox(width: 100)),
+                    DataCell(SizedBox(width: 100)),
+                    DataCell(SizedBox(width: 100)),
+                  ],
                 ),
-              ),
-              DataCell(
-                Text(
-                  '${(item.scoreSubmitted ?? false) ? item.score ?? 'Not Submitted' : "Not Submitted"}',
-                ),
-              ),
-              DataCell(
-                Text(
-                  '${(item.scoreSubmitted ?? false) ? item.vocab ?? 'Not Submitted' : "Not Submitted"}',
-                ),
-              ),
+              ]
+            : result.map<DataRow>((item) {
+                return DataRow(
+                  cells: <DataCell>[
+                    DataCell(
+                      SizedBox(
+                        width: 200,
+                        child: Text(item.phraseModel?.phrase ?? ''),
+                      ),
+                    ),
+                    DataCell(
+                      Text(
+                        '${(item.scoreSubmitted ?? false) ? item.score ?? 'Not Submitted' : "Not Submitted"}',
+                      ),
+                    ),
+                    DataCell(
+                      Text(
+                        '${(item.scoreSubmitted ?? false) ? item.vocab ?? 'Not Submitted' : "Not Submitted"}',
+                      ),
+                    ),
 
-              DataCell(
-                Tooltip(
-                  message: _formatWordsForTooltip(item.goodWords, true),
+                    DataCell(
+                      Tooltip(
+                        message: _formatWordsForTooltip(item.goodWords, true),
 
-                  preferBelow: false,
-                  verticalOffset: 20,
-                  textStyle: const TextStyle(color: Colors.white, fontSize: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.black87,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+                        preferBelow: false,
+                        verticalOffset: 20,
+                        textStyle: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black87,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
 
-                  child: InkWell(child: Text('${item.goodWords?.length ?? 0}')),
-                ),
-              ),
-              DataCell(
-                Tooltip(
-                  message: _formatWordsForTooltip(item.badWords, false),
+                        child: InkWell(
+                          child: Text('${item.goodWords?.length ?? 0}'),
+                        ),
+                      ),
+                    ),
+                    DataCell(
+                      Tooltip(
+                        message: _formatWordsForTooltip(item.badWords, false),
 
-                  preferBelow: false,
-                  verticalOffset: 20,
-                  textStyle: const TextStyle(color: Colors.white, fontSize: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.black87,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
+                        preferBelow: false,
+                        verticalOffset: 20,
+                        textStyle: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.black87,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
 
-                  child: InkWell(child: Text('${item.badWords?.length ?? 0}')),
-                ),
-              ),
+                        child: InkWell(
+                          child: Text('${item.badWords?.length ?? 0}'),
+                        ),
+                      ),
+                    ),
 
-              DataCell(Text(item.type ?? '')),
-              DataCell(Text((item.listen ?? 0).toString())),
-            ],
-          );
-        }).toList(),
+                    DataCell(Text(item.type ?? '')),
+                    DataCell(Text((item.listen ?? 0).toString())),
+                  ],
+                );
+              }).toList(),
       ),
     );
   }

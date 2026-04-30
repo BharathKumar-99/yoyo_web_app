@@ -19,7 +19,7 @@ class AddTeacherViewModel extends ChangeNotifier {
 
   Classes? selectedClasses;
 
-  List<String> permission = ["Teacher", "Principle"];
+  List<String> permission = ["Teacher", "Principle", "Teacher Admin"];
   String? selectedPermission;
 
   void selectPermission(String? value) {
@@ -47,6 +47,15 @@ class AddTeacherViewModel extends ChangeNotifier {
   }
 
   void addTeacher() async {
+    final email = emailController.text.trim();
+    final emailRegex = RegExp(
+      r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+    );
+
+    if (!emailRegex.hasMatch(email)) {
+      UsefullFunctions.showSnackBar(ctx!, "Please enter a valid email address");
+      return;
+    }
     if (selectedSchool == null) {
       UsefullFunctions.showSnackBar(ctx!, "Please select a school");
       return;
@@ -78,13 +87,6 @@ class AddTeacherViewModel extends ChangeNotifier {
     }
 
     // --- EMAIL FORMAT VALIDATION ---
-    final email = emailController.text.trim();
-    final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
-
-    if (!emailRegex.hasMatch(email)) {
-      UsefullFunctions.showSnackBar(ctx!, "Please enter a valid email address");
-      return;
-    }
 
     if (jobController.text.trim().isEmpty) {
       UsefullFunctions.showSnackBar(ctx!, "Job title is required");

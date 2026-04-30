@@ -52,7 +52,10 @@ class AddTeacherRepo extends ApiRepo {
         'user_id': userId,
         'job_title': job,
         'permission_level': permission,
+      });
+      await client.from(DbTable.studentClasses).insert({
         'classes': classId,
+        'user': userId,
       });
       await EmailService.sendEmail(
         to: email,

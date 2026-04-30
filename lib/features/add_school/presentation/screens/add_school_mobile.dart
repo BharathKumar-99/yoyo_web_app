@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/features/add_school/presentation/add_school_view_model.dart';
 
 import '../../../common/widgets.dart';
@@ -16,7 +17,7 @@ addSchoolMobile(AddSchoolViewModel vm) => Scaffold(
         AddSchoolWidgets.schoolNameTextfiled(vm),
         AddSchoolWidgets.schoolTelephoneTextfiled(vm),
         AddSchoolWidgets.schoolAddressTextfiled(vm),
-        AddSchoolWidgets.selectLanguageList(vm),
+        AddSchoolWidgets.createClass(vm, ctx!),
         AddSchoolWidgets.schoolprincipleTextfiled(vm),
         AddSchoolWidgets.schoolStudentCountTextfiled(vm),
         AddSchoolWidgets.imageSelector(vm),

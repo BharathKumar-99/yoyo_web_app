@@ -4,10 +4,10 @@ import 'package:yoyo_web_app/config/router/route_names.dart';
 import 'package:yoyo_web_app/config/theme/app_text_styles.dart';
 import '../../home/model/user_model.dart';
 
-class UserTable extends StatelessWidget {
-  final List<UserModel> teacher;
+class StudentUserTable extends StatelessWidget {
+  final List<UserModel> student;
 
-  const UserTable({super.key, required this.teacher});
+  const StudentUserTable({super.key, required this.student});
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +16,7 @@ class UserTable extends StatelessWidget {
         _buildHeader(),
         Divider(height: 1),
 
-        ...teacher.map((row) => _buildRow(row)),
+        ...student.map((row) => _buildRow(row)),
       ],
     );
   }
@@ -29,9 +29,11 @@ class UserTable extends StatelessWidget {
         children: [
           headerCell("Avatar", "avatar", flex: 1),
           headerCell("Name", "name", flex: 1),
-          headerCell("School", "school", flex: 1),
-          headerCell("Job Title", "job", flex: 1),
           headerCell("User Name", "username", flex: 1),
+          headerCell("Active", "active", flex: 1),
+          headerCell("Participation", "participation", flex: 1),
+          headerCell("Activation Code", "activiation_code", flex: 1),
+
           headerCell(" ", " ", flex: 1),
         ],
       ),
@@ -106,11 +108,24 @@ class UserTable extends StatelessWidget {
             ),
           ),
 
-          rowCell(row.firstName ?? 'N/A', flex: 1),
+          rowCell('${row.firstName} ${row.surName}', flex: 1),
+          rowCell(row.username ?? 'N/A', flex: 1),
 
-          rowCell((row.schools?.schoolName ?? '')),
-          rowCell((row.teacher?.first.jobTitle ?? '')),
-          rowCell((row.username ?? ''), flex: 1),
+          rowCell(
+            (row.isActivated ?? false) ? "✓" : "✗",
+            fontsize: 20,
+            font: FontWeight.bold,
+            color: (row.isActivated ?? false) ? Colors.green : Colors.red,
+          ),
+          rowCell(
+            (row.userResult?.length ?? 0) > 0 ? "✓" : "✗",
+            fontsize: 20,
+            font: FontWeight.bold,
+            color: (row.userResult?.length ?? 0) > 0
+                ? Colors.green
+                : Colors.red,
+          ),
+          rowCell(row.activationCode ?? 'N/A', flex: 1),
 
           Expanded(
             flex: 1,
@@ -134,15 +149,21 @@ class UserTable extends StatelessWidget {
   }) {
     return Expanded(
       flex: flex,
-      child: Text(
-        text,
-        maxLines: 3,
-        overflow: TextOverflow.ellipsis,
-        textAlign: TextAlign.left,
-        style: TextStyle(
-          fontSize: fontsize,
-          color: color ?? Colors.black87,
-          fontWeight: font,
+      child: SizedBox(
+        height: 40,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: Text(
+            text,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.left,
+            style: TextStyle(
+              fontSize: fontsize,
+              color: color ?? Colors.black87,
+              fontWeight: font,
+            ),
+          ),
         ),
       ),
     );

@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:yoyo_web_app/config/theme/app_text_styles.dart';
 import 'package:yoyo_web_app/features/home/model/phrases_model.dart';
 import 'package:yoyo_web_app/features/phrases/presentation/phrases_view_model.dart';
 import '../../../../config/constants/constants.dart';
-import 'disable_phrase.dart';
 
 class PhraseTable extends StatelessWidget {
   final List<PhraseModel> phrase;
@@ -76,32 +74,40 @@ class PhraseTable extends StatelessWidget {
               style: TextStyle(fontSize: 14, color: Colors.black87),
             ),
           ),
-          rowCell(row.translation ?? 'N/A', flex: 2),
+          row.translation == null
+              ? rowLoader(flex: 2)
+              : rowCell(row.translation ?? 'N/A', flex: 2),
           rowCell((row.languageData?.language ?? '')),
-          Expanded(
-            flex: 1,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                GestureDetector(
-                  onTap: () =>
-                      provider.playPhrase(row.recording ?? '', row.id ?? 0),
-                  child: Icon(
-                    (provider.player.playing &&
-                            provider.currentPlayingPhraseId == row.id)
-                        ? Icons.pause_rounded
-                        : Icons.play_arrow_outlined,
+          row.recording == null
+              ? rowLoader()
+              : Expanded(
+                  flex: 1,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      GestureDetector(
+                        onTap: () => provider.playPhrase(
+                          row.recording ?? '',
+                          row.id ?? 0,
+                        ),
+                        child: Icon(
+                          (provider.player.playing &&
+                                  provider.currentPlayingPhraseId == row.id)
+                              ? Icons.pause_rounded
+                              : Icons.play_arrow_outlined,
+                        ),
+                      ),
+
+                      Image.asset(ImageConstants.wave, height: 40, width: 50),
+                    ],
                   ),
                 ),
-
-                Image.asset(ImageConstants.wave, height: 40, width: 50),
-              ],
-            ),
-          ),
           rowCell(row.phraseCategories?.name ?? "N/A", flex: 2),
-          rowCell(row.vocab?.toString() ?? "0"),
+          row.vocab == null
+              ? rowLoader()
+              : rowCell(row.vocab?.toString() ?? "0"),
           rowCell(
             row.userResult
                     ?.where((v) => v.type == 'Learned')
@@ -109,57 +115,30 @@ class PhraseTable extends StatelessWidget {
                     .toString() ??
                 "0",
           ),
-          rowCell((row.sounds.toString())),
+          (row.sounds == null || row.sounds == 0)
+              ? rowLoader()
+              : rowCell((row.sounds.toString())),
           if (!provider.commonViewModel.isTeacher)
-            (provider.commonViewModel.teacher?.teacher?.isNotEmpty ?? false)
-                ? Expanded(
-                    flex: 2,
-                    child: Align(
-                      alignment: Alignment.topLeft,
-                      child: Switch.adaptive(
-                        value: row.phraseDisabledSchools
-                            .where(
-                              (e) =>
-                                  e.remoteConfig?.school?.id ==
-                                  provider.commonViewModel.teacher?.schools?.id,
-                            )
-                            .isEmpty,
-                        onChanged: (v) {
-                          provider.disablePhrase(row.id ?? 0, [
-                            provider.commonViewModel.teacher?.schools?.id ?? 0,
-                          ]);
-                        },
-                      ),
-                    ),
-                  )
-                : Expanded(
-                    flex: 2,
-                    child: Wrap(
-                      spacing: 5,
-                      runSpacing: 5,
-                      children: [
-                        ...row.phraseDisabledSchools.map(
-                          (e) => Chip(
-                            onDeleted: () {
-                              provider.disablePhrase(row.id ?? 0, [
-                                e.remoteConfig?.school?.id ?? 0,
-                              ]);
-                            },
-                            deleteIcon: Icon(
-                              Icons.delete_outline_outlined,
-                              color: Colors.redAccent,
-                            ),
-                            label: Text(
-                              e.remoteConfig?.school?.schoolName ?? '',
-                              style: AppTextStyles.textTheme.bodySmall!
-                                  .copyWith(fontSize: 8),
-                            ),
-                          ),
-                        ),
-                        getDisabledPhrase(row, provider),
-                      ],
-                    ),
-                  ),
+            Expanded(
+              flex: 2,
+              child: Align(
+                alignment: Alignment.topLeft,
+                child: Switch.adaptive(
+                  value: row.phraseDisabledSchools
+                      .where(
+                        (e) =>
+                            e.remoteConfig?.school?.id ==
+                            provider.commonViewModel.teacher?.schools?.id,
+                      )
+                      .isEmpty,
+                  onChanged: (v) {
+                    provider.disablePhrase(row.id ?? 0, [
+                      provider.commonViewModel.teacher?.schools?.id ?? 0,
+                    ]);
+                  },
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -183,6 +162,20 @@ class PhraseTable extends StatelessWidget {
           fontSize: fontsize,
           color: color ?? Colors.black87,
           fontWeight: font,
+        ),
+      ),
+    );
+  }
+
+  Widget rowLoader({int flex = 1}) {
+    return Expanded(
+      flex: flex,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: SizedBox(
+          height: 20,
+          width: 20,
+          child: Center(child: CircularProgressIndicator.adaptive()),
         ),
       ),
     );

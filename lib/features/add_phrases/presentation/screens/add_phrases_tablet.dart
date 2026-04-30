@@ -5,7 +5,7 @@ import '../add_phrases_view_model.dart';
 import '../widgets/widgets.dart';
 
 Widget addPhrasesTablet(AddPhrasesViewModel viewModel) => Scaffold(
-  appBar: CommonWidgets.homeAppBar(),
+  appBar: CommonWidgets.homeAppBar(isTablet: true),
   body: SingleChildScrollView(
     child: Padding(
       padding: const EdgeInsets.all(20.0),

@@ -9,7 +9,7 @@ Widget homeMobile(HomeViewModel viewModel, BuildContext context) => Scaffold(
   appBar: CommonWidgets.homeAppBarMobile(),
   floatingActionButton: viewModel.commonViewModel.selectedSchool != null
       ? ElevatedButton(
-          onPressed: () => viewModel.pdfCreater(),
+          onPressed: viewModel.pdfCreater,
           child: Text('Generate PDF'),
         )
       : null,
@@ -35,17 +35,17 @@ Widget homeMobile(HomeViewModel viewModel, BuildContext context) => Scaffold(
                 HomeWidgets.homeCard(
                   'Participation',
                   '${viewModel.participation}%',
-                  '5%',
+                  '${viewModel.participationPercentage}%',
                 ),
                 HomeWidgets.homeCard(
                   'Effort',
                   viewModel.effort.toString(),
-                  '15%',
+                  '${viewModel.effortPercentage}%',
                 ),
                 HomeWidgets.homeCard(
                   'Avg. Score',
                   '${viewModel.avrageScore}%',
-                  '8%',
+                  '${viewModel.avrageScorePercentage}%',
                 ),
               ],
             ),
@@ -70,9 +70,18 @@ Widget homeMobile(HomeViewModel viewModel, BuildContext context) => Scaffold(
                 ],
               ),
             ),
-            StudentTable(
-              students: viewModel.filteredStudents,
-              provider: viewModel,
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: MediaQuery.sizeOf(context).width * 3,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: StudentTable(
+                    students: viewModel.students,
+                    provider: viewModel,
+                  ),
+                ),
+              ),
             ),
           ],
         ),

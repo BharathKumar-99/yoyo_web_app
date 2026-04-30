@@ -1,38 +1,219 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:yoyo_web_app/config/router/navigation_helper.dart';
+import 'package:yoyo_web_app/config/utils/global_loader.dart';
 import 'package:yoyo_web_app/features/common/common_view_model.dart';
-import 'package:yoyo_web_app/features/home/data/home_repo.dart';
-import 'package:yoyo_web_app/features/home/model/school.dart';
+import 'package:yoyo_web_app/features/settings/model/ai_prompt_model.dart';
+import 'package:yoyo_web_app/features/settings/repo/settings_repo.dart';
 
-import '../../add_teacher/model/teacher_model.dart';
+import '../model/homework_config_model.dart';
 
 class SettingsViewModel extends ChangeNotifier {
-  List<School> schools = [];
-  final HomeRepo _repo = HomeRepo();
-  late School selectedSchool;
-  List<TeacherModel>? teacherModel;
-  CommonViewModel? commonmodel;
+  HomeworkConfigModel? homeworkConfigModel;
+  final CommonViewModel commonViewModel;
+  AiPrompt? aiPrompt;
+  TextEditingController phrasePromptController = TextEditingController();
+  TextEditingController setHomeworkPromptController = TextEditingController();
+  TextEditingController autoHomeworkPromptController = TextEditingController();
 
-  SettingsViewModel() {
-    getSchools();
+  bool isPhrasePromptChanged = false;
+  bool isSetHomeworkPromptChanged = false;
+  bool isAutoHomeworkPromptChanged = false;
+
+  String selectedManualCadance = 'Weekly from time of setting';
+  List<String> manualCadance = [
+    'Daily from first day',
+    'Weekly from time of setting',
+    'Bi-Weekly from time of settings',
+  ];
+
+  String selectedAutoCadance = 'Every Thursday';
+
+  List<String> autoCadance = [
+    'Every Sunday',
+    'Every Monday',
+    'Every Tuesday',
+    'Every Wednesday',
+    'Every Thursday',
+    'Every Friday',
+    'Every Saturday',
+  ];
+
+  String selectedAutoCadanceTime = '2 PM';
+  List<String> autoCandanceTime = [
+    '12 AM',
+    '1 AM',
+    '2 AM',
+    '3 AM',
+    '4 AM',
+    '5 AM',
+    '6 AM',
+    '7 AM',
+    '8 AM',
+    '9 AM',
+    '10 AM',
+    '11 AM',
+    '12 PM',
+    '1 PM',
+    '2 PM',
+    '3 PM',
+    '4 PM',
+    '5 PM',
+    '6 PM',
+    '7 PM',
+    '8 PM',
+    '9 PM',
+    '10 PM',
+    '11 PM',
+  ];
+
+  String selectedNotification = '1 Day Before';
+  List<String> notification = ['1 Day Before', '2 Days Before'];
+
+  final SettingsRepo _repo = SettingsRepo();
+
+  SettingsViewModel({required this.commonViewModel}) {
+    init();
   }
 
-  getSchools() async {
-    schools = await _repo.getHomeData();
-    selectedSchool = schools.first;
-    commonmodel = Provider.of<CommonViewModel>(ctx!, listen: false);
-    teacherModel = commonmodel?.teacher?.teacher;
-    if (teacherModel?.isNotEmpty ?? false) {
-      selectSchool(
-        schools.firstWhere((t) => t.id == commonmodel?.teacher?.schools?.id),
-      );
+  init() async {
+    aiPrompt = await _repo.getAiPrompt();
+    homeworkConfigModel = await _repo.getHomeworkConfigs(
+      classId: commonViewModel.selectedClass?.id ?? 0,
+    );
+    if (aiPrompt != null) {
+      phrasePromptController.text = aiPrompt!.phrasePrompt ?? '';
+      setHomeworkPromptController.text = aiPrompt!.setHomeworkPromt ?? '';
+      autoHomeworkPromptController.text = aiPrompt!.autoHomeworkPrompt ?? '';
+    }
+    if (homeworkConfigModel != null) {
+      selectedManualCadance = homeworkConfigModel!.manualCadence ?? '';
+      selectedAutoCadance = homeworkConfigModel!.autoCadence ?? '';
+      selectedNotification = homeworkConfigModel!.notification ?? '';
     }
     notifyListeners();
   }
 
-  void selectSchool(School val) {
-    selectedSchool = val;
+  void setManualCadance(String value) async {
+    selectedManualCadance = value;
     notifyListeners();
+    updateConfig();
+  }
+
+  void setAutoCadance(String value) async {
+    selectedAutoCadance = value;
+    notifyListeners();
+    updateConfig();
+  }
+
+  void setAutoCadanceTime(String value) async {
+    selectedAutoCadanceTime = value;
+    notifyListeners();
+    updateConfig();
+  }
+
+  void setNotification(String value) async {
+    selectedNotification = value;
+    notifyListeners();
+    updateConfig();
+  }
+
+  updateConfig() async {
+    GlobalLoader.show();
+    await _repo.updateHomeworkConfigs(
+      manualCadance: selectedManualCadance,
+      autoCadance: selectedAutoCadance,
+      autoCadanceTime: selectedAutoCadanceTime,
+      notification: selectedNotification,
+      schoolId: commonViewModel.selectedSchool?.id ?? 0,
+      classId: commonViewModel.selectedClass?.id ?? 0,
+    );
+    GlobalLoader.hide();
+  }
+
+  void setActivationCodeThroughTeacher(bool v) async {
+    try {
+      GlobalLoader.show();
+      commonViewModel.selectedClass?.activationCodeThroughTeacher = v;
+      await _repo.updateClassActivation(
+        v,
+        commonViewModel.selectedClass?.id ?? 0,
+      );
+      //  await commonViewModel.getSchools();
+      notifyListeners();
+    } finally {
+      GlobalLoader.hide();
+    }
+  }
+
+  void updateAiPrompt() async {
+    GlobalLoader.show();
+    await _repo.updateAiPrompt(
+      phrasePrompt: phrasePromptController.text,
+      setHomeworkPrompt: setHomeworkPromptController.text,
+      autoHomeworkPrompt: autoHomeworkPromptController.text,
+    );
+    GlobalLoader.hide();
+  }
+
+  void checkPhrasePromptChange() {
+    isPhrasePromptChanged =
+        phrasePromptController.text != aiPrompt?.phrasePrompt;
+    notifyListeners();
+  }
+
+  void checkSetHomeworkPromptChange() {
+    isSetHomeworkPromptChanged =
+        setHomeworkPromptController.text != aiPrompt?.setHomeworkPromt;
+    notifyListeners();
+  }
+
+  void checkAutoHomeworkPromptChange() {
+    isAutoHomeworkPromptChanged =
+        autoHomeworkPromptController.text != aiPrompt?.autoHomeworkPrompt;
+    notifyListeners();
+  }
+
+  void setAllowTeachersToSetCategories(bool v) async {
+    try {
+      GlobalLoader.show();
+      commonViewModel.selectedClass?.allowTeachersToSetCategories = v;
+      await _repo.updateClassAllowTeachersToSetCategories(
+        v,
+        commonViewModel.selectedClass?.id ?? 0,
+      );
+      //  await commonViewModel.getSchools();
+      notifyListeners();
+    } finally {
+      GlobalLoader.hide();
+    }
+  }
+
+  void setAllowTeachersToSetPhrases(bool v) async {
+    try {
+      GlobalLoader.show();
+      commonViewModel.selectedClass?.allowTeachersToSetPhrases = v;
+      await _repo.updateClassAllowTeachersToSetPhrases(
+        v,
+        commonViewModel.selectedClass?.id ?? 0,
+      );
+      //  await commonViewModel.getSchools();
+      notifyListeners();
+    } finally {
+      GlobalLoader.hide();
+    }
+  }
+
+  void setAllowTeachersToSetBulkPhrases(bool v) async {
+    try {
+      GlobalLoader.show();
+      commonViewModel.selectedClass?.allowTeachersToSetBulkPhrases = v;
+      await _repo.updateClassAllowTeachersToSetBulkPhrases(
+        v,
+        commonViewModel.selectedClass?.id ?? 0,
+      );
+      //  await commonViewModel.getSchools();
+      notifyListeners();
+    } finally {
+      GlobalLoader.hide();
+    }
   }
 }

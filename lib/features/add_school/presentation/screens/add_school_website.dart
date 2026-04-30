@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/features/add_school/presentation/widgets/widgets.dart';
 import 'package:yoyo_web_app/features/common/widgets.dart';
 import '../add_school_view_model.dart';
@@ -31,7 +32,7 @@ addSchoolWebsite(AddSchoolViewModel vm) => Padding(
           Row(
             spacing: 20,
             children: [
-              Expanded(child: AddSchoolWidgets.selectLanguageList(vm)),
+              Expanded(child: AddSchoolWidgets.createClass(vm, ctx!)),
               Expanded(
                 child: Column(
                   spacing: 20,

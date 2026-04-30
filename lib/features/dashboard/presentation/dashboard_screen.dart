@@ -12,14 +12,11 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<DashboardViewModel>(
-      create: (_) => DashboardViewModel(),
-      child: Consumer<DashboardViewModel>(
-        builder: (context, value, w) => ResponsiveLayout(
-          mobile: dashboardMobile(value, child),
-          tablet: dashboardTab(value, child),
-          desktop: dashboardWeb(value, child),
-        ),
+    return Consumer<DashboardViewModel>(
+      builder: (context, value, w) => ResponsiveLayout(
+        mobile: dashboardMobile(value, child),
+        tablet: dashboardTab(value, child),
+        desktop: dashboardWeb(value, child),
       ),
     );
   }

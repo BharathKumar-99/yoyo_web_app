@@ -12,17 +12,14 @@ class EditSchoolScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<EditSchoolViewModel>(
-      create: (_) => EditSchoolViewModel(id),
-      child: Consumer<EditSchoolViewModel>(
-        builder: (context, viewModel, w) => viewModel.loading
-            ? Container()
-            : ResponsiveLayout(
-                mobile: editSchoolMobile(viewModel),
-                tablet: editSchoolTablet(viewModel),
-                desktop: editSchoolWeb(viewModel),
-              ),
-      ),
+    return Consumer<EditSchoolViewModel>(
+      builder: (context, viewModel, w) => viewModel.loading
+          ? Container()
+          : ResponsiveLayout(
+              mobile: editSchoolMobile(viewModel),
+              tablet: editSchoolTablet(viewModel),
+              desktop: editSchoolWeb(viewModel),
+            ),
     );
   }
 }

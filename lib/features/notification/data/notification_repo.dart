@@ -5,11 +5,13 @@ import 'package:yoyo_web_app/config/constants/constants.dart';
 import 'package:yoyo_web_app/core/api/repo.dart';
 
 import '../model/activation_model.dart';
+import '../model/notification_model.dart';
+import '../model/notification_settings_model.dart';
 
 class NotificationRepo extends ApiRepo {
-  Future<List<ActivationRequestModel>> getActivationModel(int classId) async {
+  Future<List<NotificationModel>> getActivationModel(int classId) async {
     try {
-      List<ActivationRequestModel> activationModel = [];
+      List<NotificationModel> activationModel = [];
 
       final data = await client
           .from(DbTable.activationRequests)
@@ -18,7 +20,16 @@ class NotificationRepo extends ApiRepo {
           .eq('is_activated', false);
 
       for (var element in data) {
-        activationModel.add(ActivationRequestModel.fromJson(element));
+        activationModel.add(NotificationModel.fromJson(element));
+      }
+
+      final data1 = await client
+          .from(DbTable.notificationTable)
+          .select("*")
+          .eq('class_id', classId);
+
+      for (var element in data1) {
+        activationModel.add(NotificationModel.fromJson(element));
       }
 
       return activationModel;
@@ -54,6 +65,46 @@ class NotificationRepo extends ApiRepo {
           .from(DbTable.teacher)
           .update({'notification': requestCount > 1})
           .eq('classes', activationModel.classes ?? 0);
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
+  Future<NotificationSettingsModel?> getNotificationSettings(int i) async {
+    try {
+      final data = await client
+          .from(DbTable.notificationSettings)
+          .select("*")
+          .eq('class', i);
+      if (data.isEmpty) {
+        return null;
+      }
+      return NotificationSettingsModel.fromJson(data.first);
+    } catch (e) {
+      log(e.toString());
+      return null;
+    }
+  }
+
+  Future<void> updateNotificationSettings(
+    NotificationSettingsModel notificationSettingsModel,
+    int classId,
+  ) async {
+    try {
+      final settingsJson = notificationSettingsModel.settings?.toJson();
+      if (notificationSettingsModel.id != null) {
+        await client
+            .from(DbTable.notificationSettings)
+            .update({'settings': settingsJson})
+            .eq('class', classId);
+      } else {
+        final response = await client
+            .from(DbTable.notificationSettings)
+            .insert({'class': classId, 'settings': settingsJson})
+            .select()
+            .single();
+        notificationSettingsModel.id = response['id'];
+      }
     } catch (e) {
       log(e.toString());
     }

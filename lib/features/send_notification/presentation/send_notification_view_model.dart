@@ -70,20 +70,27 @@ class SendNotificationViewModel extends ChangeNotifier {
       WidgetsBinding.instance.addPostFrameCallback(
         (val) => GlobalLoader.show(),
       );
-      await _sendRepo.sendNotification(
+      final bool result = await _sendRepo.sendNotification(
         title.text.trim(),
         body.text.trim(),
         selectedUser,
       );
 
+      if (result) {
+        UsefullFunctions.showAwesomeSnackbarContent(
+          "Notification Sent",
+          'Success',
+          ContentType.success,
+        );
+      } else {
+        UsefullFunctions.showAwesomeSnackbarContent(
+          "Something Went Wrong",
+          'Failure',
+          ContentType.failure,
+        );
+      }
       WidgetsBinding.instance.addPostFrameCallback(
         (val) => GlobalLoader.hide(),
-      );
-
-      UsefullFunctions.showAwesomeSnackbarContent(
-        "Notification Sent",
-        'Success',
-        ContentType.failure,
       );
     }
   }

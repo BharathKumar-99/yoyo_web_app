@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:yoyo_web_app/config/router/navigation_helper.dart';
@@ -31,6 +33,9 @@ class PhrasesViewModel extends ChangeNotifier {
   List<String> phraseTypes = ['Standard', 'Question', 'Listening', 'Reading'];
   String? selectedPhraseType;
   bool isloading = false;
+  FilePickerResult? filePickerResult;
+  String? fileName;
+  bool useUploads = false;
 
   PhrasesViewModel(this.commonViewModel) {
     commonViewModel.addListener(_onSchoolChange);
@@ -46,26 +51,48 @@ class PhrasesViewModel extends ChangeNotifier {
     });
   }
 
+  TextEditingController buildPromptController = TextEditingController();
+  TextEditingController promptCountController = TextEditingController(
+    text: "10",
+  );
+
   Future<void> init() async {
     WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.show());
+    PhraseModel? lastPhrase = await _repo.getLastCategories();
 
+    addCategoryController.clear();
     launguages =
-        commonViewModel.selectedSchool?.schoolLanguage
+        commonViewModel.selectedSchool?.classes
             ?.map((e) => e.language!)
             .toList() ??
         [];
+    launguages = launguages.toSet().toList();
     selectedLanguage = launguages.isNotEmpty ? launguages[0] : null;
 
     phraseCategories = await _repo.getPhraseCategories(
       commonViewModel.selectedSchool?.id ?? 0,
     );
+
+    phraseCategories = commonViewModel.selectedClass == null
+        ? phraseCategories
+        : phraseCategories = phraseCategories
+              .where(
+                (cat) =>
+                    cat.language == commonViewModel.selectedClass?.language?.id,
+              )
+              .toList();
+
     selectedPhraseCategories = phraseCategories.isNotEmpty
-        ? phraseCategories[0]
+        ? lastPhrase == null
+              ? phraseCategories[0]
+              : phraseCategories
+                    .where((val) => val.id == lastPhrase.categories)
+                    .firstOrNull
         : null;
     lvl = [];
     for (Classes classes in commonViewModel.selectedSchool?.classes ?? []) {
       for (ClassLevel element in classes.classLevel ?? []) {
-        lvl.add(element.levelModel!);
+        if (!lvl.contains(element.levelModel)) lvl.add(element.levelModel!);
       }
     }
 
@@ -109,6 +136,17 @@ class PhrasesViewModel extends ChangeNotifier {
     selectedLevel = val;
   }
 
+  Future<void> pickFile() async {
+    final result = await FilePicker.platform.pickFiles();
+
+    if (result != null && result.files.isNotEmpty) {
+      filePickerResult = result;
+
+      fileName = result.files.single.name;
+      notifyListeners();
+    }
+  }
+
   Future<void> removePhrase(int? id, String? url) async {
     if (id == null || url == null) return;
 
@@ -139,6 +177,11 @@ class PhrasesViewModel extends ChangeNotifier {
     }
   }
 
+  void removeFile() {
+    fileName = null;
+    notifyListeners();
+  }
+
   disablePhrase(int phraseId, List<int> schoolId) async {
     WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.show());
     await _repo.disablePharase(phraseId, schoolId);
@@ -159,7 +202,7 @@ class PhrasesViewModel extends ChangeNotifier {
     await _repo.addCategory(
       addCategoryController.text.toString(),
       commonViewModel.selectedSchool?.id ?? 0,
-      selectedLanguage?.id ?? 0,
+      commonViewModel.selectedClass?.language?.id ?? 0,
     );
     await init();
     WidgetsBinding.instance.addPostFrameCallback((_) => GlobalLoader.hide());
@@ -186,37 +229,170 @@ class PhrasesViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  addPhrases() async {
-    if (addPhrase.text.isEmpty ||
+  bool _hasInvalidForm() {
+    return addPhrase.text.isEmpty ||
         (selectedPhraseType == 'Question' && addQuestionsPhrase.text.isEmpty) ||
         selectedPhraseCategories == null ||
-        selectedLevel == null ||
-        selectedLanguage == null) {
-      ScaffoldMessenger.of(ctx!).showSnackBar(
-        const SnackBar(content: Text('Please fill all the fields')),
-      );
+        selectedLanguage == null;
+  }
+
+  void _showError() {
+    ScaffoldMessenger.of(
+      ctx!,
+    ).showSnackBar(const SnackBar(content: Text('Please fill all the fields')));
+  }
+
+  Future<void> addPhrases(BuildContext context) async {
+    if (_hasInvalidForm()) {
+      _showError();
       return;
     }
+
     isloading = true;
     notifyListeners();
-    await _repo.addPhrases(
-      addPhrase.text.toString(),
-      addQuestionsPhrase.text.toString(),
-      selectedPhraseType ?? '',
-      selectedPhraseCategories?.id ?? 0,
-      selectedLevel?.id ?? 0,
-      selectedLanguage?.id ?? 0,
-    );
-    isloading = false;
-    notifyListeners();
-    await init();
+
+    try {
+      final newPhrase = await _repo.addPhrases(
+        addPhrase.text,
+        addQuestionsPhrase.text,
+        selectedPhraseType ?? '',
+        selectedPhraseCategories!.id!,
+
+        selectedLanguage!.id!,
+      );
+
+      // 🔹 Fire & forget webhook
+      unawaited(
+        _repo.callWebhook(
+          newPhrase.id!,
+          newPhrase.phrase!,
+          newPhrase.language!,
+          newPhrase.question,
+        ),
+      );
+      await init();
+      // 🔹 Listen for completion (non-blocking)
+      _repo.listenForPhraseCompletion(
+        newPhrase.id!,
+        onCompleted: () async {
+          await init();
+          isloading = false;
+          notifyListeners();
+        },
+      );
+
+      _resetForm();
+    } catch (e) {
+      isloading = false;
+      notifyListeners();
+    }
+  }
+
+  void _resetForm() {
     addPhrase.clear();
     addQuestionsPhrase.clear();
+
     selectedLanguage = launguages.isNotEmpty ? launguages[0] : null;
     selectedLevel = lvl.isNotEmpty ? lvl[0] : null;
     selectedPhraseType = phraseTypes[0];
     selectedPhraseCategories = phraseCategories.isNotEmpty
         ? phraseCategories[0]
         : null;
+  }
+
+  Future<void> deleteCategories(int id) async {
+    if (ctx == null) return;
+
+    final hasPhrases = phrases.any((val) => val.categories == id);
+
+    bool shouldDelete = true;
+
+    if (hasPhrases) {
+      shouldDelete =
+          await showDialog<bool>(
+            context: ctx!,
+            barrierDismissible: false,
+            builder: (c) => AlertDialog.adaptive(
+              title: const Text('Are you sure?'),
+              content: const Text(
+                'All the phrases in this category will be deleted.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(c, false),
+                  child: const Text('No'),
+                ),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(c, true),
+                  child: const Text('Yes'),
+                ),
+              ],
+            ),
+          ) ??
+          false;
+    }
+
+    if (!shouldDelete) return;
+
+    GlobalLoader.show();
+
+    try {
+      await _repo.deletePhrases(id);
+      await _repo.deleteCategories(id);
+      await init();
+    } catch (e) {
+      debugPrint('Delete category failed: $e');
+    } finally {
+      GlobalLoader.hide();
+    }
+  }
+
+  Future<void> saveconfig(BuildContext context) async {
+    try {
+      isloading = true;
+      notifyListeners();
+
+     final data= await _repo.generatePhrases(
+        prompt: buildPromptController.text.trim(),
+        useUploads: useUploads,
+        fileResult: filePickerResult,
+        categoryId: selectedPhraseCategories?.id ?? 0,
+        languageId: selectedLanguage?.id ?? 0,
+        phraseCount: int.tryParse(promptCountController.text.trim()) ?? 10,
+      );
+
+      await init();
+      // 🔹 Listen for completion (non-blocking)
+      final List<dynamic> inserted = data['inserted'] ?? [];
+      final List<int> phraseIds = inserted.map((e) => e['id'] as int).toList();
+
+      if (phraseIds.isNotEmpty) {
+        _repo.listenForPhraseGroupCompletion(
+          phraseIds,
+          onCompleted: () async {
+            await init();
+            isloading = false;
+            notifyListeners();
+          },
+        );
+      } else {
+        isloading = false;
+      }
+
+      buildPromptController.clear();
+      useUploads = false;
+      filePickerResult = null;
+      fileName = null;
+      notifyListeners();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.toString()), backgroundColor: Colors.red),
+      );
+    }
+  }
+
+  void setUseUploads(bool v) {
+    useUploads = v;
+    notifyListeners();
   }
 }

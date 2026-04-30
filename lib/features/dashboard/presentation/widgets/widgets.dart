@@ -15,9 +15,14 @@ class DashboardWidget {
       'label': viewModel.teacher != null ? 'My School' : 'Setup',
       'index': 1,
     },
-    {'icon': Icons.border_color_outlined, 'label': 'Phrases', 'index': 2},
-    {'icon': Icons.person_outline_rounded, 'label': 'Users', 'index': 3},
-    {'icon': Icons.chat_outlined, 'label': 'Comms', 'index': 4},
+    {
+      'icon': Icons.assignment_turned_in_outlined,
+      'label': 'Homework',
+      'index': 2,
+    },
+    {'icon': Icons.border_color_outlined, 'label': 'Revision', 'index': 3},
+    {'icon': Icons.person_outline_rounded, 'label': 'Users', 'index': 4},
+    {'icon': Icons.chat_outlined, 'label': 'Comms', 'index': 5},
   ];
 
   static drawer(
@@ -163,7 +168,6 @@ class DashboardWidget {
 
                   selectedItemBuilder: (context) {
                     final widgets = <Widget>[];
-
                     if (!commonViewModel.isTeacher) {
                       widgets.add(
                         Text(
@@ -174,24 +178,33 @@ class DashboardWidget {
                           overflow: TextOverflow.ellipsis,
                         ),
                       );
+                      widgets.addAll(
+                        commonViewModel.selectedSchool?.classes?.map(
+                              (e) => Text(
+                                e.className ?? '',
+                                style: AppTextStyles.textTheme.bodyMedium!
+                                    .copyWith(color: Colors.white),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ) ??
+                            [],
+                      );
                     }
-
-                    widgets.addAll(
-                      commonViewModel.selectedSchool?.classes?.map(
-                            (e) => Text(
-                              e.className ?? '',
-                              style: AppTextStyles.textTheme.bodyMedium!
-                                  .copyWith(color: Colors.white),
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ) ??
-                          [],
-                    );
+                    if (commonViewModel.isTeacher) {
+                      widgets.add(
+                        Text(
+                          commonViewModel.selectedClass?.className ?? '',
+                          style: AppTextStyles.textTheme.bodyMedium!.copyWith(
+                            color: Colors.white,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      );
+                    }
 
                     return widgets;
                   },
 
-                  // ✅ DROPDOWN LIST (BLACK TEXT)
                   items: [
                     if (!commonViewModel.isTeacher)
                       DropdownMenuItem<Classes?>(
@@ -203,18 +216,30 @@ class DashboardWidget {
                           ),
                         ),
                       ),
-                    ...commonViewModel.selectedSchool?.classes?.map(
-                          (e) => DropdownMenuItem<Classes?>(
-                            value: e,
-                            child: Text(
-                              e.className ?? '',
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.textTheme.bodyMedium!
-                                  .copyWith(color: Colors.black),
+                    if (!commonViewModel.isTeacher)
+                      ...commonViewModel.selectedSchool?.classes?.map(
+                            (e) => DropdownMenuItem<Classes?>(
+                              value: e,
+                              child: Text(
+                                e.className ?? '',
+                                overflow: TextOverflow.ellipsis,
+                                style: AppTextStyles.textTheme.bodyMedium!
+                                    .copyWith(color: Colors.black),
+                              ),
                             ),
+                          ) ??
+                          [],
+                    if (commonViewModel.isTeacher)
+                      DropdownMenuItem<Classes?>(
+                        value: commonViewModel.selectedClass,
+                        child: Text(
+                          commonViewModel.selectedClass?.className ?? '',
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTextStyles.textTheme.bodyMedium!.copyWith(
+                            color: Colors.black,
                           ),
-                        ) ??
-                        [],
+                        ),
+                      ),
                   ],
 
                   onChanged: (val) => commonViewModel.selectClass(val),
@@ -240,7 +265,8 @@ class DashboardWidget {
           selectedIndex: dashboardViewModel.isSettingsOpen
               ? null
               : dashboardViewModel.selectedIndex,
-          onDestinationSelected: dashboardViewModel.changeIndex,
+          onDestinationSelected: (index) =>
+              dashboardViewModel.changeIndex(index, commonViewModel),
           indicatorColor: Colors.white,
           tilePadding: EdgeInsetsGeometry.symmetric(
             horizontal: 20,
@@ -273,7 +299,7 @@ class DashboardWidget {
                 (val) => NavigationDrawerDestination(
                   icon: Icon(
                     val['icon'],
-                    color: val['index'] == 3 && commonViewModel.hasNotification
+                    color: val['index'] == 5 && commonViewModel.hasNotification
                         ? Colors.red
                         : dashboardViewModel.isSettingsOpen
                         ? Colors.white
@@ -294,7 +320,7 @@ class DashboardWidget {
                               : Colors.white,
                         ),
                       ),
-                      if (val['index'] == 3 && commonViewModel.hasNotification)
+                      if (val['index'] == 5 && commonViewModel.hasNotification)
                         CircleAvatar(radius: 5, backgroundColor: Colors.red),
                     ],
                   ),
@@ -307,14 +333,6 @@ class DashboardWidget {
   );
 
   static tabDrawer(DashboardViewModel dashboardViewModel, {bool web = false}) {
-    OutlineInputBorder border = OutlineInputBorder(
-      borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: Color(0xff9D5DE6), width: 1.5),
-    );
-
-    // Reusable "All" dropdown item
-    DropdownMenuItem<T?> allItem<T>() =>
-        DropdownMenuItem<T>(value: null, child: Text("All"));
     return Consumer<CommonViewModel>(
       builder: (context, commonViewModel, w) {
         return Container(
@@ -351,68 +369,21 @@ class DashboardWidget {
                     vertical: 5,
                   ),
                   child: Image.asset(
-                    ImageConstants.logoBW,
+                    IconConstants.logoLogin,
                     height: 60,
                     width: 60,
                   ),
                 ),
-                if (commonViewModel.teacher?.teacher?.isEmpty ?? true)
-                  SizedBox(
-                    width: 80,
-                    child: DropdownButtonFormField<School?>(
-                      initialValue: commonViewModel.selectedSchool,
-                      isExpanded: true,
-                      selectedItemBuilder: (context) => [
-                        allItem<School>(),
-                        ...commonViewModel.schools.map(
-                          (e) => DropdownMenuItem(
-                            value: e,
-                            child: Text(
-                              e.schoolName ?? '',
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.textTheme.bodyMedium!
-                                  .copyWith(color: Colors.white),
-                            ),
-                          ),
-                        ),
-                      ],
-                      items: [
-                        allItem<School>(),
-                        ...commonViewModel.schools.map(
-                          (e) => DropdownMenuItem(
-                            value: e,
-                            child: Text(
-                              e.schoolName ?? '',
-                              overflow: TextOverflow.ellipsis,
-                              style: AppTextStyles.textTheme.bodyMedium!
-                                  .copyWith(color: Colors.black),
-                            ),
-                          ),
-                        ),
-                      ],
-                      onChanged: (val) => commonViewModel.selectSchool(val),
-                      decoration: InputDecoration(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 14,
-                        ),
-                        border: border,
-                        enabledBorder: border,
-                        focusedBorder: border.copyWith(
-                          borderSide: const BorderSide(
-                            color: Color(0xff9D5DE6),
-                            width: 2,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
               ],
             ),
             selectedIndex: dashboardViewModel.selectedIndex,
-            onDestinationSelected: dashboardViewModel.changeIndex,
+            onDestinationSelected: (index) =>
+                dashboardViewModel.changeIndex(index, commonViewModel),
             indicatorColor: Colors.white,
-            trailing: Icon(Icons.settings_outlined, color: Colors.white),
+            trailing: GestureDetector(
+              onTap: () => dashboardViewModel.openSettings(),
+              child: Icon(Icons.settings_outlined, color: Colors.white),
+            ),
 
             destinations: getNavigationElements(commonViewModel)
                 .map(
@@ -450,7 +421,8 @@ class DashboardWidget {
               ),
             ),
             child: NavigationBar(
-              onDestinationSelected: dashboardViewModel.changeIndex,
+              onDestinationSelected: (index) =>
+                  dashboardViewModel.changeIndex(index, commonViewModel),
 
               selectedIndex: dashboardViewModel.selectedIndex,
               backgroundColor: Colors.transparent,

@@ -20,6 +20,9 @@
   <title>yoyo_web_app</title>
   <link rel="manifest" href="manifest.json" />
 
+  <!-- Lottie -->
+  <script src="https://unpkg.com/lottie-web@5.12.2/build/player/lottie.min.js"></script>
+
   <style>
     html,
     body {
@@ -33,7 +36,7 @@
       background: linear-gradient(135deg, #9D5DE6, #F78C59);
     }
 
-    /* ===== SPLASH LOADER (OPAQUE) ===== */
+    /* ===== SPLASH LOADER ===== */
     #loader {
       position: fixed;
       inset: 0;
@@ -56,27 +59,19 @@
       transform: scale(0.94);
     }
 
-    #loader img {
-      width: min(512px, 50vw);
-      height: min(512px, 50vw);
-      margin-bottom: 48px;
+    /* Lottie logo */
+    #lottie-logo {
+      width: min(420px, 60vw);
+      height: min(420px, 60vw);
+
+    }
+
+    /* Loader image */
+    .loader-image {
+      width: 400px;
+      height: 200px;
       object-fit: contain;
       animation: fadeInScale 0.6s ease forwards;
-    }
-
-    .spinner {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      border: 12px solid rgba(255, 255, 255, 0.35);
-      border-top: 12px solid #ffffff;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
     }
 
     @keyframes fadeInScale {
@@ -103,19 +98,32 @@
   <!-- SPLASH -->
   <div id="loader">
     <div id="loader-content">
-      <img src="icons/Icon-512.png" alt="App Logo" />
-      <div class="spinner"></div>
+      <!-- LOTTIE -->
+      <div id="lottie-logo"></div>
+
+      <!-- IMAGE LOADER -->
+      <img class="loader-image" src="icons/loader.png" alt="Loading" />
     </div>
   </div>
 
   <!-- Flutter -->
   <script src="flutter_bootstrap.js" async></script>
 
-  <!-- Splash logic -->
+  <!-- Lottie Init -->
+  <script>
+    lottie.loadAnimation({
+      container: document.getElementById('lottie-logo'),
+      renderer: 'svg',
+      loop: true,
+      autoplay: true,
+      path: 'lottie/splash.json'
+    });
+  </script>
+
+  <!-- Splash Logic -->
   <script>
     const MIN_SPLASH_TIME = 4000; // 4 seconds
     const splashStart = Date.now();
-    let flutterReady = false;
 
     function tryRemoveSplash() {
       const elapsed = Date.now() - splashStart;
@@ -129,12 +137,11 @@
 
         setTimeout(() => {
           loader.remove();
-        }, 450); // fade duration
+        }, 450);
       }, remaining);
     }
 
     window.addEventListener("flutter-first-frame", () => {
-      flutterReady = true;
       tryRemoveSplash();
     });
   </script>

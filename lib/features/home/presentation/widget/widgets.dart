@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/config/router/route_names.dart';
 import 'package:yoyo_web_app/features/add_user/model/level.dart';
@@ -25,94 +24,94 @@ class HomeWidgets {
       runSpacing: 20,
       children: [
         // ---------------- LANGUAGE ----------------
-        IntrinsicWidth(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Language',
-                style: AppTextStyles.textTheme.headlineMedium!.copyWith(
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<Language?>(
-                initialValue: viewModel.selectedLanguage,
-                items: [
-                  allItem<Language>(),
-                  ...viewModel.languages.map(
-                    (e) => DropdownMenuItem(
-                      value: e,
-                      child: Text(e?.language ?? ''),
-                    ),
-                  ),
-                ],
-                onChanged: (val) => viewModel.selectLanguage(val),
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 14,
-                  ),
-                  border: border,
-                  enabledBorder: border,
-                  focusedBorder: border.copyWith(
-                    borderSide: const BorderSide(
-                      color: Color(0xff9D5DE6),
-                      width: 2,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        // IntrinsicWidth(
+        //   child: Column(
+        //     crossAxisAlignment: CrossAxisAlignment.start,
+        //     children: [
+        //       Text(
+        //         'Language',
+        //         style: AppTextStyles.textTheme.headlineMedium!.copyWith(
+        //           color: Colors.grey,
+        //         ),
+        //       ),
+        //       const SizedBox(height: 6),
+        //       DropdownButtonFormField<Language?>(
+        //         initialValue: viewModel.selectedLanguage,
+        //         items: [
+        //           allItem<Language>(),
+        //           ...viewModel.languages.map(
+        //             (e) => DropdownMenuItem(
+        //               value: e,
+        //               child: Text(e?.language ?? ''),
+        //             ),
+        //           ),
+        //         ],
+        //         onChanged: (val) => viewModel.selectLanguage(val),
+        //         decoration: InputDecoration(
+        //           contentPadding: const EdgeInsets.symmetric(
+        //             horizontal: 12,
+        //             vertical: 14,
+        //           ),
+        //           border: border,
+        //           enabledBorder: border,
+        //           focusedBorder: border.copyWith(
+        //             borderSide: const BorderSide(
+        //               color: Color(0xff9D5DE6),
+        //               width: 2,
+        //             ),
+        //           ),
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
 
-        // ---------------- LEVEL ----------------
-        IntrinsicWidth(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Level',
-                style: AppTextStyles.textTheme.headlineMedium!.copyWith(
-                  color: Colors.grey,
-                ),
-              ),
-              const SizedBox(height: 6),
-              DropdownButtonFormField<Level?>(
-                initialValue: viewModel.selectedLevel,
-                items: [
-                  allItem<Level>(),
-                  ...viewModel.levels.map(
-                    (e) => DropdownMenuItem(
-                      value: e,
-                      child: Text(
-                        (e.level?.length ?? 0) >= 2
-                            ? e.level?.substring(0, 2) ?? ''
-                            : e.level ?? '',
-                      ),
-                    ),
-                  ),
-                ],
-                onChanged: (val) => viewModel.selectLevel(val),
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 14,
-                  ),
-                  border: border,
-                  enabledBorder: border,
-                  focusedBorder: border.copyWith(
-                    borderSide: const BorderSide(
-                      color: Color(0xff9D5DE6),
-                      width: 2,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+        // // ---------------- LEVEL ----------------
+        // IntrinsicWidth(
+        //   child: Column(
+        //     crossAxisAlignment: CrossAxisAlignment.start,
+        //     children: [
+        //       Text(
+        //         'Level',
+        //         style: AppTextStyles.textTheme.headlineMedium!.copyWith(
+        //           color: Colors.grey,
+        //         ),
+        //       ),
+        //       const SizedBox(height: 6),
+        //       DropdownButtonFormField<Level?>(
+        //         initialValue: viewModel.selectedLevel,
+        //         items: [
+        //           allItem<Level>(),
+        //           ...viewModel.levels.map(
+        //             (e) => DropdownMenuItem(
+        //               value: e,
+        //               child: Text(
+        //                 (e.level?.length ?? 0) >= 2
+        //                     ? e.level?.substring(0, 2) ?? ''
+        //                     : e.level ?? '',
+        //               ),
+        //             ),
+        //           ),
+        //         ],
+        //         onChanged: (val) => viewModel.selectLevel(val),
+        //         decoration: InputDecoration(
+        //           contentPadding: const EdgeInsets.symmetric(
+        //             horizontal: 12,
+        //             vertical: 14,
+        //           ),
+        //           border: border,
+        //           enabledBorder: border,
+        //           focusedBorder: border.copyWith(
+        //             borderSide: const BorderSide(
+        //               color: Color(0xff9D5DE6),
+        //               width: 2,
+        //             ),
+        //           ),
+        //         ),
+        //       ),
+        //     ],
+        //   ),
+        // ),
 
         // ---------------- TIME FRAME ----------------
         IntrinsicWidth(
@@ -153,22 +152,6 @@ class HomeWidgets {
             ],
           ),
         ),
-        //---------------- ADD School ----------------------
-        if (viewModel.teacherModel?.isEmpty ?? true)
-          IntrinsicWidth(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Container(height: 30),
-                ElevatedButton(
-                  onPressed: () {
-                    ctx!.go(RouteNames.addSchool);
-                  },
-                  child: Text('Add School'),
-                ),
-              ],
-            ),
-          ),
       ],
     );
   }
@@ -268,22 +251,25 @@ class HomeWidgets {
             ),
           ),
           Expanded(
-            child: Wrap(
-              runSpacing: 10,
-              spacing: 6,
-              children: List.generate(topWords.length, (index) {
-                final val = topWords[index];
-                final isLast = index == topWords.length - 1;
+            child: Text.rich(
+              TextSpan(
+                children: List.generate(topWords.length, (index) {
+                  final val = topWords[index];
+                  final isLast = index == topWords.length - 1;
 
-                return Text(
-                  isLast ? val : "$val,",
-                  style: AppTextStyles.textTheme.titleMedium!.copyWith(
-                    color: Colors.grey,
-                  ),
-                );
-              }),
+                  return TextSpan(
+                    text: isLast ? val : '$val, ',
+                    style: AppTextStyles.textTheme.titleMedium!.copyWith(
+                      color: Colors.grey,
+                    ),
+                  );
+                }),
+              ),
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
+
           TextButton(
             onPressed: () {
               showDialog(

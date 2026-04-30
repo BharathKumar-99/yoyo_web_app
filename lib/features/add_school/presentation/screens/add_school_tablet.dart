@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/features/add_school/presentation/widgets/widgets.dart';
 
 import '../../../common/widgets.dart';
 import '../add_school_view_model.dart';
 
 addSchoolTablet(AddSchoolViewModel vm) => Scaffold(
-  appBar: CommonWidgets.homeAppBar(),
+  appBar: CommonWidgets.homeAppBar(isTablet: true),
   body: SingleChildScrollView(
     padding: const EdgeInsets.all(16),
     child: Column(
@@ -15,7 +16,7 @@ addSchoolTablet(AddSchoolViewModel vm) => Scaffold(
         AddSchoolWidgets.addSchoolHeader(),
         AddSchoolWidgets.schoolNameTextfiled(vm),
         AddSchoolWidgets.schoolAddressTextfiled(vm),
-        AddSchoolWidgets.selectLanguageList(vm),
+        AddSchoolWidgets.createClass(vm, ctx!),
         AddSchoolWidgets.schoolprincipleTextfiled(vm),
         AddSchoolWidgets.schoolStudentCountTextfiled(vm),
         AddSchoolWidgets.imageSelector(vm),

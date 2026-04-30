@@ -7,15 +7,17 @@ import 'package:yoyo_web_app/features/dashboard/presentation/dashboard_screen.da
 import 'package:yoyo_web_app/features/edit_school/presentation/edit_school.dart';
 import 'package:yoyo_web_app/features/edit_user/presentation/edit_user_screen.dart';
 import 'package:yoyo_web_app/features/home/presentation/home_screen.dart';
+import 'package:yoyo_web_app/features/homework/presentation/screen/set_homework_screen.dart';
+import 'package:yoyo_web_app/features/my_school/presentation/screen/my_school.dart';
 import 'package:yoyo_web_app/features/notification/presentation/notification_screen.dart';
 import 'package:yoyo_web_app/features/phrases/presentation/phrases_screen.dart';
+import 'package:yoyo_web_app/features/profile/presentation/profile_screen.dart';
 import 'package:yoyo_web_app/features/send_notification/presentation/send_notification.dart';
 import 'package:yoyo_web_app/features/settings/presentation/settings_page.dart';
 import 'package:yoyo_web_app/features/view_school/presentation/view_school_screen.dart';
 import '../../features/activate_user/presentation/activate_screen.dart';
 import '../../features/add_phrases/presentation/add_phrases_screen.dart';
 import '../../features/add_user/presentation/add_user.dart';
-import '../../features/add_user_name/presentation/add_user_name.dart';
 import '../../features/login/presentation/screens/login_screen.dart';
 import '../../features/users/presentation/users_screens.dart';
 import 'route_names.dart';
@@ -52,16 +54,28 @@ class AppRoutes {
           ),
           GoRoute(
             path: RouteNames.viewSchool,
+            builder: (context, state) => ViewSchoolScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.profile,
             builder: (context, state) =>
-                ViewSchoolScreen(schoolId: state.extra as int),
+                ProfileScreen(userId: state.extra as String),
           ),
           GoRoute(
             path: RouteNames.phrases,
             builder: (context, state) => const PhrasesScreen(),
           ),
           GoRoute(
+            path: RouteNames.homework,
+            builder: (context, state) => const SetHomeworkScreen(),
+          ),
+          GoRoute(
             path: RouteNames.addPhrase,
             builder: (context, state) => const AddPhrasesScreen(),
+          ),
+          GoRoute(
+            path: RouteNames.mySchool,
+            builder: (context, state) => const MySchool(),
           ),
           GoRoute(
             path: RouteNames.users,
@@ -77,10 +91,7 @@ class AppRoutes {
             builder: (context, state) =>
                 EditUserScreen(userId: state.extra as String),
           ),
-          GoRoute(
-            path: RouteNames.addUserName,
-            builder: (context, state) => const AddUserNameScreen(),
-          ),
+
           GoRoute(
             path: RouteNames.notification,
             builder: (context, state) => NotificationScreen(),

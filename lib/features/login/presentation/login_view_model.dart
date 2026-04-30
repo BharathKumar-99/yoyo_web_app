@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:yoyo_web_app/config/utils/global_loader.dart';
 import 'package:yoyo_web_app/features/login/data/login_repo.dart';
 
 class LoginViewModel extends ChangeNotifier {
@@ -16,15 +17,20 @@ class LoginViewModel extends ChangeNotifier {
 
   Future<void> sendOtp(BuildContext context) async {
     if (isButtonDisabled) return;
-
-    sentOtp = true;
-    isButtonDisabled = true;
-    countdown = 60;
-    notifyListeners();
-
-    await _repo.sendOtp(emailController.text.trim());
-
-    _startCountdown(context);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      GlobalLoader.show();
+    });
+    final result = await _repo.sendOtp(emailController.text.trim());
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      GlobalLoader.hide();
+    });
+    if (result) {
+      sentOtp = true;
+      isButtonDisabled = true;
+      countdown = 60;
+      notifyListeners();
+      _startCountdown(context);
+    }
   }
 
   void _startCountdown(BuildContext context) {

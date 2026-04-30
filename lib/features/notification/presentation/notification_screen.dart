@@ -18,17 +18,11 @@ class NotificationScreen extends StatefulWidget {
 class _NotificationScreenState extends State<NotificationScreen> {
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => NotificationViewModel(),
-      child: Consumer<NotificationViewModel>(
-        builder: (context, value, child) => Padding(
-          padding: const EdgeInsets.all(29.0),
-          child: ResponsiveLayout(
-            mobile: notificationMobile(value),
-            tablet: notificationTablet(value),
-            desktop: notificationDesktop(value),
-          ),
-        ),
+    return Consumer<NotificationViewModel>(
+      builder: (context, value, child) => ResponsiveLayout(
+        mobile: notificationMobile(value),
+        tablet: notificationTablet(value),
+        desktop: notificationDesktop(value),
       ),
     );
   }

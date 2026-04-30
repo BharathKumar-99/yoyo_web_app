@@ -4,7 +4,7 @@ import 'package:yoyo_web_app/features/add_teacher/presentation/widgets/widgets.d
 import 'package:yoyo_web_app/features/common/widgets.dart';
 
 addTeacherTablet(AddTeacherViewModel viewModel) => Scaffold(
-  appBar: CommonWidgets.homeAppBar(),
+  appBar: CommonWidgets.homeAppBar(isTablet: true),
   body: Padding(
     padding: const EdgeInsets.all(16),
     child: SingleChildScrollView(

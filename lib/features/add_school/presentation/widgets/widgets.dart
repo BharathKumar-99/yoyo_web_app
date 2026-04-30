@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
+import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/config/theme/app_text_styles.dart';
 import 'package:yoyo_web_app/features/add_school/presentation/add_school_view_model.dart';
+import 'package:yoyo_web_app/features/home/model/classes_model.dart';
 import 'package:yoyo_web_app/features/home/model/language_model.dart';
 
 class AddSchoolWidgets {
@@ -83,7 +86,7 @@ class AddSchoolWidgets {
       hintStyle: AppTextStyles.textTheme.bodySmall!.copyWith(
         color: Colors.grey,
       ),
- prefixIcon: Padding(
+      prefixIcon: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10.0),
         child: Icon(Icons.phone_enabled_outlined),
       ),
@@ -115,54 +118,134 @@ class AddSchoolWidgets {
     ),
   );
 
-  static selectLanguageList(AddSchoolViewModel vm) => Card(
-    child: Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        spacing: 20,
-        children: [
-          Text(
-            'Select Language and Level',
-            style: AppTextStyles.textTheme.titleLarge,
+  static createClass(AddSchoolViewModel vm, BuildContext context) {
+    return Column(
+      children: [
+        ListView.builder(
+          shrinkWrap: true,
+          itemCount: vm.classes.length,
+          itemBuilder: (context, index) => ListTile(
+            trailing: IconButton(
+              onPressed: () => vm.deleteClass(vm.classes[index]),
+              icon: Icon(Icons.delete),
+            ),
+            title: Text(vm.classes[index].className ?? ''),
+            subtitle: Text(
+              vm.languageList
+                      ?.firstWhere(
+                        (val) => val.id == vm.classes[index].languageId,
+                      )
+                      .language ??
+                  '',
+            ),
           ),
-          ListView.separated(
-            separatorBuilder: (context, index) => Container(height: 5),
-            shrinkWrap: true,
-            itemCount: vm.languageList?.length ?? 0,
-            itemBuilder: (context, index) {
-              Language? language = vm.languageList?[index];
-              return Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: language?.gradient ?? []),
-                  image: DecorationImage(
-                    image: NetworkImage(language?.image ?? ''),
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                child: ListTile(
-                  leading: Checkbox.adaptive(
-                    value: vm.selectedLanguageList.contains(language),
-                    onChanged: (val) => vm.selectLanguage(val, language),
-                  ),
-                  title: Text(
-                    language?.language ?? '',
-                    style: AppTextStyles.textTheme.titleMedium!.copyWith(
-                      color: Colors.black,
-                    ),
-                  ),
-                  trailing: Text(
-                    language?.levelData?.level ?? '',
-                    style: AppTextStyles.textTheme.titleSmall!.copyWith(
-                      color: Colors.black,
-                    ),
-                  ),
+        ),
+        ElevatedButton(
+          onPressed: () => showpopUp(context, vm),
+          child: Text('Add Class'),
+        ),
+      ],
+    );
+  }
+
+  static showpopUp(BuildContext context, AddSchoolViewModel vm) => showDialog(
+    context: context,
+    builder: (_) {
+      Language? selectedLanguageList;
+      TextEditingController className = TextEditingController();
+      return AlertDialog.adaptive(
+        title: Text('Add Class'),
+        actions: [
+          ElevatedButton(
+            onPressed: () {
+              if (className.text.isEmpty || selectedLanguageList == null) {
+                return;
+              }
+              vm.addClass(
+                Classes(
+                  className: className.text.trim(),
+                  languageId: selectedLanguageList?.id ?? 0,
                 ),
               );
+              ctx!.pop();
             },
+            child: Text('Add Classs'),
           ),
         ],
-      ),
-    ),
+        content: StatefulBuilder(
+          builder: (context, state) {
+            return SizedBox(
+              height: MediaQuery.sizeOf(context).height * 0.8,
+              width: MediaQuery.sizeOf(context).width * 0.9,
+              child: Column(
+                spacing: 30,
+                children: [
+                  TextField(
+                    controller: className,
+                    style: AppTextStyles.textTheme.bodySmall,
+
+                    decoration: InputDecoration(
+                      contentPadding: EdgeInsets.all(16),
+                      hintText: "Enter ClassName",
+                      hintStyle: AppTextStyles.textTheme.bodySmall!.copyWith(
+                        color: Colors.grey,
+                      ),
+
+                      prefixIconConstraints: const BoxConstraints(
+                        maxHeight: 40,
+                        maxWidth: 40,
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                    ),
+                  ),
+                  ListView.separated(
+                    separatorBuilder: (context, index) => Container(height: 5),
+                    shrinkWrap: true,
+                    itemCount: vm.languageList?.length ?? 0,
+                    itemBuilder: (context, index) {
+                      Language? language = vm.languageList?[index];
+                      return Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: language?.gradient ?? [],
+                          ),
+                          image: DecorationImage(
+                            image: NetworkImage(language?.image ?? ''),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        child: ListTile(
+                          leading: Checkbox.adaptive(
+                            value: selectedLanguageList == language,
+                            onChanged: (val) => state(() {
+                              selectedLanguageList = language;
+                            }),
+                          ),
+                          title: Text(
+                            language?.language ?? '',
+                            style: AppTextStyles.textTheme.titleMedium!
+                                .copyWith(color: Colors.black),
+                          ),
+                          trailing: Text(
+                            language?.levelData?.level ?? '',
+                            style: AppTextStyles.textTheme.titleSmall!.copyWith(
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+    },
   );
 
   static imageSelector(AddSchoolViewModel vm) => DragTarget<Uint8List>(

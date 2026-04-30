@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:http/http.dart' as http;
 
 class EmailService {
@@ -26,4 +27,23 @@ class EmailService {
       return false;
     }
   }
+}
+
+String generateRandomEmail() {
+  const letters = "abcdefghijklmnopqrstuvwxyz";
+  const numbers = "0123456789";
+  const allowed = "$letters$numbers";
+
+  final rand = Random.secure();
+
+  String prefix = List.generate(
+    10,
+    (i) => allowed[rand.nextInt(allowed.length)],
+  ).join();
+  String domain = List.generate(
+    5,
+    (i) => allowed[rand.nextInt(allowed.length)],
+  ).join();
+
+  return "$prefix@$domain";
 }

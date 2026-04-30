@@ -7,13 +7,12 @@ import 'package:yoyo_web_app/features/view_school/presentation/screens/view_scho
 import 'package:yoyo_web_app/features/view_school/presentation/view_school_view_model.dart';
 
 class ViewSchoolScreen extends StatelessWidget {
-  final int schoolId;
-  const ViewSchoolScreen({super.key, required this.schoolId});
+  const ViewSchoolScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<ViewSchoolViewModel>(
-      create: (_) => ViewSchoolViewModel(schoolId),
+      create: (_) => ViewSchoolViewModel(),
       child: Consumer<ViewSchoolViewModel>(
         builder: (context, viewModel, child) => viewModel.loading
             ? Container()

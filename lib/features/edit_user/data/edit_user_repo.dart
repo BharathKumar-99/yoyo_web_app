@@ -1,15 +1,22 @@
-import 'dart:developer';
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:yoyo_web_app/config/constants/constants.dart';
+import 'package:yoyo_web_app/config/utils/usefull_functions.dart';
 import 'package:yoyo_web_app/core/api/repo.dart';
 import 'package:yoyo_web_app/features/home/model/school.dart';
 import 'package:yoyo_web_app/features/home/model/user_model.dart';
 import 'package:yoyo_web_app/features/home/model/user_result_model.dart';
 
+import '../../../config/router/navigation_helper.dart';
+import '../../users/model/student_langugaes.dart';
+
 class EditUserRepo extends ApiRepo {
   Future<UserModel> getUserData(String userId) async {
     final data = await client
         .from(DbTable.users)
-        .select('''*,${DbTable.student}(*),${DbTable.school}(*)''')
+        .select(
+          '''*,${DbTable.student}(*),${DbTable.studentLanguage}(*),school:school!Users_school_fkey(*,top_performer_user:users!school_top_performer_fkey(*))''',
+        )
         .eq('user_id', userId)
         .maybeSingle();
 
@@ -29,13 +36,39 @@ class EditUserRepo extends ApiRepo {
     return schools;
   }
 
+  Future<UserModel?> isStudent(String userId) async {
+    try {
+      final response = await client
+          .from(DbTable.users)
+          .select('''*,${DbTable.student}(*)''')
+          .eq('user_id', userId)
+          .maybeSingle();
+
+      if (response == null) return null;
+
+      return UserModel.fromJson(response);
+    } catch (e) {
+      return null;
+    }
+  }
+
   Future<bool> updateFirstName(String userId, String name) async {
     try {
-      await client
-          .from(DbTable.users)
-          .update({'first_name': name})
-          .eq('user_id', userId);
-      return true;
+      UserModel? student = await isStudent(userId);
+      if (student?.isAdmin != true && student?.student != null) {
+        await client
+            .from(DbTable.users)
+            .update({'first_name': name})
+            .eq('user_id', userId);
+        return true;
+      } else {
+        UsefullFunctions.showAwesomeSnackbarContent(
+          'Insufficent Permission',
+          'Failed',
+          ContentType.failure,
+        );
+        return false;
+      }
     } catch (e) {
       return false;
     }
@@ -43,10 +76,20 @@ class EditUserRepo extends ApiRepo {
 
   Future<bool> updateSurName(String userId, String name) async {
     try {
-      await client
-          .from(DbTable.users)
-          .update({'sur_name': name})
-          .eq('user_id', userId);
+      UserModel? student = await isStudent(userId);
+      if (student?.isAdmin != true && student?.student != null) {
+        await client
+            .from(DbTable.users)
+            .update({'sur_name': name})
+            .eq('user_id', userId);
+      } else {
+        UsefullFunctions.showAwesomeSnackbarContent(
+          'Insufficent Permission',
+          'Failed',
+          ContentType.failure,
+        );
+        return false;
+      }
       return true;
     } catch (e) {
       return false;
@@ -55,11 +98,21 @@ class EditUserRepo extends ApiRepo {
 
   Future<bool> updateTester(String userId, bool tester) async {
     try {
-      await client
-          .from(DbTable.users)
-          .update({'is_tester': tester})
-          .eq('user_id', userId);
-      return true;
+      UserModel? student = await isStudent(userId);
+      if (student?.isAdmin != true && student?.student != null) {
+        await client
+            .from(DbTable.users)
+            .update({'is_tester': tester})
+            .eq('user_id', userId);
+        return true;
+      } else {
+        UsefullFunctions.showAwesomeSnackbarContent(
+          'Insufficent Permission',
+          'Failed',
+          ContentType.failure,
+        );
+        return false;
+      }
     } catch (e) {
       return false;
     }
@@ -71,15 +124,25 @@ class EditUserRepo extends ApiRepo {
     int classId,
   ) async {
     try {
-      await client
-          .from(DbTable.users)
-          .update({'school': schoolId})
-          .eq('user_id', userId);
-      await client
-          .from(DbTable.student)
-          .update({'class': schoolId})
-          .eq('user_id', userId);
-      return true;
+      UserModel? student = await isStudent(userId);
+      if (student?.isAdmin != true && student?.student != null) {
+        await client
+            .from(DbTable.users)
+            .update({'school': schoolId})
+            .eq('user_id', userId);
+        await client
+            .from(DbTable.studentClasses)
+            .update({'classes': schoolId})
+            .eq('user_id', userId);
+        return true;
+      } else {
+        UsefullFunctions.showAwesomeSnackbarContent(
+          'Insufficent Permission',
+          'Failed',
+          ContentType.failure,
+        );
+        return false;
+      }
     } catch (e) {
       return false;
     }
@@ -98,37 +161,79 @@ class EditUserRepo extends ApiRepo {
     return userResult;
   }
 
-  Future<bool> deleteUser(String userId) async {
+  Future<bool> deleteUser(String id) async {
     try {
-      final std = await client
-          .from(DbTable.users)
-          .select('*,${DbTable.student}(*),${DbTable.teacher}(*)')
-          .eq('user_id', userId)
-          .maybeSingle();
-      UserModel userModel = UserModel.fromJson(std!);
+      await client.rpc('delete_student_transaction', params: {'p_user_id': id});
+      return true;
+    } on PostgrestException catch (e) {
+      print("❌ Delete failed");
+      print("Message: ${e.message}");
+      print("Details: ${e.details}");
+      print("Code: ${e.code}");
 
-      if (userModel.student?.isNotEmpty ?? false) {
+      return false;
+    } catch (e) {
+      print("❌ Unexpected error: $e");
+      rethrow;
+    }
+  }
+
+  Future<bool> updateActivationCode(String userId, String s) async {
+    try {
+      UserModel? student = await isStudent(userId);
+      if (student?.isAdmin != true && student?.student != null) {
         await client
-            .from(DbTable.attemptedPhrases)
-            .delete()
-            .eq('student_id', userModel.student?.first.id ?? 0);
-        await client.from(DbTable.streakTable).delete().eq('user_id', userId);
-        await client.from(DbTable.student).delete().eq('user_id', userId);
-        await client.from(DbTable.userResult).delete().eq('user_id', userId);
-        await client.from(DbTable.users).delete().eq('user_id', userId);
+            .from(DbTable.users)
+            .update({'activation_code': s})
+            .eq('user_id', userId);
       } else {
-        await client
-            .from(DbTable.teacher)
-            .delete()
-            .eq('id', userModel.teacher?.first.id ?? 0);
-
-        await client.from(DbTable.users).delete().eq('user_id', userId);
+        UsefullFunctions.showAwesomeSnackbarContent(
+          'Insufficent Permission',
+          'Failed',
+          ContentType.failure,
+        );
+        return false;
       }
-
       return true;
     } catch (e) {
-      log(e.toString());
       return false;
+    }
+  }
+
+  Future<List<StudentLanguageModel>> getStudentLanguage() async {
+    try {
+      final data = await client.from(DbTable.studentLanguage).select("*");
+      return data.map((e) => StudentLanguageModel.fromJson(e)).toList();
+    } catch (e) {
+      UsefullFunctions.showSnackBar(
+        ctx!,
+        "Failed to get student language. Please try again.",
+      );
+      return [];
+    }
+  }
+
+  Future<void> updateStudentLanguage(String userId, int id) async {
+    try {
+      UserModel? student = await isStudent(userId);
+      if (student?.isAdmin != true && student?.student != null) {
+        await client
+            .from(DbTable.users)
+            .update({'language': id})
+            .eq('user_id', userId);
+      } else {
+        UsefullFunctions.showAwesomeSnackbarContent(
+          'Insufficent Permission',
+          'Failed',
+          ContentType.failure,
+        );
+      }
+    } catch (e) {
+      UsefullFunctions.showAwesomeSnackbarContent(
+        'Something went wrong',
+        'Failed',
+        ContentType.failure,
+      );
     }
   }
 }

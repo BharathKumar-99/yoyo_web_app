@@ -6,7 +6,7 @@ import 'send_notification_widget.dart';
 import 'student_table.dart';
 
 sendNotificationTablet(SendNotificationViewModel provider) => Scaffold(
-  appBar: CommonWidgets.homeAppBar(),
+  appBar: CommonWidgets.homeAppBar(isTablet: true),
   floatingActionButton: provider.selectedSchool != null
       ? ElevatedButton(
           onPressed: () => provider.sendNotification(),

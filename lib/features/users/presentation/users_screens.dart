@@ -12,14 +12,11 @@ class UsersScreens extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<UsersViewModel>(
-      create: (_) => UsersViewModel(),
-      child: Consumer<UsersViewModel>(
-        builder: (context, value, w) => ResponsiveLayout(
-          mobile: userMobile(value),
-          tablet: userTablet(value),
-          desktop: userWebsite(value),
-        ),
+    return Consumer<UsersViewModel>(
+      builder: (context, value, w) => ResponsiveLayout(
+        mobile: userMobile(value, context),
+        tablet: userTablet(value),
+        desktop: userWebsite(value),
       ),
     );
   }

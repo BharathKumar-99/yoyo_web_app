@@ -1,8 +1,10 @@
 import 'package:yoyo_web_app/config/constants/constants.dart';
 import 'package:yoyo_web_app/features/add_teacher/model/teacher_model.dart';
 import 'package:yoyo_web_app/features/home/model/fcm.dart';
+import 'package:yoyo_web_app/features/home/model/student_classes.dart';
 import 'package:yoyo_web_app/features/home/model/user_result_model.dart';
 
+import '../../users/model/student_langugaes.dart';
 import 'school.dart';
 import 'student_model.dart';
 
@@ -21,11 +23,13 @@ class UserModel {
   String? activationCode;
   bool? isTester;
   List<UserResult>? userResult;
-  List<Student>? student;
+  Student? student;
   List<Fcm>? fcm;
   List<TeacherModel>? teacher;
   School? schools;
   bool? isAdmin;
+  List<StudentClassesModel>? studentClasses;
+ StudentLanguageModel? studentLanguage;
 
   UserModel({
     this.userId,
@@ -47,6 +51,8 @@ class UserModel {
     this.teacher,
     this.activationCode,
     this.isAdmin,
+    this.studentClasses,
+    this.studentLanguage,
   });
 
   UserModel.fromJson(Map<String, dynamic> json) {
@@ -70,7 +76,9 @@ class UserModel {
     lastLogin = json['last_login'] != null
         ? DateTime.tryParse(json['last_login'])
         : null;
-
+    studentClasses = (json['student_classes'] as List?)
+        ?.map((e) => StudentClassesModel.fromJson(e))
+        .toList();
     if (json['user_results'] != null) {
       userResult = <UserResult>[];
       json['user_results'].forEach((v) {
@@ -78,10 +86,7 @@ class UserModel {
       });
     }
     if (json['student'] != null) {
-      student = <Student>[];
-      json['student'].forEach((v) {
-        student!.add(Student.fromJson(v));
-      });
+      student = Student.fromJson(json['student']);
     }
     if (json['fcm'] != null) {
       fcm = <Fcm>[];
@@ -94,6 +99,9 @@ class UserModel {
       json[DbTable.teacher].forEach((v) {
         teacher!.add(TeacherModel.fromJson(v));
       });
+    }
+    if (json[DbTable.studentLanguage] != null) {
+      studentLanguage = StudentLanguageModel.fromJson(json[DbTable.studentLanguage]);
     }
   }
 
@@ -113,6 +121,7 @@ class UserModel {
       'is_admin': isAdmin,
       'is_tester': isTester,
       'fcm': fcm?.map((v) => v.toJson()).toList(),
+      'student_language': studentLanguage?.toJson(),
     };
   }
 }

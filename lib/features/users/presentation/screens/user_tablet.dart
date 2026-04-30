@@ -1,23 +1,44 @@
 import 'package:flutter/material.dart';
+import 'package:yoyo_web_app/features/users/presentation/user_tables.dart';
+import 'package:yoyo_web_app/features/users/presentation/user_teacher_table.dart';
+import 'package:yoyo_web_app/features/users/presentation/widgets/add_single_teacher.dart';
 import '../../../common/widgets.dart';
 import '../users_view_model.dart';
 import '../widgets/widgets.dart';
 
-Widget userTablet(UsersViewModel viewModel) => Padding(
-  padding: const EdgeInsets.all(29.0),
-  child: Scaffold(
-    appBar: CommonWidgets.homeAppBar(),
-    body: Padding(
-      padding: const EdgeInsets.symmetric(vertical: 29.0),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            UserWidgets.userHeading(viewModel),
-            SizedBox(height: 20),
-            UserWidgets.userTable(viewModel),
-          ],
-        ),
+Widget userTablet(UsersViewModel viewModel) => Scaffold(
+  appBar: CommonWidgets.homeAppBar(isTablet: true),
+  body: Padding(
+    padding: const EdgeInsets.all(29.0),
+    child: SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          UserWidgets.userHeading(viewModel),
+          UserWidgets.userDrop(viewModel, false, true),
+          UserWidgets.addSingleStudent(viewModel),
+          AddSingleTeacher(viewModel: viewModel),
+          SizedBox(height: 20),
+          (viewModel.selectedUserType == 'Student')
+              ? StudentUserTable(
+                  student: viewModel.teacher
+                      .where(
+                        (user) =>
+                            user.teacher == null ||
+                            (user.teacher?.isEmpty ?? true),
+                      )
+                      .toList(),
+                )
+              : TeacherUserTable(
+                  teacher: viewModel.teacher
+                      .where(
+                        (user) =>
+                            user.teacher != null &&
+                            (user.teacher?.isNotEmpty ?? false),
+                      )
+                      .toList(),
+                ),
+        ],
       ),
     ),
   ),

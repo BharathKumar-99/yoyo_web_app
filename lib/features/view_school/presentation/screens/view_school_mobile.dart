@@ -4,29 +4,26 @@ import 'package:yoyo_web_app/features/common/widgets.dart';
 import 'package:yoyo_web_app/features/view_school/presentation/view_school_view_model.dart';
 import 'package:yoyo_web_app/features/view_school/presentation/widgets/widgets.dart';
 
-Widget viewSchoolMobile(ViewSchoolViewModel viewModel) => Padding(
-  padding: const EdgeInsets.all(29.0),
-  child: Scaffold(
-    appBar: CommonWidgets.homeAppBar(),
-    body: SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 29.0),
-        child: Column(
-          spacing: 30,
-          children: [
-            SizedBox(
-              height: MediaQuery.sizeOf(ctx!).height / 3,
-              child: ViewSchoolWidget.schoolImage(viewModel),
+Widget viewSchoolMobile(ViewSchoolViewModel viewModel) => Scaffold(
+  appBar: CommonWidgets.homeAppBarMobile(),
+  body: SingleChildScrollView(
+    child: Padding(
+      padding: const EdgeInsets.all(29.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 30,
+        children: [
+          Text('Schools', style: Theme.of(ctx!).textTheme.headlineMedium),
+          AddSchoolBtn(viewModel: viewModel),
+          ViewSchoolWidgets().addWidgetMob(viewModel),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              width: MediaQuery.sizeOf(ctx!).width * 3,
+              child: SchoolTable(school: viewModel.school ?? []),
             ),
-            ViewSchoolWidget.schoolName(viewModel),
-            ViewSchoolWidget.schoolStudents(viewModel),
-            ViewSchoolWidget.schoolTelephone(viewModel),
-            ViewSchoolWidget.schoolprinciple(viewModel),
-            ViewSchoolWidget.schoolAddress(viewModel),
-            if (viewModel.school?.classes?.isNotEmpty ?? false)
-              ReusableUserTable(school: viewModel.school),
-          ],
-        ),
+          ),
+        ],
       ),
     ),
   ),

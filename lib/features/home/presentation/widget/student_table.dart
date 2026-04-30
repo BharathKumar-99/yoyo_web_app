@@ -41,10 +41,11 @@ class _StudentTableState extends State<StudentTable> {
         children: [
           headerCell("Name", "name", flex: 2),
           headerCell("UserName", "username", flex: 2),
+          headerCell("Active", "active"),
           headerCell("Participated", "participated"),
-          headerCell("Level", "level"),
+          //  headerCell("Level", "level"),
           headerCell("Phrases", "phrases"),
-          headerCell("Attempt", "Attempt"),
+          headerCell("Attempt", "attempt"),
           headerCell("Vocab", "vocab"),
           headerCell("Av. Score", "avgScore"),
         ],
@@ -93,9 +94,14 @@ class _StudentTableState extends State<StudentTable> {
             flex: 2,
             child: GestureDetector(
               onTap: () =>
-                  NavigationHelper.go(RouteNames.editUsers, extra: row.userId),
+                  NavigationHelper.go(RouteNames.profile, extra: row.userId),
               child: Text(
-                row.userModel?.firstName ?? 'N/A',
+                '${row.userModel?.firstName ?? ''} ${row.userModel?.surName ?? ''}'
+                        .trim()
+                        .isEmpty
+                    ? 'not set'
+                    : '${row.userModel?.firstName ?? ''} ${row.userModel?.surName ?? ''}'
+                          .trim(),
                 style: TextStyle(fontSize: 14, color: Colors.black87),
               ),
             ),
@@ -104,6 +110,14 @@ class _StudentTableState extends State<StudentTable> {
           rowCell(row.userModel?.username ?? 'N/A', flex: 2),
 
           // PARTICIPATED
+          rowCell(
+            (row.userModel?.isActivated ?? false) ? "✓" : "✗",
+            fontsize: 20,
+            font: FontWeight.bold,
+            color: (row.userModel?.isActivated ?? false)
+                ? Colors.green
+                : Colors.red,
+          ),
           rowCell(
             (row.userModel?.userResult?.length ?? 0) > 0 ? "✓" : "✗",
             fontsize: 20,
@@ -114,12 +128,11 @@ class _StudentTableState extends State<StudentTable> {
           ),
 
           // LEVEL (first 2 chars)
-          rowCell(
-            (row.level?.level?.length ?? 0) >= 2
-                ? row.level!.level!.substring(0, 2)
-                : row.level?.level ?? 'N/A',
-          ),
-
+          // rowCell(
+          //   (row.level?.level?.length ?? 0) >= 2
+          //       ? row.level!.level!.substring(0, 2)
+          //       : row.level?.level ?? 'N/A',
+          // ),
           rowCell(row.userModel?.userResult?.length.toString() ?? "0"),
           rowCell(
             row.userModel?.userResult

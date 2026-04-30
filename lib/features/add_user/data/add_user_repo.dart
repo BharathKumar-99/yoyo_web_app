@@ -105,7 +105,7 @@ class AddUserRepo extends ApiRepo {
     CommonViewModel commonViewModel = Provider.of<CommonViewModel>(ctx!);
     final res = await client
         .from(DbTable.users)
-        .select('''*,${DbTable.school}(*)''')
+        .select('''*,school:school!Users_school_fkey(*,top_performer_user:users!school_top_performer_fkey(*))''')
         .isFilter('first_name', null);
 
     if (res.isEmpty) {

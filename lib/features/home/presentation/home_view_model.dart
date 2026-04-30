@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:math' hide log;
 import 'dart:typed_data';
+import 'package:file_saver/file_saver.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -8,24 +9,23 @@ import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
 import 'package:yoyo_web_app/config/constants/constants.dart';
 import 'package:yoyo_web_app/config/router/navigation_helper.dart';
-import 'package:yoyo_web_app/features/add_teacher/model/teacher_model.dart';
+import 'package:yoyo_web_app/config/utils/date_externtion.dart';
 import 'package:yoyo_web_app/features/home/model/language_model.dart';
 import 'package:yoyo_web_app/features/home/model/student_model.dart';
 import 'package:yoyo_web_app/features/home/model/user_result_model.dart';
 import '../../add_user/model/level.dart';
 import '../../common/common_view_model.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:file_saver/file_saver.dart';
 
 class HomeViewModel extends ChangeNotifier {
   List<Language?> languages = [];
   int participation = 0;
+  int participationPercentage = 0;
   int effort = 0;
+  int effortPercentage = 0;
   int avrageScore = 0;
-  List<int> efforts = [];
-  List<int> average = [];
-  List<UserResult> participationList = [];
-  int totalNoStudents = 0;
+  int avrageScorePercentage = 0;
+
   Level? selectedLevel;
   String? selectedTimeFrame;
   List<Level> levels = [];
@@ -35,34 +35,333 @@ class HomeViewModel extends ChangeNotifier {
   List<String> topGoodWords = [];
   List<String> badWords = [];
   List<String> topBadWords = [];
-  List<Student> students = [];
-  List<Student> filteredStudents = [];
+
   String? sortKey = 'participated';
   bool ascending = true;
-  List<TeacherModel>? teacherModel;
-  List<int> languagesId = [];
+
   final CommonViewModel commonViewModel;
 
+  List<Student> allStudents = [];
+  List<UserResult> allUserResults = [];
+  List<Student> students = [];
+  List<UserResult> filteredResults = [];
+
   HomeViewModel(this.commonViewModel) {
-    commonViewModel.addListener(_onSchoolChanged);
+    commonViewModel.addListener(onSchoolChanged);
     getHomeData();
   }
 
   getHomeData() async {
-    assignLanLvl();
-    applyFilter();
-    applyStudentFilter();
+    assignStudentsFromSchools();
+    assignUserResultsFromStudents();
+    applyFilters();
+  }
 
-    teacherModel = commonViewModel.teacher?.teacher;
+  void assignStudentsFromSchools() {
+    allStudents = [];
+    for (var school in commonViewModel.schools) {
+      school.classes?.forEach((cls) {
+        cls.studentClasses?.forEach((studentClass) {
+          if (studentClass.user?.student != null &&
+              studentClass.user?.isTester != true) {
+            allStudents.add(studentClass.user!.student!);
+          }
+        });
+      });
+    }
+  }
 
-    sortBy('participated');
-    metrics();
+  applyFilters() async {
+    getResults();
+    assignResultsToStudents();
+    applyMetrics();
+    applyOldMetrics();
     notifyListeners();
   }
 
-  T? getMaxOrNull<T extends num>(List<T> list) {
-    if (list.isEmpty) return null;
-    return list.reduce((a, b) => a > b ? a : b);
+  getResults() {
+    goodWords = [];
+    badWords = [];
+    filteredResults = [];
+    for (UserResult res in allUserResults) {
+      if (selectedTimeFrame == null) {
+        if (matchLanguage(res)) {
+          res.goodWords?.forEach((w) => goodWords.add(w));
+          res.badWords?.forEach((w) => badWords.add(w));
+          filteredResults.add(res);
+        }
+      } else if (res.createdAt != null && matchTimeFrame(res.createdAt!)) {
+        if (matchLanguage(res)) {
+          res.goodWords?.forEach((w) => goodWords.add(w));
+          res.badWords?.forEach((w) => badWords.add(w));
+          filteredResults.add(res);
+        }
+      }
+    }
+
+    topGoodWords = getTopWords(goodWords);
+    topBadWords = getTopWords(badWords);
+  }
+
+  void assignUserResultsFromStudents() {
+    allUserResults = [];
+    for (var student in allStudents) {
+      allUserResults.addAll(student.userModel?.userResult ?? []);
+    }
+  }
+
+  assignResultsToStudents() {
+    List<String> userIds = [];
+    List<UserResult> uniqueResults = [];
+    students = [];
+    for (var res in filteredResults) {
+      if (res.userId != null && !userIds.contains(res.userId)) {
+        userIds.add(res.userId!);
+        uniqueResults.add(res);
+      }
+    }
+
+    for (var student in allStudents) {
+      if (commonViewModel.selectedSchool == null) {
+        students.add(student);
+      } else if (commonViewModel.selectedSchool != null &&
+          commonViewModel.selectedClass == null) {
+        if (student.userModel?.school == commonViewModel.selectedSchool?.id) {
+          students.add(student);
+        }
+      } else if (student.userModel?.studentClasses?.first.classId ==
+          commonViewModel.selectedClass?.id) {
+        students.add(student);
+      }
+    }
+
+    for (var std in students) {
+      std.userModel?.userResult = filteredResults
+          .where((res) => res.userId == std.userId)
+          .toList();
+    }
+  }
+
+  applyMetrics() {
+    List<String> userIds = [];
+    List<UserResult> uniqueResults = [];
+    List<Student> classStudent = [];
+    List<Student> totalclassStudent = [];
+
+    for (var res in filteredResults) {
+      if (res.userId != null && !userIds.contains(res.userId)) {
+        userIds.add(res.userId!);
+        if (students.any((s) => s.userId == res.userId)) {
+          uniqueResults.add(res);
+        }
+      }
+    }
+    for (var student in allStudents) {
+      for (var res in uniqueResults) {
+        if (student.userId == res.userId) {
+          if (commonViewModel.selectedSchool == null) {
+            classStudent.add(student);
+          } else if (commonViewModel.selectedSchool != null &&
+              commonViewModel.selectedClass == null) {
+            if (student.userModel?.school ==
+                commonViewModel.selectedSchool?.id) {
+              classStudent.add(student);
+            }
+          } else if (student.userModel?.studentClasses?.first.classId ==
+              commonViewModel.selectedClass?.id) {
+            classStudent.add(student);
+          }
+        }
+      }
+    }
+
+    for (var student in allStudents) {
+      if (commonViewModel.selectedSchool == null) {
+        totalclassStudent.add(student);
+      } else if (commonViewModel.selectedSchool != null &&
+          commonViewModel.selectedClass == null) {
+        if (student.userModel?.school == commonViewModel.selectedSchool?.id) {
+          totalclassStudent.add(student);
+        }
+      } else if (student.userModel?.studentClasses?.first.classId ==
+          commonViewModel.selectedClass?.id) {
+        totalclassStudent.add(student);
+      }
+    }
+    int activeusers = classStudent.length;
+    participation = classStudent.isEmpty
+        ? 0
+        : ((activeusers / totalclassStudent.length) * 100).round();
+    int totalAttempts = uniqueResults.fold(
+      0,
+      (sum, res) => sum + (res.attempt ?? 0).toInt(),
+    );
+    int totalListens = uniqueResults.fold(
+      0,
+      (sum, res) => sum + (res.listen ?? 0).toInt(),
+    );
+    int P = uniqueResults.where((res) => (res.scoreSubmitted == true)).length;
+    int U = uniqueResults.where((res) => (res.phrasesId != null)).length;
+
+    effort = calculateEffort(totalAttempts, totalListens, P, U).toInt();
+
+    int totalScoreSum = 0;
+    int totalStudentsWithScores = 0;
+    for (var element in uniqueResults) {
+      if ((element.score ?? 0) > 80 && element.scoreSubmitted == true) {
+        totalScoreSum += (element.score ?? 0);
+        totalStudentsWithScores++;
+      }
+    }
+
+    avrageScore = totalScoreSum == 0
+        ? 0
+        : (totalScoreSum / totalStudentsWithScores).round();
+  }
+
+  applyOldMetrics() {
+    List<UserResult> results = [];
+    for (UserResult res in allUserResults) {
+      if (selectedTimeFrame == null) {
+        if (matchLanguage(res)) {
+          res.goodWords?.forEach((w) => goodWords.add(w));
+          res.badWords?.forEach((w) => badWords.add(w));
+          results.add(res);
+        }
+        continue;
+      } else if (res.createdAt != null &&
+          matchPreviousTimeFrame(res.createdAt!)) {
+        if (matchLanguage(res)) {
+          res.goodWords?.forEach((w) => goodWords.add(w));
+          res.badWords?.forEach((w) => badWords.add(w));
+          results.add(res);
+        }
+      }
+    }
+
+    List<String> userIds = [];
+    List<UserResult> uniqueResults = [];
+    List<Student> classStudent = [];
+    for (var res in results) {
+      if (res.userId != null && !userIds.contains(res.userId)) {
+        userIds.add(res.userId!);
+        uniqueResults.add(res);
+      }
+    }
+    for (var student in allStudents) {
+      for (var res in uniqueResults) {
+        if (student.userId == res.userId) {
+          if (commonViewModel.selectedSchool == null) {
+            classStudent.add(student);
+            break;
+          } else if (commonViewModel.selectedSchool != null &&
+              commonViewModel.selectedClass == null) {
+            if (student.userModel?.school ==
+                commonViewModel.selectedSchool?.id) {
+              classStudent.add(student);
+              break;
+            }
+          } else if (student.userModel?.studentClasses?.first.classId ==
+              commonViewModel.selectedClass?.id) {
+            classStudent.add(student);
+            break;
+          }
+        }
+      }
+    }
+    int activeusers = classStudent
+        .where((s) => (s.userModel?.userResult?.isNotEmpty ?? false))
+        .length;
+
+    int totalAttempts = filteredResults.fold(
+      0,
+      (sum, res) => sum + (res.attempt ?? 0).toInt(),
+    );
+    int totalListens = filteredResults.fold(
+      0,
+      (sum, res) => sum + (res.listen ?? 0).toInt(),
+    );
+    int P = filteredResults.where((res) => (res.scoreSubmitted == true)).length;
+    int U = filteredResults.where((res) => (res.phrasesId != null)).length;
+
+    effortPercentage = calculateGrowthPercentage(
+      oldValue: calculateEffort(
+        totalAttempts, // A
+        totalListens, // L
+        P, // P
+        U, // U
+      ).toInt(),
+      newValue: effort,
+    );
+    int totalScoreSum = classStudent.fold(
+      0,
+      (sum, student) => sum + (student.score ?? 0),
+    );
+
+    participationPercentage = calculateGrowthPercentage(
+      oldValue: classStudent.isEmpty
+          ? 0
+          : ((activeusers / classStudent.length) * 100).toInt(),
+      newValue: participation,
+    );
+    int avgTotalStudents = classStudent.where((s) => (s.score ?? 0) > 0).length;
+
+    avrageScorePercentage = calculateGrowthPercentage(
+      oldValue: avgTotalStudents == 0
+          ? 0
+          : (totalScoreSum / avgTotalStudents).toInt(),
+      newValue: avrageScore,
+    );
+  }
+
+  int calculateGrowthPercentage({
+    required int oldValue,
+    required int newValue,
+  }) {
+    if (oldValue <= 10) {
+      return newValue - oldValue; // raw change
+    }
+
+    return (((newValue - oldValue) / oldValue) * 100).round();
+  }
+
+  double calculateEffort(
+    int A, // total attempts
+    int L, // total listens
+    int P, // total phrases learned
+    int U, // total unique phrases attempted
+  ) {
+    // Tuning constants
+    const double k1 = 5; // struggle curve
+    const double k2 = 8; // listening curve
+    const double k3 = 20; // volume curve
+
+    // Safety guards
+    final double safeP = max(P, 1).toDouble();
+    final double safeU = max(U, 1).toDouble();
+
+    // Normalised per-phrase values (with caps)
+    final double attemptsPerPhrase = min(A / safeP, 20);
+    final double listensPerPhrase = min(L / safeP, 30);
+
+    // Core scores (0–1)
+    final double struggleScore = 1 - exp(-attemptsPerPhrase / k1);
+
+    final double listeningScore = 1 - exp(-listensPerPhrase / k2);
+
+    final double volumeScore = 1 - exp(-P / k3);
+
+    final double coverageScore = min(P / safeU, 1);
+
+    // Weighted effort (0–100)
+    final double effort =
+        100 *
+        (0.40 * struggleScore +
+            0.25 * listeningScore +
+            0.25 * volumeScore +
+            0.10 * coverageScore);
+
+    return effort.clamp(0, 100);
   }
 
   // 1. Data Mapping
@@ -299,7 +598,7 @@ class HomeViewModel extends ChangeNotifier {
     final pdfBytes = await _generatePdf(
       PdfPageFormat.a4,
       ctx!,
-      filteredStudents.where((val) => val.userModel?.isTester != true).toList(),
+      students.where((val) => val.userModel?.isTester != true).toList(),
     );
 
     await FileSaver.instance.saveFile(
@@ -314,72 +613,80 @@ class HomeViewModel extends ChangeNotifier {
     ).showSnackBar(const SnackBar(content: Text('PDF download initiated!')));
   }
 
-  assignLanLvl() {
-    List<Level> lvl = [];
-    List<Language> lang = [];
-    if (commonViewModel.selectedSchool != null) {
-      commonViewModel.selectedSchool?.schoolLanguage?.forEach((val) {
-        lang.add(val.language!);
-      });
-      if (commonViewModel.selectedClass != null) {
-        commonViewModel.selectedClass?.classLevel?.forEach((val) {
-          lvl.add(val.levelModel!);
-        });
-      } else {
-        commonViewModel.selectedSchool?.classes?.forEach((cal) {
-          cal.classLevel?.forEach((l) {
-            lvl.add(l.levelModel!);
-          });
-        });
-      }
-    } else {
-      for (var val in commonViewModel.schools) {
-        val.schoolLanguage?.forEach((ln) {
-          lang.add(ln.language!);
-        });
-        val.classes?.forEach((cal) {
-          cal.classLevel?.forEach((l) {
-            lvl.add(l.levelModel!);
-          });
-        });
-      }
-    }
+  void onSchoolChanged() {
+    selectedLanguage = null;
+    selectedLevel = null;
+    getHomeData();
+    selectLanguage(commonViewModel.selectedClass?.language);
+    notifyListeners();
+  }
 
-    levels = lvl.toSet().toList();
-    languages = lang.toSet().toList();
-    languagesId = [];
-    for (var lang in languages) {
-      languagesId.add(lang?.id ?? 0);
+  void selectLevel(Level? val) {
+    selectedLevel = val;
+    applyFilters();
+    notifyListeners();
+  }
+
+  void selectTimeFrame(String? val) {
+    selectedTimeFrame = val;
+    applyFilters();
+    notifyListeners();
+  }
+
+  void selectLanguage(Language? val) {
+    selectedLanguage = val;
+    applyFilters();
+    notifyListeners();
+  }
+
+  bool matchLanguage(UserResult val) {
+    if (selectedLanguage == null) return true;
+    return (val.phraseModel?.language ?? 0) == selectedLanguage!.id;
+  }
+
+  bool matchTimeFrame(DateTime date) {
+    switch (selectedTimeFrame) {
+      case 'Today':
+        return date.isToday;
+      case 'This Week':
+        return date.isThisWeek;
+      case 'This Month':
+        return date.isThisMonth;
+      case 'This Year':
+        return date.isThisYear;
+      default:
+        return true;
     }
   }
 
-  List<UserResult> getUniqueUsers(List<UserResult> usersResult) {
-    final seen = <String>{};
-    final uniqueList = <UserResult>[];
+  bool matchPreviousTimeFrame(DateTime date) {
+    switch (selectedTimeFrame) {
+      case 'Today':
+        return date.isYesterday;
 
-    for (var user in usersResult) {
-      if (user.type == 'Learned') {
-        if (user.userId != null && !seen.contains(user.userId)) {
-          seen.add(user.userId!);
-          if (matchTimeFrame(user.createdAt!)) {
-            uniqueList.add(user);
-          }
-        }
-      }
+      case 'This Week':
+        return date.isLastWeek;
+
+      case 'This Month':
+        return date.isLastMonth;
+
+      case 'This Year':
+        return date.isLastYear;
+
+      default:
+        return false;
     }
-
-    return uniqueList;
   }
 
   void sortBy(String key) {
     if (sortKey == key) {
-      ascending = !ascending; // toggle ASC ↔ DESC
+      ascending = !ascending;
     } else {
       sortKey = key;
       ascending = true;
     }
 
-    filteredStudents.sort((a, b) {
+    students.sort((a, b) {
       dynamic x;
       dynamic y;
 
@@ -404,11 +711,6 @@ class HomeViewModel extends ChangeNotifier {
           y = b.level?.level ?? "";
           break;
 
-        case "phrases":
-          x = a.userModel?.userResult?.length ?? 0;
-          y = b.userModel?.userResult?.length ?? 0;
-          break;
-
         case "vocab":
           x = a.vocab ?? 0;
           y = b.vocab ?? 0;
@@ -419,268 +721,37 @@ class HomeViewModel extends ChangeNotifier {
           y = b.score ?? 0;
           break;
 
+        case "active":
+          x = (a.userModel?.isActivated ?? false) ? 1 : 0;
+          y = (b.userModel?.isActivated ?? false) ? 1 : 0;
+          break;
+
+        case "phrases":
+          x = a.userModel?.userResult?.length ?? 0;
+          y = b.userModel?.userResult?.length ?? 0;
+          break;
+
+        case "attempt":
+          x = a.userModel?.userResult?.fold(
+            0,
+            (prev, el) => prev + (el.attempt ?? 0),
+          );
+          y = b.userModel?.userResult?.fold(
+            0,
+            (prev, el) => prev + (el.attempt ?? 0),
+          );
+          break;
+
         default:
-          x = "";
-          y = "";
+          x = 0;
+          y = 0;
       }
 
-      int result = Comparable.compare(x, y);
+      final result = Comparable.compare(x, y);
       return ascending ? result : -result;
     });
-    notifyListeners();
-  }
-
-  void _onSchoolChanged() {
-    commonViewModel.selectedClass = null;
-    selectedLanguage = null;
-    selectedLevel = null;
-    applyFilter();
-    metrics();
-    notifyListeners();
-  }
-
-  void selectLevel(Level? val) {
-    selectedLevel = val;
-    applyFilter();
-    applyStudentFilter();
-    metrics();
-    notifyListeners();
-  }
-
-  void selectTimeFrame(String? val) {
-    selectedTimeFrame = val;
-    applyFilter();
-    applyStudentFilter();
-    metrics();
-    notifyListeners();
-  }
-
-  void selectLanguage(Language? val) {
-    selectedLanguage = val;
-    applyFilter();
-    applyStudentFilter();
-    metrics();
-    notifyListeners();
-  }
-
-  applyFilter() {
-    int avgTotalStudents = 0;
-    totalNoStudents = 0;
-    effort = 0;
-    avrageScore = 0;
-    int scoreSum = 0;
-    participationList = [];
-    students = [];
-    commonViewModel.selectedSchool == null
-        ? commonViewModel.schools.forEach((val) {
-            val.classes?.forEach((cal) {
-              totalNoStudents = totalNoStudents + (cal.students?.length ?? 0);
-              avgTotalStudents =
-                  avgTotalStudents +
-                  (cal.students?.where((sc) => (sc.score ?? 0) > 0).length ??
-                      0);
-              cal.students?.forEach((std) {
-                students.add(std);
-                scoreSum = scoreSum + (std.score ?? 0);
-                std.userModel?.userResult?.forEach((user) {
-                  participationList.add(user);
-                });
-              });
-            });
-          })
-        : commonViewModel.selectedClass == null
-        ? commonViewModel.selectedSchool?.classes?.forEach((cal) {
-            totalNoStudents = totalNoStudents + (cal.students?.length ?? 0);
-            avgTotalStudents =
-                avgTotalStudents +
-                (cal.students?.where((sc) => (sc.score ?? 0) > 0).length ?? 0);
-            cal.students?.forEach((std) {
-              students.add(std);
-              scoreSum = scoreSum + (std.score ?? 0);
-              std.userModel?.userResult?.forEach((user) {
-                participationList.add(user);
-              });
-            });
-          })
-        : commonViewModel.selectedClass?.students?.forEach((std) {
-            students.add(std);
-            totalNoStudents = totalNoStudents + 1;
-            if ((std.score ?? 0) > 0) {
-              avgTotalStudents = avgTotalStudents + 1;
-            }
-            scoreSum = scoreSum + (std.score ?? 0);
-            std.userModel?.userResult?.forEach((user) {
-              participationList.add(user);
-            });
-          });
-    filteredStudents = students;
-    assignLanLvl();
-    for (var attempt in participationList) {
-      if (languagesId.contains(attempt.phraseModel?.language)) {
-        attempt.goodWords?.forEach((val) {
-          goodWords.add(val);
-        });
-        attempt.badWords?.forEach((val) {
-          badWords.add(val);
-        });
-      }
-    }
-
-    participationList = getUniqueUsers(participationList);
 
     notifyListeners();
-  }
-
-  bool matchLanguage(UserResult val) {
-    if (selectedLanguage == null) return true;
-    return (val.phraseModel?.language ?? 0) == selectedLanguage!.id;
-  }
-
-  void metrics() {
-    int activeusers = 0;
-    int totalusers = 0;
-    int scoreSum = 0;
-    int avgTotalStudents = 0;
-    effort = 0;
-
-    for (var std in filteredStudents) {
-      if (std.userModel?.isTester == true) continue;
-
-      totalusers++;
-
-      final results = std.userModel?.userResult;
-      if (results == null || results.isEmpty) continue;
-
-      activeusers++;
-
-      int totalAttempts = 0;
-      int totalListens = 0;
-
-      final Set<int> learnedPhraseIds = {};
-      final Set<int> attemptedPhraseIds = {};
-
-      for (UserResult res in results) {
-        totalAttempts += res.attempt ?? 0;
-        totalListens += res.listen ?? 0;
-
-        if (res.phrasesId != null) {
-          attemptedPhraseIds.add(res.phrasesId!);
-
-          if (res.scoreSubmitted == true) {
-            learnedPhraseIds.add(res.phrasesId!);
-          }
-        }
-      }
-
-      final int P = learnedPhraseIds.length; // phrases learned
-      final int U = attemptedPhraseIds.length; // unique attempted
-
-      effort = calculateEffort(
-        totalAttempts, // A
-        totalListens, // L
-        P, // P
-        U, // U
-      ).toInt();
-
-      final score = std.score ?? 0;
-      scoreSum += score;
-
-      if (score > 0) {
-        avgTotalStudents++;
-      }
-    }
-
-    participation = totalusers == 0
-        ? 0
-        : ((activeusers / totalusers) * 100).toInt();
-
-    avrageScore = avgTotalStudents == 0
-        ? 0
-        : (scoreSum / avgTotalStudents).toInt();
-
-    topGoodWords = getTopWords(goodWords);
-    topBadWords = getTopWords(badWords);
-  }
-
-  double calculateEffort(
-    int A, // total attempts
-    int L, // total listens
-    int P, // total phrases learned
-    int U, // total unique phrases attempted
-  ) {
-    // Tuning constants
-    const double k1 = 5; // struggle curve
-    const double k2 = 8; // listening curve
-    const double k3 = 20; // volume curve
-
-    // Safety guards
-    final double safeP = max(P, 1).toDouble();
-    final double safeU = max(U, 1).toDouble();
-
-    // Normalised per-phrase values (with caps)
-    final double attemptsPerPhrase = min(A / safeP, 20);
-    final double listensPerPhrase = min(L / safeP, 30);
-
-    // Core scores (0–1)
-    final double struggleScore = 1 - exp(-attemptsPerPhrase / k1);
-
-    final double listeningScore = 1 - exp(-listensPerPhrase / k2);
-
-    final double volumeScore = 1 - exp(-P / k3);
-
-    final double coverageScore = min(P / safeU, 1);
-
-    // Weighted effort (0–100)
-    final double effort =
-        100 *
-        (0.40 * struggleScore +
-            0.25 * listeningScore +
-            0.25 * volumeScore +
-            0.10 * coverageScore);
-
-    return effort.clamp(0, 100);
-  }
-
-  bool matchTimeFrame(DateTime date) {
-    switch (selectedTimeFrame) {
-      case 'Today':
-        return date.isToday;
-      case 'This Week':
-        return date.isThisWeek;
-      case 'This Month':
-        return date.isThisMonth;
-      case 'This Year':
-        return date.isThisYear;
-      default:
-        return true;
-    }
-  }
-
-  void applyStudentFilter() {
-    final List<Student> originalList = students;
-    filteredStudents = [];
-
-    for (var student in originalList) {
-      // Level filter
-      if (selectedLevel != null && student.level?.id != selectedLevel!.id) {
-        continue; // Skip this student
-      }
-
-      final results = <UserResult>[];
-
-      for (var val in (student.userModel?.userResult ?? [])) {
-        final date = val.createdAt!;
-        if (matchTimeFrame(date) && matchLanguage(val)) {
-          results.add(val);
-        }
-      }
-
-      // Only include the student if they have filtered results
-      if (results.isNotEmpty) {
-        student.userModel?.userResult = results;
-      }
-      filteredStudents.add(student);
-    }
   }
 
   List<String> getTopWords(List<String> words, {int top = 10}) {

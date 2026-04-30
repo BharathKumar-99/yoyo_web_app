@@ -2,6 +2,8 @@ class RouteNames {
   static const login = '/login';
   static const home = '/';
   static const phrases = '/phrases';
+  static const homework = '/homework';
+  static const profile = '/profile';
   static const users = '/users';
   static const addUsers = '/addUsers';
   static const editUsers = '/editUsers';
@@ -14,5 +16,6 @@ class RouteNames {
   static const String addTeacher = '/addTeacher';
   static const String activate = '/activate';
   static const String notification = '/notification';
+  static const String mySchool = '/mySchool';
   static const String sendNotification = '/sendNotification';
 }

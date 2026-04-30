@@ -20,7 +20,7 @@ Widget loginWeb(BuildContext context) {
                 children: [
                   Image.asset(IconConstants.logoLogin, height: 60, width: 60),
                   Text(
-                    "Lets help students speak MFL with confidence",
+                    "Let’s help students speak MFL with confidence",
                     style: AppTextStyles.textTheme.headlineMedium!.copyWith(
                       color: Colors.white,
                     ),
