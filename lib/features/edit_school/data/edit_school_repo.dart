@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:yoyo_web_app/config/constants/constants.dart';
 import 'package:yoyo_web_app/core/api/repo.dart';
 import 'package:yoyo_web_app/features/edit_school/model/remote_config.dart';
+import 'package:yoyo_web_app/features/home/model/classes_model.dart';
 import 'package:yoyo_web_app/features/home/model/language_model.dart';
 
 import '../../home/model/school.dart';
@@ -102,12 +103,31 @@ class EditSchoolRepo extends ApiRepo {
 
   Future<void> addClass(String name, int? lang, int? year, int? school) async {
     try {
-      await client.from(DbTable.classes).insert({
-        'class_name': name,
-        'school': school,
-        'language': lang,
-        'year': year,
-      });
+      final data = await client
+          .from(DbTable.classes)
+          .insert({
+            'class_name': name,
+            'school': school,
+            'language': lang,
+            'year': year,
+          })
+          .select()
+          .maybeSingle();
+      Classes classes = Classes.fromJson(data!);
+
+      await client
+          .from(DbTable.homeworkConfigs)
+          .upsert({
+            'manual_cadence': "Weekly from time of setting",
+            'auto_cadence': "Every Sunday",
+            'auto_cadence_time': '00:00',
+            'notification': "1 Day Before",
+            'school_id': school,
+            'class_id': classes.id,
+            'is_auto_enabled': false,
+          }, onConflict: 'class_id,school_id')
+          .select()
+          .maybeSingle();
     } catch (e) {
       log(e.toString());
     }

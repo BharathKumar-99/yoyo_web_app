@@ -173,6 +173,7 @@ class HomeworkRepo extends ApiRepo {
         "homework_document": publicUrl,
         "use_uploads": useUploads,
       };
+      log(body.toString());
 
       final response = await http.post(url, body: jsonEncode(body));
       final data = jsonDecode(response.body);
@@ -185,12 +186,15 @@ class HomeworkRepo extends ApiRepo {
     }
   }
 
-  Future<List<UserModel>> getAllUsers() async {
+  Future<List<UserModel>> getAllUsers(int classId) async {
     try {
       List<UserModel> users = [];
-      final data = await client.from(DbTable.users).select('*');
+      final data = await client
+          .from(DbTable.studentClasses)
+          .select('''*,${DbTable.users}(*)''')
+          .eq('classes', classId);
       for (var element in data) {
-        users.add(UserModel.fromJson(element));
+        users.add(UserModel.fromJson(element['users']));
       }
       return users;
     } catch (e) {

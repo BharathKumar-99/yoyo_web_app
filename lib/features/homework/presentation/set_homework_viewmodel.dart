@@ -157,7 +157,7 @@ class SetHomeworkViewmodel extends ChangeNotifier {
       }
       UserModel? model;
       if (commonViewModel.isAdmin) {
-        List<UserModel> users = await _repo.getAllUsers();
+        List<UserModel> users = await _repo.getAllUsers(commonViewModel.selectedClass?.id ?? 0);
         if (!context.mounted) return;
         await showDialog(
           context: context,
@@ -332,7 +332,7 @@ class SetHomeworkViewmodel extends ChangeNotifier {
 
     UserModel? model;
     if (commonViewModel.isAdmin) {
-      List<UserModel> users = await _repo.getAllUsers();
+      List<UserModel> users = await _repo.getAllUsers(commonViewModel.selectedClass?.id ?? 0);
       if (!context.mounted) return;
       await showDialog(
         context: context,
@@ -340,8 +340,8 @@ class SetHomeworkViewmodel extends ChangeNotifier {
           title: Text("Select a user to login as"),
           content: SingleChildScrollView(
             child: SizedBox(
-              height: 900,
-              width: 400,
+              height: MediaQuery.of(context).size.height * 0.8,
+              width: MediaQuery.of(context).size.width * 0.4,
               child: ListView.builder(
                 itemCount: users.length,
                 itemBuilder: (context, index) {

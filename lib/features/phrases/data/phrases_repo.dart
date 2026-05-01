@@ -249,7 +249,7 @@ class PhrasesRepo extends ApiRepo {
             'listen': type == 'Listening' ? true : false,
             'reading_phrase': type == 'Reading' ? true : false,
             'categories': catId,
-            // 'level': lvlId,
+            'level': 1,
             'language': langId,
           })
           .select('*')
@@ -288,9 +288,9 @@ class PhrasesRepo extends ApiRepo {
   }
 
   void listenForPhraseGroupCompletion(
-    List<int> phraseIds,
-    {required VoidCallback onCompleted}) {
-
+    List<int> phraseIds, {
+    required VoidCallback onCompleted,
+  }) {
     _phraseStatusSub?.cancel();
 
     _phraseStatusSub = client
@@ -300,7 +300,9 @@ class PhrasesRepo extends ApiRepo {
         .listen((rows) {
           if (rows.isEmpty) return;
 
-          final allCompleted = rows.every((row) => row['status'] == 'completed');
+          final allCompleted = rows.every(
+            (row) => row['status'] == 'completed',
+          );
 
           if (allCompleted && rows.length == phraseIds.length) {
             _phraseStatusSub?.cancel();

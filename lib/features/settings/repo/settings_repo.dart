@@ -136,10 +136,10 @@ class SettingsRepo {
     try {
       final response = await _client
           .from(DbTable.aiPrompt)
-          .upsert({
+          .update({
             'phrase_prompt': phrasePrompt,
             'set_homework_promt': setHomeworkPrompt,
-            'auto_homework_promt': autoHomeworkPrompt,
+            'auto_homework_prompt': autoHomeworkPrompt,
           })
           .eq('id', 1)
           .select()
