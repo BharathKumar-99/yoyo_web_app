@@ -13,6 +13,7 @@ class NotificationViewModel extends ChangeNotifier {
   NotificationSettingsModel? notificationSettingsModel;
   List<NotificationModel> activationModel = [];
   CommonViewModel commonViewModel;
+  bool isEditMode = false;
   NotificationViewModel(this.commonViewModel) {
     commonViewModel.addListener(_onSchoolChange);
     getCodeModel();
@@ -193,9 +194,7 @@ class NotificationViewModel extends ChangeNotifier {
     } else {
       notificationSettingsModel = null;
     }
-    if (notificationSettingsModel != null) {
-      updateNotificationSettingsAtBoot();
-    }
+
     notifyListeners();
   }
 
@@ -379,6 +378,7 @@ class NotificationViewModel extends ChangeNotifier {
       }
     }
     await updateCmd();
+    isEditMode = false;
     notifyListeners();
   }
 
@@ -389,6 +389,11 @@ class NotificationViewModel extends ChangeNotifier {
       commonViewModel.selectedClass!.id!,
     );
     GlobalLoader.hide();
+  }
+
+  void editMode() {
+    isEditMode = true;
+    updateNotificationSettingsAtBoot();
   }
 
   // void update(int index) async {

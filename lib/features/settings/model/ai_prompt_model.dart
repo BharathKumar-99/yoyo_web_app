@@ -4,6 +4,7 @@ class AiPrompt {
   final String? phrasePrompt;
   final String? setHomeworkPromt;
   final String? autoHomeworkPrompt;
+  final String? docHomeworkPrompt;
 
   AiPrompt({
     this.id,
@@ -11,6 +12,7 @@ class AiPrompt {
     this.phrasePrompt,
     this.setHomeworkPromt,
     this.autoHomeworkPrompt,
+    this.docHomeworkPrompt,
   });
 
   factory AiPrompt.fromJson(Map<String, dynamic> json) {
@@ -22,6 +24,7 @@ class AiPrompt {
       phrasePrompt: json['phrase_prompt'] as String?,
       setHomeworkPromt: json['set_homework_promt'] as String?,
       autoHomeworkPrompt: json['auto_homework_prompt'] as String?,
+      docHomeworkPrompt: json['attached prompt'] as String?,
     );
   }
 
@@ -32,6 +35,7 @@ class AiPrompt {
       'phrase_prompt': phrasePrompt,
       'set_homework_promt': setHomeworkPromt,
       'auto_homework_prompt': autoHomeworkPrompt,
+      'attached prompt': docHomeworkPrompt,
     };
   }
 
@@ -42,6 +46,7 @@ class AiPrompt {
     String? phrasePrompt,
     String? setHomeworkPromt,
     String? autoHomeworkPrompt,
+    String? docHomeworkPrompt,
   }) {
     return AiPrompt(
       id: id ?? this.id,
@@ -49,6 +54,7 @@ class AiPrompt {
       phrasePrompt: phrasePrompt ?? this.phrasePrompt,
       setHomeworkPromt: setHomeworkPromt ?? this.setHomeworkPromt,
       autoHomeworkPrompt: autoHomeworkPrompt ?? this.autoHomeworkPrompt,
+      docHomeworkPrompt: docHomeworkPrompt ?? this.docHomeworkPrompt,
     );
   }
 }

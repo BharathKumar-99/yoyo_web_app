@@ -18,15 +18,17 @@ class PhrasesRepo extends ApiRepo {
   Future<List<PhraseModel>> getPhrasesDetails(List<int> catId) async {
     List<PhraseModel> phrases = [];
     try {
-      final data = await client
-          .from(DbTable.phrase)
-          .select(
-            '''*,${DbTable.userResult}(*),${DbTable.phraseCategories}(*),${DbTable.language}(*),${DbTable.level}(*),${DbTable.phraseDisabledSchools}(*,${DbTable.remoteConfig}(*,${DbTable.school}(*)))''',
-          )
-          .inFilter('categories', catId)
-          .order('created_at', ascending: false);
-      for (var val in data) {
-        phrases.add(PhraseModel.fromJson(val));
+      for (var element in catId) {
+        final data = await client
+            .from(DbTable.phrase)
+            .select(
+              '''*,${DbTable.userResult}(*),${DbTable.phraseCategories}(*),${DbTable.language}(*),${DbTable.level}(*),${DbTable.phraseDisabledSchools}(*,${DbTable.remoteConfig}(*,${DbTable.school}(*)))''',
+            )
+            .eq('categories', element)
+            .order('created_at', ascending: false);
+        for (var val in data) {
+          phrases.add(PhraseModel.fromJson(val));
+        }
       }
     } catch (e) {
       log(e.toString());

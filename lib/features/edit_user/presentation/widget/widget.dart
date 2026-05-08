@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:yoyo_web_app/config/router/navigation_helper.dart';
 import 'package:yoyo_web_app/config/theme/app_text_styles.dart';
 import 'package:yoyo_web_app/features/edit_user/presentation/edit_user_view_model.dart';
@@ -108,7 +109,7 @@ class EditUserWidgets {
             spacing: 10,
             children: [
               Expanded(
-                child: _buildTextField(
+                child: _buildTextFieldActivation(
                   label: 'Activation',
                   initialValue: value.activationCode,
                   onChanged: value.updateActivationCode,
@@ -414,6 +415,66 @@ Widget _buildTextField({
       onChanged: onChanged,
     ),
   );
+}
+
+Widget _buildTextFieldActivation({
+  required String label,
+  String? initialValue,
+  required ValueChanged<String> onChanged,
+}) {
+  return Padding(
+    padding: const EdgeInsets.only(top: 16.0),
+    child: TextFormField(
+      initialValue: initialValue,
+      inputFormatters: [ActivationCodeFormatter()],
+      decoration: InputDecoration(
+        labelText: label,
+        border: const OutlineInputBorder(),
+        hintText: 'LLL-NNN',
+      ),
+      onChanged: onChanged,
+    ),
+  );
+}
+
+class ActivationCodeFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    final newText = newValue.text.toUpperCase();
+
+    if (oldValue.text.length > newValue.text.length) {
+      return newValue.copyWith(text: newText);
+    }
+
+    String cleanText = newText.replaceAll(RegExp(r'[^A-Z0-9]'), '');
+
+    StringBuffer buffer = StringBuffer();
+    for (int i = 0; i < cleanText.length; i++) {
+      if (i < 3) {
+        if (RegExp(r'[A-Z]').hasMatch(cleanText[i]) ||
+            RegExp(r'[0-9]').hasMatch(cleanText[i])) {
+          buffer.write(cleanText[i]);
+        }
+      } else if (i < 6) {
+        if (i == 3) {
+          buffer.write('-');
+        }
+        if (RegExp(r'[0-9]').hasMatch(cleanText[i]) ||
+            RegExp(r'[A-Z]').hasMatch(cleanText[i])) {
+          buffer.write(cleanText[i]);
+        }
+      }
+    }
+
+    final formattedText = buffer.toString();
+    return TextEditingValue(
+      text: formattedText,
+      selection: TextSelection.collapsed(offset: formattedText.length),
+    );
+  }
 }
 
 Widget _buildReadOnlyField({required String label, required String value}) {

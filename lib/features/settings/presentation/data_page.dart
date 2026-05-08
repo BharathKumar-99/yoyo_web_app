@@ -148,7 +148,7 @@ class _AIPromptWidget extends StatelessWidget {
                     child: const Text("Save"),
                   ),
 
-                  Text('Set Homework Prompt'),
+                  Text('Set Homework (Selected)'),
                   TextField(
                     onTapOutside: (event) {
                       FocusScope.of(context).unfocus();
@@ -181,7 +181,7 @@ class _AIPromptWidget extends StatelessWidget {
                     child: const Text("Save"),
                   ),
 
-                  Text('Auto Homework Prompt'),
+                  Text('Set Homework (Prompted)'),
                   TextField(
                     onTapOutside: (event) {
                       FocusScope.of(context).unfocus();
@@ -194,9 +194,10 @@ class _AIPromptWidget extends StatelessWidget {
                     decoration: InputDecoration(
                       border: OutlineInputBorder(),
                       hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
-                      hintText: 'Enter Auto Homework Prompt',
+                      hintText: 'Enter Homework Prompt Based on Prompt',
                     ),
                   ),
+
                   const SizedBox(height: 16),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -206,6 +207,40 @@ class _AIPromptWidget extends StatelessWidget {
                     ),
                     onPressed: () {
                       if (!provider.isAutoHomeworkPromptChanged) {
+                        return;
+                      } else {
+                        provider.updateAiPrompt();
+                      }
+                    },
+                    child: const Text("Save"),
+                  ),
+                  const SizedBox(height: 16),
+                  Text('Homework Prompt Based on Attached Document'),
+                  TextField(
+                    onTapOutside: (event) {
+                      FocusScope.of(context).unfocus();
+                    },
+                    maxLines: 6,
+                    onChanged: (value) {
+                      provider.checkDocHomeworkPromptChange();
+                    },
+                    controller: provider.docHomeworkPromptController,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(fontSize: 14, color: Colors.grey),
+                      hintText:
+                          'Enter Homework Prompt Based on Attached Document',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: !provider.isDocHomeworkPromptChanged
+                          ? Colors.grey
+                          : Colors.deepPurple,
+                    ),
+                    onPressed: () {
+                      if (!provider.isDocHomeworkPromptChanged) {
                         return;
                       } else {
                         provider.updateAiPrompt();

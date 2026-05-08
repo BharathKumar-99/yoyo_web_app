@@ -54,7 +54,7 @@ class HomeViewModel extends ChangeNotifier {
   getHomeData() async {
     assignStudentsFromSchools();
     assignUserResultsFromStudents();
-    applyFilters();
+    await applyFilters();
   }
 
   void assignStudentsFromSchools() {
@@ -134,6 +134,11 @@ class HomeViewModel extends ChangeNotifier {
         students.add(student);
       }
     }
+    students.sort(
+      (a, b) => (b.userModel?.userResult?.length ?? 0).compareTo(
+        (a.userModel?.userResult?.length ?? 0),
+      ),
+    );
 
     for (var std in students) {
       std.userModel?.userResult = filteredResults

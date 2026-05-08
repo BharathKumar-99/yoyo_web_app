@@ -132,6 +132,7 @@ class SettingsRepo {
     required String phrasePrompt,
     required String setHomeworkPrompt,
     required String autoHomeworkPrompt,
+    required String docHomeworkPrompt,
   }) async {
     try {
       final response = await _client
@@ -140,6 +141,7 @@ class SettingsRepo {
             'phrase_prompt': phrasePrompt,
             'set_homework_promt': setHomeworkPrompt,
             'auto_homework_prompt': autoHomeworkPrompt,
+            'attached prompt': docHomeworkPrompt,
           })
           .eq('id', 1)
           .select()

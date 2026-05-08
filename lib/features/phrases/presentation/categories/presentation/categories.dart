@@ -15,20 +15,19 @@ class CategoriesScreen extends StatelessWidget {
                 viewModel.commonViewModel.selectedClass == null
             ? Center(child: Text('Please Select a School And Class'))
             : SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
                 child: SizedBox(
-                  width: MediaQuery.sizeOf(context).width * 1.1,
+                  width: MediaQuery.of(context).size.width * 0.7,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       children: [
                         SizedBox(height: 30),
                         if (!viewModel.commonViewModel.isTeacher &&
-                            viewModel
-                                    .commonViewModel
-                                    .selectedClass
-                                    ?.allowTeachersToSetCategories ==
-                                true ||
+                                viewModel
+                                        .commonViewModel
+                                        .selectedClass
+                                        ?.allowTeachersToSetCategories ==
+                                    true ||
                             viewModel.commonViewModel.isAdmin == true)
                           Row(
                             spacing: 20,

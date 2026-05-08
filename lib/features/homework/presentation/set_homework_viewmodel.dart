@@ -157,13 +157,16 @@ class SetHomeworkViewmodel extends ChangeNotifier {
       }
       UserModel? model;
       if (commonViewModel.isAdmin) {
-        List<UserModel> users = await _repo.getAllUsers(commonViewModel.selectedClass?.id ?? 0);
+        List<UserModel> users = await _repo.getAllUsers(
+          commonViewModel.selectedClass?.id ?? 0,
+        );
         if (!context.mounted) return;
         await showDialog(
           context: context,
           builder: (context) => AlertDialog.adaptive(
             title: Text("Select Teacher"),
-            content: SingleChildScrollView(
+            content: SizedBox(
+              width: 400,
               child: ListView.builder(
                 itemCount: users.length,
                 itemBuilder: (context, index) {
@@ -332,31 +335,31 @@ class SetHomeworkViewmodel extends ChangeNotifier {
 
     UserModel? model;
     if (commonViewModel.isAdmin) {
-      List<UserModel> users = await _repo.getAllUsers(commonViewModel.selectedClass?.id ?? 0);
+      List<UserModel> users = await _repo.getAllUsers(
+        commonViewModel.selectedClass?.id ?? 0,
+      );
       if (!context.mounted) return;
       await showDialog(
         context: context,
         builder: (context) => AlertDialog.adaptive(
           title: Text("Select a user to login as"),
-          content: SingleChildScrollView(
-            child: SizedBox(
-              height: MediaQuery.of(context).size.height * 0.8,
-              width: MediaQuery.of(context).size.width * 0.4,
-              child: ListView.builder(
-                itemCount: users.length,
-                itemBuilder: (context, index) {
-                  final user = users[index];
-                  return ListTile(
-                    title: Text(user.username ?? ''),
-                    subtitle: Text("${user.firstName} ${user.surName}"),
-                    onTap: () async {
-                      model = await commonViewModel.getCode(user.username!);
-                      if (!context.mounted) return;
-                      Navigator.pop(context);
-                    },
-                  );
-                },
-              ),
+          content: SizedBox(
+            height: MediaQuery.of(context).size.height * 0.8,
+            width: MediaQuery.of(context).size.width * 0.4,
+            child: ListView.builder(
+              itemCount: users.length,
+              itemBuilder: (context, index) {
+                final user = users[index];
+                return ListTile(
+                  title: Text(user.username ?? ''),
+                  subtitle: Text("${user.firstName} ${user.surName}"),
+                  onTap: () async {
+                    model = await commonViewModel.getCode(user.username!);
+                    if (!context.mounted) return;
+                    Navigator.pop(context);
+                  },
+                );
+              },
             ),
           ),
         ),

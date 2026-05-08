@@ -13,10 +13,11 @@ class SettingsViewModel extends ChangeNotifier {
   TextEditingController phrasePromptController = TextEditingController();
   TextEditingController setHomeworkPromptController = TextEditingController();
   TextEditingController autoHomeworkPromptController = TextEditingController();
-
+  TextEditingController docHomeworkPromptController = TextEditingController();
   bool isPhrasePromptChanged = false;
   bool isSetHomeworkPromptChanged = false;
   bool isAutoHomeworkPromptChanged = false;
+  bool isDocHomeworkPromptChanged = false;
 
   String selectedManualCadance = 'Weekly from time of setting';
   List<String> manualCadance = [
@@ -83,11 +84,13 @@ class SettingsViewModel extends ChangeNotifier {
       phrasePromptController.text = aiPrompt!.phrasePrompt ?? '';
       setHomeworkPromptController.text = aiPrompt!.setHomeworkPromt ?? '';
       autoHomeworkPromptController.text = aiPrompt!.autoHomeworkPrompt ?? '';
+      docHomeworkPromptController.text = aiPrompt!.docHomeworkPrompt ?? '';
     }
     if (homeworkConfigModel != null) {
       selectedManualCadance = homeworkConfigModel!.manualCadence ?? '';
       selectedAutoCadance = homeworkConfigModel!.autoCadence ?? '';
       selectedNotification = homeworkConfigModel!.notification ?? '';
+      selectedAutoCadanceTime = homeworkConfigModel!.autoCadenceTime ?? '';
     }
     notifyListeners();
   }
@@ -150,7 +153,20 @@ class SettingsViewModel extends ChangeNotifier {
       phrasePrompt: phrasePromptController.text,
       setHomeworkPrompt: setHomeworkPromptController.text,
       autoHomeworkPrompt: autoHomeworkPromptController.text,
+      docHomeworkPrompt: docHomeworkPromptController.text,
     );
+    aiPrompt = await _repo.getAiPrompt();
+    if (aiPrompt != null) {
+      phrasePromptController.text = aiPrompt!.phrasePrompt ?? '';
+      setHomeworkPromptController.text = aiPrompt!.setHomeworkPromt ?? '';
+      autoHomeworkPromptController.text = aiPrompt!.autoHomeworkPrompt ?? '';
+      docHomeworkPromptController.text = aiPrompt!.docHomeworkPrompt ?? '';
+    }
+    isAutoHomeworkPromptChanged = false;
+    isPhrasePromptChanged = false;
+    isSetHomeworkPromptChanged = false;
+    isDocHomeworkPromptChanged = false;
+    notifyListeners();
     GlobalLoader.hide();
   }
 
@@ -215,5 +231,11 @@ class SettingsViewModel extends ChangeNotifier {
     } finally {
       GlobalLoader.hide();
     }
+  }
+
+  void checkDocHomeworkPromptChange() {
+    isDocHomeworkPromptChanged =
+        docHomeworkPromptController.text != aiPrompt?.docHomeworkPrompt;
+    notifyListeners();
   }
 }

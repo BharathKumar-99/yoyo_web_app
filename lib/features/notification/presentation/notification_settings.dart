@@ -401,9 +401,9 @@ class NotificationSettings extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(12),
                                   onTap: () =>
                                       viewModel.updateNotificationSettings(),
-                                  child: const Center(
+                                  child: Center(
                                     child: Text(
-                                      'Add',
+                                      viewModel.isEditMode ? 'Save' : 'Add',
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.w600,
@@ -695,20 +695,27 @@ class NotificationSettings extends StatelessWidget {
                               ),
 
                               // View / Edit Button
-                              Container(
-                                decoration: BoxDecoration(
-                                  border: Border.all(color: purpleBorderColor),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                child: const Text(
-                                  'View / Edit',
-                                  style: TextStyle(
-                                    color: darkTextColor,
-                                    fontSize: 14,
+                              GestureDetector(
+                                onTap: () {
+                                  viewModel.editMode();
+                                },
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    border: Border.all(
+                                      color: purpleBorderColor,
+                                    ),
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  child: const Text(
+                                    'View / Edit',
+                                    style: TextStyle(
+                                      color: darkTextColor,
+                                      fontSize: 14,
+                                    ),
                                   ),
                                 ),
                               ),
