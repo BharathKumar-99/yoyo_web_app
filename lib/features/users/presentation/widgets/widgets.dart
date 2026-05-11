@@ -163,7 +163,9 @@ class UserWidgets {
     TextEditingController surNameController = TextEditingController();
     TextEditingController userNameController = TextEditingController();
     TextEditingController activationController = TextEditingController();
-    StudentLanguageModel? selectedLanguage;
+    StudentLanguageModel? selectedLanguage = viewModel.studentLanguage
+        .where((e) => e.language == 'English')
+        .firstOrNull;
 
     return (viewModel.showAddStudent)
         ? Padding(

@@ -141,7 +141,7 @@ class SettingsRepo {
             'phrase_prompt': phrasePrompt,
             'set_homework_promt': setHomeworkPrompt,
             'auto_homework_prompt': autoHomeworkPrompt,
-            'attached prompt': docHomeworkPrompt,
+            'attached_prompt': docHomeworkPrompt,
           })
           .eq('id', 1)
           .select()

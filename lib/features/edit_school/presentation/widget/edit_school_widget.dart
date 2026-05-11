@@ -641,6 +641,11 @@ class EditSchoolWidget {
                     onChanged: (value) {
                       LanguageSlack? slack = provider.apiCred?.slack;
                       slack?.fr = value;
+                      provider.updateSlackLocal(slack!);
+                    },
+                    onChangeEnd: (value) {
+                      LanguageSlack? slack = provider.apiCred?.slack;
+                      slack?.fr = value;
                       provider.updateSlack(slack!);
                     },
                   ),
@@ -663,6 +668,11 @@ class EditSchoolWidget {
                         .toDouble()
                         .toStringAsFixed(0),
                     onChanged: (value) {
+                      LanguageSlack? slack = provider.apiCred?.slack;
+                      slack?.ru = value;
+                      provider.updateSlackLocal(slack!);
+                    },
+                    onChangeEnd: (value) {
                       LanguageSlack? slack = provider.apiCred?.slack;
                       slack?.ru = value;
                       provider.updateSlack(slack!);
@@ -689,6 +699,11 @@ class EditSchoolWidget {
                     onChanged: (value) {
                       LanguageSlack? slack = provider.apiCred?.slack;
                       slack?.sp = value;
+                      provider.updateSlackLocal(slack!);
+                    },
+                    onChangeEnd: (value) {
+                      LanguageSlack? slack = provider.apiCred?.slack;
+                      slack?.sp = value;
                       provider.updateSlack(slack!);
                     },
                   ),
@@ -711,6 +726,11 @@ class EditSchoolWidget {
                         .toDouble()
                         .toStringAsFixed(0),
                     onChanged: (value) {
+                      LanguageSlack? slack = provider.apiCred?.slack;
+                      slack?.de = value;
+                      provider.updateSlackLocal(slack!);
+                    },
+                    onChangeEnd: (value) {
                       LanguageSlack? slack = provider.apiCred?.slack;
                       slack?.de = value;
                       provider.updateSlack(slack!);
@@ -737,6 +757,11 @@ class EditSchoolWidget {
                     onChanged: (value) {
                       LanguageSlack? slack = provider.apiCred?.slack;
                       slack?.kr = value;
+                      provider.updateSlackLocal(slack!);
+                    },
+                    onChangeEnd: (value) {
+                      LanguageSlack? slack = provider.apiCred?.slack;
+                      slack?.kr = value;
                       provider.updateSlack(slack!);
                     },
                   ),
@@ -759,6 +784,11 @@ class EditSchoolWidget {
                         .toDouble()
                         .toStringAsFixed(0),
                     onChanged: (value) {
+                      LanguageSlack? slack = provider.apiCred?.slack;
+                      slack?.promaxCn = value;
+                      provider.updateSlackLocal(slack!);
+                    },
+                    onChangeEnd: (value) {
                       LanguageSlack? slack = provider.apiCred?.slack;
                       slack?.promaxCn = value;
                       provider.updateSlack(slack!);
@@ -785,6 +815,11 @@ class EditSchoolWidget {
                     onChanged: (value) {
                       LanguageSlack? slack = provider.apiCred?.slack;
                       slack?.jp = value;
+                      provider.updateSlackLocal(slack!);
+                    },
+                    onChangeEnd: (value) {
+                      LanguageSlack? slack = provider.apiCred?.slack;
+                      slack?.jp = value;
                       provider.updateSlack(slack!);
                     },
                   ),
@@ -807,6 +842,11 @@ class EditSchoolWidget {
                         .toDouble()
                         .toStringAsFixed(0),
                     onChanged: (value) {
+                      LanguageSlack? slack = provider.apiCred?.slack;
+                      slack?.promax = value;
+                      provider.updateSlackLocal(slack!);
+                    },
+                    onChangeEnd: (value) {
                       LanguageSlack? slack = provider.apiCred?.slack;
                       slack?.promax = value;
                       provider.updateSlack(slack!);

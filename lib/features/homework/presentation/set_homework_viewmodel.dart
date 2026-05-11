@@ -339,31 +339,13 @@ class SetHomeworkViewmodel extends ChangeNotifier {
         commonViewModel.selectedClass?.id ?? 0,
       );
       if (!context.mounted) return;
-      await showDialog(
-        context: context,
-        builder: (context) => AlertDialog.adaptive(
-          title: Text("Select a user to login as"),
-          content: SizedBox(
-            height: MediaQuery.of(context).size.height * 0.8,
-            width: MediaQuery.of(context).size.width * 0.4,
-            child: ListView.builder(
-              itemCount: users.length,
-              itemBuilder: (context, index) {
-                final user = users[index];
-                return ListTile(
-                  title: Text(user.username ?? ''),
-                  subtitle: Text("${user.firstName} ${user.surName}"),
-                  onTap: () async {
-                    model = await commonViewModel.getCode(user.username!);
-                    if (!context.mounted) return;
-                    Navigator.pop(context);
-                  },
-                );
-              },
-            ),
-          ),
-        ),
-      );
+      final teacher =
+          users.where((e) => e.teacher?.isNotEmpty ?? false).isNotEmpty
+          ? users.where((e) => e.teacher?.isNotEmpty ?? false).first
+          : null;
+      if (teacher != null) {
+        model = await commonViewModel.getCode(teacher.username!);
+      }
     } else {
       model = await commonViewModel.getCode(commonViewModel.user!.username!);
     }
@@ -377,13 +359,13 @@ class SetHomeworkViewmodel extends ChangeNotifier {
     GlobalLoader.hide();
     isLoading = false;
     notifyListeners();
-    if (model != null) {
-      PopupDialog.show(
-        DateTime.now().add(Duration(days: 7)),
-        model!,
-        data['homework_id'],
-      );
-    }
+
+    PopupDialog.show(
+      DateTime.now().add(Duration(days: 7)),
+      model,
+      data['homework_id'],
+    );
+
     setPromptController.clear();
     setFilePickerResult = null;
     setFileName = null;

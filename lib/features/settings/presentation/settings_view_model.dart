@@ -156,12 +156,7 @@ class SettingsViewModel extends ChangeNotifier {
       docHomeworkPrompt: docHomeworkPromptController.text,
     );
     aiPrompt = await _repo.getAiPrompt();
-    if (aiPrompt != null) {
-      phrasePromptController.text = aiPrompt!.phrasePrompt ?? '';
-      setHomeworkPromptController.text = aiPrompt!.setHomeworkPromt ?? '';
-      autoHomeworkPromptController.text = aiPrompt!.autoHomeworkPrompt ?? '';
-      docHomeworkPromptController.text = aiPrompt!.docHomeworkPrompt ?? '';
-    }
+
     isAutoHomeworkPromptChanged = false;
     isPhrasePromptChanged = false;
     isSetHomeworkPromptChanged = false;

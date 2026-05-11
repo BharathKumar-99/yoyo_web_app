@@ -16,7 +16,7 @@ class PopupDialog {
     return DateFormat('dd-MM-yy').format(date);
   }
 
-  static void show(DateTime time, UserModel user, int homeworkId) {
+  static void show(DateTime time, UserModel? user, int homeworkId) {
     if (_loaderEntry != null) return;
 
     final context = GoRouter.of(
@@ -76,19 +76,52 @@ class PopupDialog {
                       ),
                     ],
                   ),
+
+                  if (user == null)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      spacing: 20,
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.red, size: 18),
+                        Text(
+                          'Teacher details missing.\nTest unavailable.',
+                          maxLines: 2,
+                          textAlign: TextAlign.center,
+                          style: TextTheme.of(
+                            context,
+                          ).titleSmall?.copyWith(color: Colors.red),
+                        ),
+                      ],
+                    ),
                 ],
               ),
               actions: [
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () => hide(user, homeworkId),
-                      child: Text('Test it out'),
-                    ),
-                  ),
-                ),
+                (user != null)
+                    ? Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () => hide(user, homeworkId),
+                            child: Text('Test it out'),
+                          ),
+                        ),
+                      )
+                    : Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              _loaderEntry?.remove();
+                              _loaderEntry = null;
+                              _loaderEntry?.remove();
+                              _loaderEntry = null;
+                            },
+                            child: Text('Ok'),
+                          ),
+                        ),
+                      ),
               ],
             ),
           ),

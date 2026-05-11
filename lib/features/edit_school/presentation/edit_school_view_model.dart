@@ -114,6 +114,11 @@ class EditSchoolViewModel extends ChangeNotifier {
     }
   }
 
+  void updateSlackLocal(LanguageSlack lang) {
+    apiCred?.slack = lang;
+    notifyListeners();
+  }
+
   void updateSlack(LanguageSlack lang) async {
     try {
       apiCred?.slack = lang;

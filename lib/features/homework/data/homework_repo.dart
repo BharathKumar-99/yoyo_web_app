@@ -191,7 +191,7 @@ class HomeworkRepo extends ApiRepo {
       List<UserModel> users = [];
       final data = await client
           .from(DbTable.studentClasses)
-          .select('''*,${DbTable.users}(*)''')
+          .select('''*,${DbTable.users}(*,${DbTable.teacher}(*))''')
           .eq('classes', classId);
       for (var element in data) {
         users.add(UserModel.fromJson(element['users']));

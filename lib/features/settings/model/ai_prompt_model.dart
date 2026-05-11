@@ -24,7 +24,7 @@ class AiPrompt {
       phrasePrompt: json['phrase_prompt'] as String?,
       setHomeworkPromt: json['set_homework_promt'] as String?,
       autoHomeworkPrompt: json['auto_homework_prompt'] as String?,
-      docHomeworkPrompt: json['attached prompt'] as String?,
+      docHomeworkPrompt: json['attached_prompt'] as String?,
     );
   }
 
@@ -35,7 +35,7 @@ class AiPrompt {
       'phrase_prompt': phrasePrompt,
       'set_homework_promt': setHomeworkPromt,
       'auto_homework_prompt': autoHomeworkPrompt,
-      'attached prompt': docHomeworkPrompt,
+      'attached_prompt': docHomeworkPrompt,
     };
   }
 
