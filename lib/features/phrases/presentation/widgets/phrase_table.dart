@@ -76,7 +76,12 @@ class PhraseTable extends StatelessWidget {
           ),
           row.translation == null
               ? rowLoader(flex: 2)
-              : rowCell(row.translation ?? 'N/A', flex: 2),
+              : rowCell(
+                  row.translation == "PLEASE SELECT TWO DISTINCT LANGUAGES"
+                      ? "User Specific"
+                      : row.translation ?? 'N/A',
+                  flex: 2,
+                ),
           rowCell((row.languageData?.language ?? '')),
           row.recording == null
               ? rowLoader()
